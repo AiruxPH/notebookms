@@ -18,6 +18,20 @@ if (isset($_SESSION['flash'])) {
 	unset($_SESSION['flash']); // Clear immediately
 }
 
+// 1. Check for ID and Fetch Existing Data FIRST
+if (isset($_GET['id'])) {
+	$nid = intval($_GET['id']);
+	$res = mysqli_query($conn, "SELECT * FROM notes WHERE id = $nid");
+	if ($row = mysqli_fetch_assoc($res)) {
+		$ntitle = $row['title'];
+		$ncat = $row['category'];
+		$is_pinned_val = $row['is_pinned'];
+		$is_archived_val = $row['is_archived'];
+	} else {
+		$nid = ""; // Invalid ID
+	}
+}
+
 // 2. Handle Form Submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset($_POST['save_exit']) || isset($_POST['action_type']))) {
 	$content_input = isset($_POST['page']) ? mysqli_real_escape_string($conn, $_POST['page']) : $content;
@@ -30,36 +44,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset
 	$new_title = mysqli_real_escape_string($conn, $title_input);
 	$category = mysqli_real_escape_string($conn, $category_input);
 	$is_pinned = isset($_POST['is_pinned']) ? 1 : 0;
-	$is_archived = isset($_POST['is_archived']) ? 1 : 0;
-	$action_type = isset($_POST['action_type']) ? $_POST['action_type'] : 'save'; // Default to save
+	// Use POST value if set, otherwise keep existing (important for unarchive which sends via hidden input)
+	$is_archived = isset($_POST['is_archived']) ? intval($_POST['is_archived']) : $is_archived_val;
+
+	$action_type = isset($_POST['action_type']) ? $_POST['action_type'] : 'save';
 
 	if ($nid == "") {
 		// Insert new note
-		$stmt = $conn->prepare("INSERT INTO notes (title, category, is_pinned, is_archived, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)");
+		$stmt = $conn->prepare("INSERT INTO notes (title, category, is_pinned, is_archived, date_created, date_last) VALUES (?, ?, ?, ?, ?, ?)");
 		$stmt->bind_param("ssiiss", $new_title, $category, $is_pinned, $is_archived, $date, $date);
 		$stmt->execute();
 		$nid = $stmt->insert_id;
 		$stmt->close();
 
 		// Insert initial page
-		$stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text, created_at, updated_at) VALUES (?, 1, ?, ?, ?)");
-		$stmt->bind_param("isss", $nid, $content_input, $date, $date);
+		$stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, 1, ?)");
+		$stmt->bind_param("is", $nid, $content_input);
 		$stmt->execute();
 		$stmt->close();
 
 		$_SESSION['flash'] = ['message' => 'Note created successfully!', 'type' => 'success'];
 	} else {
 		// Update existing note
-		$stmt = $conn->prepare("UPDATE notes SET title = ?, category = ?, is_pinned = ?, is_archived = ?, updated_at = ? WHERE id = ?");
+		$stmt = $conn->prepare("UPDATE notes SET title = ?, category = ?, is_pinned = ?, is_archived = ?, date_last = ? WHERE id = ?");
 		$stmt->bind_param("ssiisi", $new_title, $category, $is_pinned, $is_archived, $date, $nid);
 		$stmt->execute();
 		$stmt->close();
 
-		// Update existing page (assuming only one page for now)
-		$stmt = $conn->prepare("UPDATE pages SET text = ?, updated_at = ? WHERE note_id = ? AND page_number = 1");
-		$stmt->bind_param("ssi", $content_input, $date, $nid);
-		$stmt->execute();
-		$stmt->close();
+		// Update existing page
+		$check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id = $nid AND page_number = 1");
+		if (mysqli_num_rows($check) > 0) {
+			$stmt = $conn->prepare("UPDATE pages SET text = ? WHERE note_id = ? AND page_number = 1");
+			$stmt->bind_param("si", $content_input, $nid);
+			$stmt->execute();
+			$stmt->close();
+		} else {
+			$stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, 1, ?)");
+			$stmt->bind_param("is", $nid, $content_input);
+			$stmt->execute();
+			$stmt->close();
+		}
 
 		$_SESSION['flash'] = ['message' => 'Note updated successfully!', 'type' => 'success'];
 	}
@@ -69,29 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset
 		header("Location: index.php");
 		exit();
 	} else {
-		header("Location: edit.php?id=$nid");
+		header("Location: notepad.php?id=$nid");
 		exit();
 	}
 }
 
-// 1. Check for ID in URL
-if (isset($_GET['id'])) {
-	$nid = intval($_GET['id']);
-	// Fetch Title (and verify note exists)
-	$res = mysqli_query($conn, "SELECT * FROM notes WHERE id = $nid");
-	if ($row = mysqli_fetch_assoc($res)) {
-		$ntitle = $row['title'];
-		$ncat = $row['category'];
-		$is_pinned_val = $row['is_pinned'];
-		$is_archived_val = $row['is_archived'];
-	} else {
-		$nid = ""; // Invalid ID
-	}
-}
-
-// ... (logic skipped) ...
-
-// 3. Load Content
+// 3. Load Content (if not already loaded/handled)
 if ($nid != "" && $content == "") {
 	$res = mysqli_query($conn, "SELECT text FROM pages WHERE note_id = $nid AND page_number = 1");
 	if ($page_row = mysqli_fetch_assoc($res)) {
