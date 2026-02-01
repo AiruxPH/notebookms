@@ -111,8 +111,8 @@ session_start();
 </div>
 
 <div class="note-grid">
-	<!-- Add New Note Card (Hidden if searching to keep grid clean, or keep it?) -->
-	<?php if (!isset($_GET['q']) && !isset($_GET['cat'])): ?>
+	<!-- Add New Note Card (Hidden if searching, filtering category, OR viewing archives) -->
+	<?php if (!isset($_GET['q']) && !isset($_GET['cat']) && (!isset($_GET['archived']) || $_GET['archived'] != 1)): ?>
 		<a href="notepad.php" class="note-card note-add-card">
 			<div style="text-align: center;">
 				<div style="font-size: 3rem; font-weight: bold;">+</div>
