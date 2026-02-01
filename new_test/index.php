@@ -174,18 +174,21 @@ session_start();
 				$ddatc = date("M j, Y", strtotime($row['date_created']));
 				$ddatl = date("M j, H:i", strtotime($row['date_last']));
 
-				// Truncate text (Allow basic formatting in preview)
+				// Truncate text (Visual Layout Update)
 				$raw_text = $row['text'] ?? '';
-				// Convert list items to visible bullets
-				$raw_text = str_replace('<li>', ' &bull; ', $raw_text);
-				// Ensure spaces between paragraphs/divs to prevent "WordAWordB" concatenation
-				$raw_text = str_replace(['</p>', '</div>', '<br>', '<br/>'], ' ', $raw_text);
 
-				// Allow bold/italic/underline
-				$clean_text = strip_tags($raw_text, '<b><i><u><strong><em>');
+				// 1. Convert block endings to <br> to preserve verticality
+				// We use complex replacement to ensure we don't get double double spaces from simple replacements
+				$raw_text = str_replace(['</div>', '</p>', '</h1>', '<h2>', '</h3>', '</h4>', '</h5>', '</h6>'], '<br>', $raw_text);
+				$raw_text = str_replace('<li>', '<br>&bull; ', $raw_text); // Bullet on new line
+	
+				// 2. Allow <br> in strip_tags so line breaks render
+				$clean_text = strip_tags($raw_text, '<b><i><u><strong><em><br>');
+
+				// 3. Optional: Clean up excessive repetitive breaks if needed, but for now raw input is fine.
 				$dtxt = $clean_text;
 
-				if (empty(trim($dtxt)))
+				if (empty(trim(strip_tags($dtxt)))) // Check empty text ignoring html tags
 					$dtxt = "<em>No content...</em>";
 
 				// Render Card

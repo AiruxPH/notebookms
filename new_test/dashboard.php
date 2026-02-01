@@ -79,16 +79,17 @@ session_start();
                             $dcat = $row['category'];
                             $ddatl = date("M j, H:i", strtotime($row['date_last']));
 
-                            // Strip tags regarding block elements, but allow inline styles
-                            // Use CSS line-clamp for truncation
+                            // Visual Layout Update for Verticality
                             $raw_text = $row['text'] ?? '';
-                            $raw_text = str_replace('<li>', ' &bull; ', $raw_text);
-                            $raw_text = str_replace(['</p>', '</div>', '<br>', '<br/>'], ' ', $raw_text);
+                            // 1. Convert block endings to <br>
+                            $raw_text = str_replace(['</div>', '</p>', '</h1>', '</h2>', '<h3>', '</h4>', '</h5>', '</h6>'], '<br>', $raw_text);
+                            $raw_text = str_replace('<li>', '<br>&bull; ', $raw_text);
 
-                            $clean_text = strip_tags($raw_text, '<b><i><u><strong><em>');
+                            // 2. Allow <br>
+                            $clean_text = strip_tags($raw_text, '<b><i><u><strong><em><br>');
                             $dtxt = $clean_text;
 
-                            if (empty(trim($dtxt)))
+                            if (empty(trim(strip_tags($dtxt))))
                                 $dtxt = "<em>No content...</em>";
 
                             echo "<a href='notepad.php?id=$nid' class='note-card'>";
