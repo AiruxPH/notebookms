@@ -1,29 +1,43 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
-	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
+	<title>Contact - Notebook-BAR</title>
 </head>
 
-<header>
-	<h1> Noteboot-BAR </h1>
-	<nav>
-		<a href=""> About </a>
-		<a href=""> Notes </a>
-		<a href=""> Contact Us </a>
-	</nav>
-	<br>
-</header>
-
 <body>
-	<div id="cwrap">
-		<h2> Contact Me </h2>
-		<h4> You can reach me through the following mediums: </h4>
-		<a href=""> <img src="soc_fb.img" alt="!img of FB!" /> Facebook: Coll Studios <br /> </a>
-		<a href=""> <img src="soc_tw.img" alt="!img of Twitter!" /> Twitter: Archer Five <br /> </a>
-		<a href=""> <img src="soc_mail.img" alt="!img of Gmail!" /> Email: vcalledo@gmail.com <br /> </a>
+
+	<header>
+		<div class="header-inner">
+			<h1><a href="index.php">Notebook-BAR</a></h1>
+			<nav>
+				<a href="about.html">About</a>
+				<a href="index.php">Notes</a>
+				<a href="contact.html">Contact Us</a>
+			</nav>
+		</div>
+	</header>
+
+	<div class="container">
+		<div
+			style="background: var(--card-bg); padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow);">
+			<h2>Contact Me</h2>
+			<p>You can reach me through the following mediums:</p>
+			<ul style="list-style: none; padding: 0; font-size: 1.1em;">
+				<li style="margin-bottom: 10px;">
+					<strong>Facebook:</strong> Coll Studios
+				</li>
+				<li style="margin-bottom: 10px;">
+					<strong>Twitter:</strong> Archer Five
+				</li>
+				<li style="margin-bottom: 10px;">
+					<strong>Email:</strong> vcalledo@gmail.com
+				</li>
+			</ul>
+		</div>
 	</div>
+
 </body>
 
 </html>
