@@ -55,7 +55,7 @@ include 'includes/data_access.php';
                         $cname = htmlspecialchars($c['name']);
                         $ccolor = htmlspecialchars($c['color']);
                         // Add a little color dot
-                        echo "<a href='index.php?cat=$cname' class='cat-btn' style='border-left: 5px solid $ccolor;'>$cname</a>";
+                        echo "<a href='index.php?cat={$c['id']}' class='cat-btn' style='border-left: 5px solid $ccolor;'>$cname</a>";
                     }
                     ?>
                 </div>

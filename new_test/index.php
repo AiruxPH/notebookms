@@ -113,8 +113,9 @@ session_start();
 				echo "<optgroup label='Defaults'>";
 				foreach ($defaults as $c) {
 					$cname = htmlspecialchars($c['name']);
-					$sel = ($curr_cat == $cname) ? "selected" : "";
-					echo "<option value='$cname' $sel>$cname</option>";
+					$cid = $c['id'];
+					$sel = ($curr_cat == $cid) ? "selected" : "";
+					echo "<option value='$cid' $sel>$cname</option>";
 				}
 				echo "</optgroup>";
 			}
@@ -123,8 +124,9 @@ session_start();
 				echo "<optgroup label='My Categories'>";
 				foreach ($custom as $c) {
 					$cname = htmlspecialchars($c['name']);
-					$sel = ($curr_cat == $cname) ? "selected" : "";
-					echo "<option value='$cname' $sel>$cname</option>";
+					$cid = $c['id'];
+					$sel = ($curr_cat == $cid) ? "selected" : "";
+					echo "<option value='$cid' $sel>$cname</option>";
 				}
 				echo "</optgroup>";
 			}

@@ -7,7 +7,7 @@ $msg = "";
 $msg_type = "";
 $nid = "";
 $ntitle = "";
-$ncat = "General";
+$ncat = 1; // Default category ID (1 = General)
 $is_pinned_val = 0;
 $is_archived_val = 0;
 $content = "";
@@ -61,7 +61,7 @@ if (isset($_GET['id'])) {
 	$note = get_note($nid);
 	if ($note) {
 		$ntitle = $note['title'];
-		$ncat = $note['category'];
+		$ncat = $note['category_id'];
 		$content = $note['text'];
 		$is_pinned_val = $note['is_pinned'];
 		$is_archived_val = $note['is_archived'];
@@ -137,9 +137,11 @@ if (isset($_SESSION['flash'])) {
 						if (!empty($defaults)) {
 							echo "<optgroup label='Defaults'>";
 							foreach ($defaults as $c) {
+								// VALUE should be ID now
 								$cname = htmlspecialchars($c['name']);
-								$sel = ($ncat == $cname) ? "selected" : "";
-								echo "<option value='$cname' $sel>$cname</option>";
+								$cid = $c['id'];
+								$sel = ($ncat == $cid) ? "selected" : "";
+								echo "<option value='$cid' $sel>$cname</option>";
 							}
 							echo "</optgroup>";
 						}
@@ -148,8 +150,9 @@ if (isset($_SESSION['flash'])) {
 							echo "<optgroup label='My Categories'>";
 							foreach ($custom as $c) {
 								$cname = htmlspecialchars($c['name']);
-								$sel = ($ncat == $cname) ? "selected" : "";
-								echo "<option value='$cname' $sel>$cname</option>";
+								$cid = $c['id'];
+								$sel = ($ncat == $cid) ? "selected" : "";
+								echo "<option value='$cid' $sel>$cname</option>";
 							}
 							echo "</optgroup>";
 						}

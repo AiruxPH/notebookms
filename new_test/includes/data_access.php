@@ -38,13 +38,18 @@ function get_notes($filters = [])
 
     if (is_logged_in()) {
         // --- DATABASE FETCH ---
-        $sql = "SELECT n.*, p.text FROM notes n 
+        // JOIN categories to get name and color
+        $sql = "SELECT n.*, p.text, c.name as category_name, c.color as category_color 
+                FROM notes n 
                 LEFT JOIN pages p ON n.id = p.note_id AND p.page_number = 1 
+                LEFT JOIN categories c ON n.category_id = c.id
                 WHERE n.user_id = $uid AND n.is_archived = $archived";
 
         if ($category) {
-            $cat_esc = mysqli_real_escape_string($conn, $category);
-            $sql .= " AND n.category = '$cat_esc'";
+            // Filter by ID if numeric, otherwise strict check? 
+            // We assume filters now send ID based on plan.
+            $cat_id_esc = intval($category);
+            $sql .= " AND n.category_id = $cat_id_esc";
         }
         if ($search) {
             $q_esc = mysqli_real_escape_string($conn, $search);
@@ -55,6 +60,8 @@ function get_notes($filters = [])
 
         $result = mysqli_query($conn, $sql);
         while ($row = mysqli_fetch_assoc($result)) {
+            // Map back for compatibility if needed, or prefer frontend update
+            $row['category'] = $row['category_name'] ? $row['category_name'] : 'General';
             $notes[] = $row;
         }
     } else {
@@ -64,16 +71,32 @@ function get_notes($filters = [])
         }
         $all_guest = $_SESSION['guest_notes'];
 
+        // Build Map for IDs
+        $cats = get_categories();
+        $cat_map = [];
+        foreach ($cats as $c) {
+            $cat_map[$c['id']] = $c;
+        }
+
         foreach ($all_guest as $n) {
             // Apply Filters
             if (isset($n['is_archived']) && $n['is_archived'] != $archived)
                 continue;
 
-            if ($category && $n['category'] !== $category)
+            // Resolve Category Data
+            $cat_id = $n['category'];
+            $cat_data = isset($cat_map[$cat_id]) ? $cat_map[$cat_id] : ['id' => 1, 'name' => 'General', 'color' => '#ffffff'];
+
+            // Inject resolved data into note row for display
+            $n['category'] = $cat_data['name'];
+            $n['category_name'] = $cat_data['name'];
+            $n['category_color'] = $cat_data['color'];
+            $n['category_id'] = $cat_data['id']; // useful for edit
+
+            if ($category && $n['category_id'] != $category)
                 continue;
 
             if ($search) {
-                // Simple case-insensitive search
                 if (stripos($n['title'], $search) === false && stripos($n['text'], $search) === false) {
                     continue;
                 }
@@ -104,17 +127,33 @@ function get_note($id)
     if (is_logged_in()) {
         // DB
         $id_esc = intval($id);
-        $sql = "SELECT n.*, p.text FROM notes n 
+        $sql = "SELECT n.*, p.text, c.name as category_name, c.id as category_id_val 
+                FROM notes n 
                 LEFT JOIN pages p ON n.id = p.note_id 
+                LEFT JOIN categories c ON n.category_id = c.id
                 WHERE n.id = $id_esc AND n.user_id = $uid 
                 LIMIT 1";
         $result = mysqli_query($conn, $sql);
-        return mysqli_fetch_assoc($result);
+        $row = mysqli_fetch_assoc($result);
+        if ($row) {
+            $row['category'] = $row['category_name']; // Back-compat
+            $row['category_id'] = $row['category_id_val'];
+        }
+        return $row;
     } else {
         // Session
-        // Guest IDs are strings like "guest_123"
         if (isset($_SESSION['guest_notes'][$id])) {
-            return $_SESSION['guest_notes'][$id];
+            $note = $_SESSION['guest_notes'][$id];
+            // Resolve Category
+            $cats = get_categories();
+            foreach ($cats as $c) {
+                if ($c['id'] == $note['category']) { // Match ID
+                    $note['category'] = $c['name']; // Back-compat name
+                    $note['category_id'] = $c['id'];
+                    break;
+                }
+            }
+            return $note;
         }
         return null;
     }
@@ -122,8 +161,6 @@ function get_note($id)
 
 /**
  * Save a note (Insert or Update)
- * @param array $data ['id' => ..., 'title' => ..., 'category' => ..., 'text' => ..., 'is_pinned' => ..., 'is_archived' => ...]
- * @return mixed New ID or True/False
  */
 function save_note($data)
 {
@@ -131,26 +168,26 @@ function save_note($data)
     $uid = get_current_user_id();
 
     $title = $data['title'];
-    $category = $data['category'];
-    $text = $data['text']; // Rich Text HTML
+    // $category is now an ID for users
+    $category_val = $data['category'];
+    $text = $data['text'];
     $is_pinned = isset($data['is_pinned']) ? 1 : 0;
     $is_archived = isset($data['is_archived']) ? 1 : 0;
 
     if (is_logged_in()) {
-        // --- DATABASE SAVE ---
+        $cat_id = intval($category_val);
+
         if (!empty($data['id'])) {
             // UPDATE
             $id = intval($data['id']);
-            // Security check: ensure user owns note
             $check = mysqli_query($conn, "SELECT id FROM notes WHERE id=$id AND user_id=$uid");
             if (mysqli_num_rows($check) == 0)
                 return false;
 
-            $stmt = $conn->prepare("UPDATE notes SET title=?, category=?, is_pinned=?, is_archived=?, date_last=NOW() WHERE id=?");
-            $stmt->bind_param("ssiii", $title, $category, $is_pinned, $is_archived, $id);
+            $stmt = $conn->prepare("UPDATE notes SET title=?, category_id=?, is_pinned=?, is_archived=?, date_last=NOW() WHERE id=?");
+            $stmt->bind_param("siiii", $title, $cat_id, $is_pinned, $is_archived, $id);
             $stmt->execute();
 
-            // Update Page Content
             $stmt_p = $conn->prepare("UPDATE pages SET text=? WHERE note_id=?");
             $stmt_p->bind_param("si", $text, $id);
             $stmt_p->execute();
@@ -158,8 +195,8 @@ function save_note($data)
             return $id;
         } else {
             // INSERT
-            $stmt = $conn->prepare("INSERT INTO notes (user_id, title, category, is_pinned, is_archived, date_created, date_last) VALUES (?, ?, ?, ?, ?, NOW(), NOW())");
-            $stmt->bind_param("issii", $uid, $title, $category, $is_pinned, $is_archived);
+            $stmt = $conn->prepare("INSERT INTO notes (user_id, title, category_id, is_pinned, is_archived, date_created, date_last) VALUES (?, ?, ?, ?, ?, NOW(), NOW())");
+            $stmt->bind_param("isiii", $uid, $title, $cat_id, $is_pinned, $is_archived);
             $stmt->execute();
             $new_id = $stmt->insert_id;
 
@@ -171,13 +208,11 @@ function save_note($data)
         }
 
     } else {
-        // --- SESSION SAVE ---
+        // --- SESSION SAVE (GUEST) ---
         if (!isset($_SESSION['guest_notes']))
             $_SESSION['guest_notes'] = [];
 
         $id = !empty($data['id']) ? $data['id'] : 'guest_' . uniqid();
-
-        // If updating, merge with existing created_date
         $created = date('Y-m-d H:i:s');
         if (isset($_SESSION['guest_notes'][$id])) {
             $created = $_SESSION['guest_notes'][$id]['date_created'];
@@ -187,7 +222,7 @@ function save_note($data)
             'id' => $id,
             'user_id' => 0,
             'title' => $title,
-            'category' => $category,
+            'category' => $category_val, // For guest, keeping as string name
             'text' => $text,
             'is_pinned' => $is_pinned,
             'is_archived' => $is_archived,
@@ -230,9 +265,23 @@ function migrate_guest_data_to_db($user_id)
 
     if (isset($_SESSION['guest_notes']) && !empty($_SESSION['guest_notes'])) {
         foreach ($_SESSION['guest_notes'] as $note) {
+            // Mapping Guest Category ID to valid DB Category ID
+            $guest_cat = $note['category'];
+            $final_cat_id = 1; // Default to General
+
+            if (is_numeric($guest_cat) && $guest_cat <= 5) {
+                // It's a default category, safe to use directly
+                $final_cat_id = $guest_cat;
+            } else {
+                // It's a custom guest category. We need to create it for the user or map it.
+                // For simplicity in this iteration, if we can't map it, we dump to General.
+                // TODO: Implement migration of custom guest categories
+                $final_cat_id = 1;
+            }
+
             // Insert into DB
-            $stmt = $conn->prepare("INSERT INTO notes (user_id, title, category, is_pinned, is_archived, date_created, date_last) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ississs", $user_id, $note['title'], $note['category'], $note['is_pinned'], $note['is_archived'], $note['date_created'], $note['date_last']);
+            $stmt = $conn->prepare("INSERT INTO notes (user_id, title, category_id, is_pinned, is_archived, date_created, date_last) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("isiiiss", $user_id, $note['title'], $final_cat_id, $note['is_pinned'], $note['is_archived'], $note['date_created'], $note['date_last']);
             $stmt->execute();
             $new_id = $stmt->insert_id;
 
@@ -255,13 +304,13 @@ function get_categories()
     $uid = get_current_user_id();
     $categories = [];
 
-    // Hardcoded defaults for fallback/consistency
+    // Hardcoded defaults for fallback/consistency (With IDs now)
     $defaults = [
-        ['name' => 'General', 'color' => '#fff9c4'],
-        ['name' => 'Personal', 'color' => '#e8f5e9'],
-        ['name' => 'Work', 'color' => '#e3f2fd'],
-        ['name' => 'Study', 'color' => '#fce4ec'],
-        ['name' => 'Ideas', 'color' => '#f3e5f5']
+        ['id' => 1, 'name' => 'General', 'color' => '#fff9c4'],
+        ['id' => 2, 'name' => 'Personal', 'color' => '#e8f5e9'],
+        ['id' => 3, 'name' => 'Work', 'color' => '#e3f2fd'],
+        ['id' => 4, 'name' => 'Study', 'color' => '#fce4ec'],
+        ['id' => 5, 'name' => 'Ideas', 'color' => '#f3e5f5']
     ];
 
     if (is_logged_in()) {
@@ -275,9 +324,11 @@ function get_categories()
         // Guest: Just defaults + Maybe session-based custom?
         $categories = $defaults;
 
-        // Basic session support for guest categories (optional enhancement)
+        // Basic session support for guest categories
         if (isset($_SESSION['guest_cats'])) {
-            foreach ($_SESSION['guest_cats'] as $c) {
+            foreach ($_SESSION['guest_cats'] as $i => $c) {
+                // Assign a temp ID for guest custom cats
+                $c['id'] = 'g_' . $i;
                 $categories[] = $c;
             }
         }
