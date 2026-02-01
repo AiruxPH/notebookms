@@ -31,9 +31,11 @@ include 'includes/data_access.php';
             <h2>📢 Developer Announcements</h2>
             <p>Welcome to <strong>Notebook-BAR v1.0</strong>! We have recently updated our features:</p>
             <ul>
-                <li>✨ <strong>New Archiving Workflow:</strong> Safer and smoother.</li>
-                <li>📌 <strong>Pinning:</strong> Keep your important notes at the top.</li>
-                <li>📊 <strong>Stats:</strong> Word and character counts in real-time.</li>
+                <li>✨ <strong>Dynamic Categories:</strong> Create custom categories with your own colors!</li>
+                <li>🚀 <strong>Guest Mode:</strong> Try the app without logging in (your data saves automatically when
+                    you register).</li>
+                <li>📌 <strong>Pinning & Archiving:</strong> Keep your workspace organized.</li>
+                <li>📊 <strong>Stats:</strong> Real-time word and character counts.</li>
             </ul>
         </div>
 
@@ -43,9 +45,12 @@ include 'includes/data_access.php';
                 <h3>Quick Categories</h3>
                 <div class="category-list">
                     <?php
-                    $cats = ["General", "Personal", "Work", "Study", "Ideas"];
-                    foreach ($cats as $c) {
-                        echo "<a href='index.php?cat=$c' class='cat-btn'>$c</a>";
+                    $quick_cats = get_categories();
+                    foreach ($quick_cats as $c) {
+                        $cname = htmlspecialchars($c['name']);
+                        $ccolor = htmlspecialchars($c['color']);
+                        // Add a little color dot
+                        echo "<a href='index.php?cat=$cname' class='cat-btn' style='border-left: 5px solid $ccolor;'>$cname</a>";
                     }
                     ?>
                 </div>
@@ -122,14 +127,14 @@ include 'includes/data_access.php';
 
                                 $can_delete = is_logged_in() ? $is_custom : $is_custom_guest;
                                 ?>
-                                    <div
+                                <div
                                     style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #f0f0f0;">
                                     <span style="display: flex; align-items: center; gap: 5px;">
                                         <span
                                             style="width: 15px; height: 15px; background-color: <?php echo $mc['color']; ?>; border: 1px solid #ccc; display: inline-block; border-radius: 3px;"></span>
-                                     <?php echo htmlspecialchars($mc['name']); ?>
+                                        <?php echo htmlspecialchars($mc['name']); ?>
                                     </span>
-                                 <?php if ($can_delete): ?>
+                                    <?php if ($can_delete): ?>
                                         <form method="post" style="margin: 0;">
                                             <input type="hidden" name="action_cat" value="delete">
                                             <input type="hidden" name="cat_name"
@@ -138,7 +143,7 @@ include 'includes/data_access.php';
                                                 style="background: none; border: none; color: red; cursor: pointer; font-weight: bold;"
                                                 title="Delete">&times;</button>
                                         </form>
-                                        <?php endif; ?>
+                                    <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>
