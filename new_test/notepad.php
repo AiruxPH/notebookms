@@ -1,20 +1,75 @@
 <?php
 include 'includes/db.php';
 
-//echo "Test" . $_SESSION['passnote'];
+$msg = "";
+$ntitle = "";
+$content = "";
+
 if (isset($_GET['t'])) {
 	$ntitle = $_GET['t'];
-	echo "Test  " . $ntitle;
 }
 
-?><!DOCTYPE html>
+// Handle Save
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_note'])) {
+	$content = mysqli_real_escape_string($conn, $_POST['page']);
+	$safe_title = mysqli_real_escape_string($conn, $ntitle);
+	$date = date('Y-m-d');
 
+	// 1. Ensure Note exists in 'notes' table
+	$check_note = mysqli_query($conn, "SELECT * FROM notes WHERE title = '$safe_title'");
+	if (mysqli_num_rows($check_note) == 0) {
+		$sql_note = "INSERT INTO notes (title, date_created, date_last, category, color) VALUES ('$safe_title', '$date', '$date', 'General', 0)";
+		mysqli_query($conn, $sql_note);
+	} else {
+		$sql_note = "UPDATE notes SET date_last = '$date' WHERE title = '$safe_title'";
+		mysqli_query($conn, $sql_note);
+	}
+
+	// 2. Update or Insert Page content
+	// Check if page 1 exists for this note
+	$check_page = mysqli_query($conn, "SELECT * FROM pages WHERE owner = '$safe_title' AND page = 1");
+	if (mysqli_num_rows($check_page) > 0) {
+		$sql_page = "UPDATE pages SET text = '$content' WHERE owner = '$safe_title' AND page = 1";
+	} else {
+		$sql_page = "INSERT INTO pages (owner, page, text) VALUES ('$safe_title', 1, '$content')";
+	}
+
+	if (mysqli_query($conn, $sql_page)) {
+		$msg = "Note saved successfully!";
+	} else {
+		$msg = "Error saving note: " . mysqli_error($conn);
+	}
+}
+
+// Load Content
+if ($ntitle != "") {
+	$safe_title = mysqli_real_escape_string($conn, $ntitle);
+	$query = mysqli_query($conn, "SELECT text FROM pages WHERE owner = '$safe_title' AND page = 1");
+	if ($row = mysqli_fetch_assoc($query)) {
+		$content = $row['text'];
+	}
+}
+?>
+<!DOCTYPE html>
 <html>
 
 <head>
 	<link rel="stylesheet" href="css/style.css">
-</head>
+	<style>
+		.msg {
+			color: green;
+			font-weight: bold;
+			text-align: center;
+		}
 
+		.save-btn {
+			margin-top: 10px;
+			padding: 10px 20px;
+			font-size: 16px;
+			cursor: pointer;
+		}
+	</style>
+</head>
 <header>
 	<br />
 	<h1> <a href="index.php"> Notebook-BAR </a> </h1>
@@ -28,6 +83,8 @@ if (isset($_GET['t'])) {
 
 <body>
 	<div id="nwrap">
+		<?php if ($msg)
+			echo "<p class='msg'>$msg</p>"; ?>
 		<table>
 			<colgroup>
 				<col span="1" style="width: 50%" />
@@ -35,54 +92,26 @@ if (isset($_GET['t'])) {
 			</colgroup>
 			<tr>
 				<td>
-					<b class="note_cap"> Title: </b> <br />
-					<?php
-					if (isset($_GET['t'])) {
-						$ntitle = $_GET['t'];
-						echo "Test  " . $ntitle;
-					}
-					/*
-						if (is_null($_SESSION['passnote'])){
-							echo "<input type='text' style='width: 90%;'>";
-						} else{
-							echo "<b>" . $_SESSION['passnote'] . "</b>";
-						}*/
-
-					//
-					?>
+					<b class="note_cap"> Title: <?php echo htmlspecialchars($ntitle); ?></b>
 				</td>
 				<td>
 					<div id="detwrap">
-						Words: XXX <br />
-						Characters: XXX <br />
+						<!-- Stats placeholders -->
 					</div>
 				</td>
 			</tr>
 			<tr>
 				<td colspan="2">
 					<form method="post" class="notetext">
-						<textarea name="page" row="15" cols="10">
-					<?php
-					if (isset($_GET['t'])) {
-						$ntitle = $_GET['t'];
-						echo "Test  " . $ntitle;
-					}
-
-					?>
-					</textarea>
+						<textarea name="page" rows="20"
+							style="width: 100%;"><?php echo htmlspecialchars($content); ?></textarea>
+						<div style="text-align: right;">
+							<button type="submit" name="save_note" class="save-btn">Save Note</button>
+						</div>
 					</form>
 				</td>
 			</tr>
 		</table>
-		<!--
-		<div id="pagenav" style="width: 100%; text-align: center;">
-			<a href="notepad.html"> < </a>
-			<a href="notepad.html"> 1 </a>
-			<a href="notepad.html"> 2 </a>
-			<a href="notepad.html"> 3 </a>
-			<a href="notepad.html"> > </a>
-		</div>
-		-->
 	</div>
 </body>
 
