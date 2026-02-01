@@ -26,6 +26,14 @@ session_start();
 	</header>
 
 	<div class="container">
+		<!-- Popup Container -->
+		<div id="popup-overlay" class="popup-overlay">
+			<div class="popup-content">
+				<div id="popup-message" class="popup-message"></div>
+				<button class="popup-btn" onclick="closePopup()">OK</button>
+			</div>
+		</div>
+
 		<!-- Search & Filter Bar -->
 		<div
 			style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center; background: #fff; padding: 10px; border: 1px solid #ccc; flex-wrap: wrap;">
@@ -151,6 +159,35 @@ session_start();
 			?>
 		</div>
 	</div>
+
+	</div>
+
+	<script>
+		// Popup Logic (Same as notepad.php)
+		const popupOverlay = document.getElementById('popup-overlay');
+		const popupMessage = document.getElementById('popup-message');
+
+		function showPopup(msg, type) {
+			popupMessage.textContent = msg;
+			popupMessage.className = "popup-message " + (type === 'error' ? 'flash-error' : 'flash-success');
+			popupMessage.style.color = (type === 'error') ? '#c62828' : '#2e7d32';
+			popupOverlay.style.display = 'flex';
+		}
+
+		function closePopup() {
+			popupOverlay.style.display = 'none';
+		}
+
+		// Check for PHP Flash Message
+		<?php
+		if (isset($_SESSION['flash'])) {
+			$msg = $_SESSION['flash']['message'];
+			$msg_type = $_SESSION['flash']['type'];
+			unset($_SESSION['flash']); // Clear it so it doesn't show again
+			echo "showPopup('" . addslashes($msg) . "', '$msg_type');";
+		}
+		?>
+	</script>
 
 </body>
 
