@@ -343,3 +343,32 @@ a.note-add-card:hover {
 	background: var(--nav-bg);
 	padding-left: 20px;
 }
+
+/* WYSIWYG Editor Styles */
+.editor-div {
+	width: 100%;
+	height: 400px;
+	/* Match textarea height */
+	padding: 15px;
+	border: 1px solid #ccc;
+	border-top: none;
+	/* Merges with toolbar */
+	font-size: 16px;
+	font-family: inherit;
+	line-height: 1.5;
+	background: #fff;
+	resize: vertical;
+	overflow-y: auto;
+	outline: none;
+}
+
+.editor-div:focus {
+	border-color: #66afe9;
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+}
+
+.editor-div[contenteditable="false"] {
+	background-color: #eee;
+	color: #555;
+	cursor: not-allowed;
+}

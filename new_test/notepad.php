@@ -211,9 +211,20 @@ if ($nid != "" && $content == "") {
 					<button type="button" onclick="formatText('li')" style="width: 30px;" title="List Item">•</button>
 				</div>
 
-				<!-- Editor Section -->
-				<textarea name="page" class="editor-textarea" style="border-top: none; margin-top: 0;"
-					placeholder="Start writing your note..." <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($content); ?></textarea>
+				<!-- Editor Section (WYSIWYG) -->
+				<!-- Hidden input to store actual value for POST -->
+				<input type="hidden" name="page" id="page_content" value="<?php echo htmlspecialchars($content); ?>">
+
+				<div class="editor-div" id="editor" <?php echo $is_archived_val ? 'contenteditable="false"' : 'contenteditable="true"'; ?>>
+					<?php
+					// If content is empty, show placeholder-like behavior (handled via CSS/JS usually, or just empty)
+					// If content has HTML, it renders. If plain text, it renders. 
+					// We must NOT escape HTML here because we want it to render.
+					// BUT we must be careful of XSS. Since this is a local app/test, we assume trust or basic sanitization.
+					// For now, echo logic:
+					echo $content;
+					?>
+				</div>
 
 				<!-- Stats Bar -->
 				<div style="font-size: 12px; color: #777; margin-top: 5px; text-align: right;">
@@ -244,27 +255,29 @@ if ($nid != "" && $content == "") {
 		</div>
 	</div>
 	<script>
-		const textarea = document.querySelector('.editor-textarea');
+		const editor = document.getElementById('editor');
+		const hiddenInput = document.getElementById('page_content');
 		const wordCount = document.getElementById('word-count');
 		const charCount = document.getElementById('char-count');
+		const form = document.querySelector('form');
 
-		function formatText(tag) {
-			if (!textarea) return;
+		// Toolbar Action
+		function formatText(command) {
+			if (!editor) return;
+			editor.focus();
 
-			const start = textarea.selectionStart;
-			const end = textarea.selectionEnd;
-			const text = textarea.value;
-			const selectedText = text.substring(start, end);
-
-			let replacement = "";
-
-			if (tag === 'b') replacement = `<b>${selectedText}</b>`;
-			else if (tag === 'i') replacement = `<i>${selectedText}</i>`;
-			else if (tag === 'u') replacement = `<u>${selectedText}</u>`;
-			else if (tag === 'h3') replacement = `<h3>${selectedText}</h3>`;
-			else if (tag === 'li') replacement = `\n<li>${selectedText}</li>`;
-
-			textarea.setRangeText(replacement, start, end, 'select');
+			// Map our custom args to execCommand args
+			if (command === 'h3') {
+				document.execCommand('formatBlock', false, '<h3>');
+			} else if (command === 'li') {
+				document.execCommand('insertUnorderedList', false, null);
+			} else {
+				// b, i, u
+				let cmd = 'bold';
+				if (command === 'i') cmd = 'italic';
+				if (command === 'u') cmd = 'underline';
+				document.execCommand(cmd, false, null);
+			}
 			updateStats();
 		}
 
@@ -272,7 +285,9 @@ if ($nid != "" && $content == "") {
 			if (confirm("Are you sure you want to ARCHIVE ?")) {
 				document.getElementById('is_archived_input').value = 1;
 				document.getElementById('action_type').value = 'archive_redirect';
-				document.querySelector('form').submit();
+				// Sync content before submit
+				hiddenInput.value = editor.innerHTML;
+				form.submit();
 			}
 		}
 
@@ -280,20 +295,33 @@ if ($nid != "" && $content == "") {
 			if (confirm("Are you sure you want to UNARCHIVE ?")) {
 				document.getElementById('is_archived_input').value = 0;
 				document.getElementById('action_type').value = 'archive_redirect';
-				document.querySelector('form').submit();
+				// Sync content before submit
+				hiddenInput.value = editor.innerHTML;
+				form.submit();
 			}
 		}
 
 		function updateStats() {
-			if (!textarea) return;
-			const text = textarea.value;
+			if (!editor) return;
+			const text = editor.innerText || ""; // innerText gives plain text
 			charCount.textContent = text.length;
 			const words = text.trim().split(/\s+/).filter(word => word.length > 0);
 			wordCount.textContent = words.length;
+
+			// Sync to hidden input on every change (or at least on submit)
+			hiddenInput.value = editor.innerHTML;
 		}
 
-		if (textarea) {
-			textarea.addEventListener('input', updateStats);
+		if (editor) {
+			editor.addEventListener('input', updateStats);
+			// Also sync on blur just in case
+			editor.addEventListener('blur', updateStats);
+
+			// Handle Form Submit
+			form.addEventListener('submit', function () {
+				hiddenInput.value = editor.innerHTML;
+			});
+
 			updateStats();
 		}
 
