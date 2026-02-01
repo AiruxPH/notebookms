@@ -2,62 +2,76 @@
 include 'includes/db.php';
 
 $msg = "";
+$nid = "";
 $ntitle = "";
 $content = "";
 
-if (isset($_GET['t'])) {
-	$ntitle = $_GET['t'];
+// 1. Check for ID in URL
+if (isset($_GET['id'])) {
+	$nid = intval($_GET['id']);
+	// Fetch Title (and verify note exists)
+	$res = mysqli_query($conn, "SELECT title FROM notes WHERE id = $nid");
+	if ($row = mysqli_fetch_assoc($res)) {
+		$ntitle = $row['title'];
+	} else {
+		// Invalid ID
+		$nid = "";
+	}
 }
 
-// Handle Save
+// 2. Handle Form Submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_note'])) {
-	$new_title_input = isset($_POST['new_title']) ? trim($_POST['new_title']) : "";
+	$content_input = mysqli_real_escape_string($conn, $_POST['page']);
+	$date = date('Y-m-d H:i:s');
 
-	// Determine effective title
-	if ($ntitle == "" && $new_title_input != "") {
-		$ntitle = $new_title_input; // Set title for the first time
-	}
-
-	if ($ntitle == "") {
-		$msg = "Error: Title cannot be empty.";
-	} else {
-		$content = mysqli_real_escape_string($conn, $_POST['page']);
-		$safe_title = mysqli_real_escape_string($conn, $ntitle);
-		$date = date('Y-m-d');
-
-		// 1. Ensure Note exists in 'notes' table
-		$check_note = mysqli_query($conn, "SELECT * FROM notes WHERE title = '$safe_title'");
-		if (mysqli_num_rows($check_note) == 0) {
-			$sql_note = "INSERT INTO notes (title, date_created, date_last, category, color) VALUES ('$safe_title', '$date', '$date', 'General', 0)";
-			mysqli_query($conn, $sql_note);
+	if ($nid == "") {
+		// --- NEW NOTE ---
+		$title_input = isset($_POST['new_title']) ? trim($_POST['new_title']) : "";
+		if ($title_input == "") {
+			$msg = "Error: Title is required for a new note.";
 		} else {
-			$sql_note = "UPDATE notes SET date_last = '$date' WHERE title = '$safe_title'";
-			mysqli_query($conn, $sql_note);
+			$safe_title = mysqli_real_escape_string($conn, $title_input);
+			// Insert into notes (User ID 0 for now)
+			$sql_note = "INSERT INTO notes (user_id, title, category, date_created, date_last) VALUES (0, '$safe_title', 'General', '$date', '$date')";
+			if (mysqli_query($conn, $sql_note)) {
+				$nid = mysqli_insert_id($conn); // Get the new ID
+
+				// Insert Page 1
+				$sql_page = "INSERT INTO pages (note_id, page_number, text) VALUES ($nid, 1, '$content_input')";
+				mysqli_query($conn, $sql_page);
+
+				// Redirect to the new Note ID
+				header("Location: notepad.php?id=$nid");
+				exit();
+			} else {
+				$msg = "Database Error: " . mysqli_error($conn);
+			}
 		}
+	} else {
+		// --- UPDATE NOTE ---
+		// Update Timestamp
+		mysqli_query($conn, "UPDATE notes SET date_last = '$date' WHERE id = $nid");
 
-		// 2. Update or Insert Page content
-		$check_page = mysqli_query($conn, "SELECT * FROM pages WHERE owner = '$safe_title' AND page = 1");
-		if (mysqli_num_rows($check_page) > 0) {
-			$sql_page = "UPDATE pages SET text = '$content' WHERE owner = '$safe_title' AND page = 1";
+		// Update or Insert Content
+		$check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id = $nid AND page_number = 1");
+		if (mysqli_num_rows($check) > 0) {
+			$sql_page = "UPDATE pages SET text = '$content_input' WHERE note_id = $nid AND page_number = 1";
 		} else {
-			$sql_page = "INSERT INTO pages (owner, page, text) VALUES ('$safe_title', 1, '$content')";
+			$sql_page = "INSERT INTO pages (note_id, page_number, text) VALUES ($nid, 1, '$content_input')";
 		}
 
 		if (mysqli_query($conn, $sql_page)) {
-			// Redirect to properly formatted URL to prevent resubmission issues
-			header("Location: notepad.php?t=" . urlencode($ntitle));
-			exit();
+			$msg = "Note saved successfully!";
 		} else {
-			$msg = "Error saving note: " . mysqli_error($conn);
+			$msg = "Error saving content: " . mysqli_error($conn);
 		}
 	}
 }
 
-// Load Content
-if ($ntitle != "") {
-	$safe_title = mysqli_real_escape_string($conn, $ntitle);
-	$query = mysqli_query($conn, "SELECT text FROM pages WHERE owner = '$safe_title' AND page = 1");
-	if ($row = mysqli_fetch_assoc($query)) {
+// 3. Load Content (if viewing an existing note)
+if ($nid != "" && $content == "") {
+	$res = mysqli_query($conn, "SELECT text FROM pages WHERE note_id = $nid AND page_number = 1");
+	if ($row = mysqli_fetch_assoc($res)) {
 		$content = $row['text'];
 	}
 }
@@ -107,10 +121,8 @@ if ($ntitle != "") {
 
 <body>
 	<div id="nwrap">
-		<?php if ($msg && strpos($msg, 'Error') === false)
+		<?php if ($msg)
 			echo "<p class='msg'>$msg</p>"; ?>
-		<?php if ($msg && strpos($msg, 'Error') !== false)
-			echo "<p class='error'>$msg</p>"; ?>
 
 		<form method="post" class="notetext">
 			<table>
@@ -121,10 +133,12 @@ if ($ntitle != "") {
 				<tr>
 					<td>
 						<b class="note_cap"> Title:
-							<?php if ($ntitle == ""): ?>
+							<?php if ($nid == ""): ?>
+								<!-- New Note: Show Input -->
 								<input type="text" name="new_title" class="title-input" placeholder="Enter Note Title"
-									required>
+									required value="<?php echo htmlspecialchars($ntitle); ?>">
 							<?php else: ?>
+								<!-- Existing Note: Show Text -->
 								<?php echo htmlspecialchars($ntitle); ?>
 							<?php endif; ?>
 						</b>

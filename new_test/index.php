@@ -36,15 +36,17 @@ if (isset($_SESSION['passnote']) && !is_null($_SESSION['passnote'])) {
 
 		<?php
 		// Use LEFT JOIN to get note details and page 1 content in one query
-		$sql = "SELECT n.title, n.category, n.date_created, n.date_last, p.text 
+		// NEW SCHEMA: notes.id, pages.note_id
+		$sql = "SELECT n.id, n.title, n.category, n.date_created, n.date_last, p.text 
 				FROM notes n 
-				LEFT JOIN pages p ON n.title = p.owner AND p.page = 1
-				ORDER BY n.date_last DESC"; // Optional: sort by last modified
-		
+				LEFT JOIN pages p ON n.id = p.note_id AND p.page_number = 1
+				ORDER BY n.date_last DESC";
+
 		$result = mysqli_query($conn, $sql);
 
 		if ($result) {
 			while ($row = mysqli_fetch_assoc($result)) {
+				$nid = $row['id'];
 				$dtitle = $row['title'];
 				$dcat = $row['category'];
 				$ddatc = $row['date_created'];
@@ -53,7 +55,7 @@ if (isset($_SESSION['passnote']) && !is_null($_SESSION['passnote'])) {
 				$dtxt = htmlspecialchars(substr($row['text'] ?? '', 0, 100)) . (strlen($row['text'] ?? '') > 100 ? '...' : '');
 
 				echo "<figure>";
-				echo "<a href='notepad.php?t=" . urlencode($dtitle) . "'>"; // Use urlencode for safety
+				echo "<a href='notepad.php?id=" . $nid . "'>"; // Link using ID now
 				echo "<h2>" . htmlspecialchars($dtitle) . "</h2>";
 				echo "<h5>" . htmlspecialchars($dcat) . "</h5>";
 				echo "<p>" . $dtxt . "</p>";
