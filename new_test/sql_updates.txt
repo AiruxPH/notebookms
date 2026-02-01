@@ -49,3 +49,28 @@ END;
 //
 DELIMITER ;
 
+
+-- 4. Database Normalization: Replace category string with category_id
+-- Step A: Add the new column
+ALTER TABLE `notes` ADD COLUMN `category_id` INT(11) DEFAULT NULL;
+
+-- Step B: Migrate Data (Match existing names to IDs)
+UPDATE `notes` n 
+SET n.category_id = (
+    SELECT c.id FROM `categories` c 
+    WHERE c.name = n.category 
+    AND (c.user_id = n.user_id OR c.user_id = 0) 
+    ORDER BY c.user_id DESC
+    LIMIT 1
+);
+
+-- Step C: Handle Unmatched (Set to General ID 1 if null)
+UPDATE `notes` SET category_id = 1 WHERE category_id IS NULL;
+
+-- Step D: Add Foreign Key Constraint
+ALTER TABLE `notes` ADD CONSTRAINT `fk_note_category` 
+FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
+
+-- Step E: Drop the old string column
+ALTER TABLE `notes` DROP COLUMN `category`;
+

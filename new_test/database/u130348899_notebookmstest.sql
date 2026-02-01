@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 01, 2026 at 03:37 PM
+-- Generation Time: Feb 01, 2026 at 03:49 PM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -71,23 +71,23 @@ CREATE TABLE `notes` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT 0,
   `title` varchar(255) NOT NULL,
-  `category` varchar(100) DEFAULT 'General',
   `color` int(11) DEFAULT 0,
   `date_created` datetime DEFAULT current_timestamp(),
   `date_last` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `is_pinned` tinyint(1) DEFAULT 0,
-  `is_archived` tinyint(1) DEFAULT 0
+  `is_archived` tinyint(1) DEFAULT 0,
+  `category_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
 -- Dumping data for table `notes`
 --
 
-INSERT INTO `notes` (`id`, `user_id`, `title`, `category`, `color`, `date_created`, `date_last`, `is_pinned`, `is_archived`) VALUES
-(1, 1, 'this is the title', 'General', 0, '2026-02-01 10:05:02', '2026-02-01 14:54:17', 0, 0),
-(2, 1, 'Yes', 'General', 0, '2026-02-01 10:20:25', '2026-02-01 14:54:17', 0, 0),
-(3, 1, 'CSIT6 PRELIM', 'Study', 0, '2026-02-01 11:18:14', '2026-02-01 14:54:17', 1, 0),
-(4, 1, 'Green', 'Green', 0, '2026-02-01 15:18:13', '2026-02-01 15:18:13', 1, 1);
+INSERT INTO `notes` (`id`, `user_id`, `title`, `color`, `date_created`, `date_last`, `is_pinned`, `is_archived`, `category_id`) VALUES
+(1, 1, 'this is the title', 0, '2026-02-01 10:05:02', '2026-02-01 15:49:26', 0, 0, 1),
+(2, 1, 'Yes', 0, '2026-02-01 10:20:25', '2026-02-01 15:49:26', 0, 0, 1),
+(3, 1, 'CSIT6 PRELIM', 0, '2026-02-01 11:18:14', '2026-02-01 15:49:26', 1, 0, 4),
+(4, 1, 'Green', 0, '2026-02-01 15:18:13', '2026-02-01 15:49:26', 1, 1, 6);
 
 -- --------------------------------------------------------
 
@@ -146,7 +146,8 @@ ALTER TABLE `categories`
 -- Indexes for table `notes`
 --
 ALTER TABLE `notes`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_note_category` (`category_id`);
 
 --
 -- Indexes for table `pages`
@@ -192,6 +193,12 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `notes`
+--
+ALTER TABLE `notes`
+  ADD CONSTRAINT `fk_note_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `pages`
