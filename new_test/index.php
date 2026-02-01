@@ -1,7 +1,6 @@
 <?php
-include 'includes/db.php';
-
-// Flash message check (optional if we want to show messages on index too)
+include 'includes/data_access.php';
+// session_start() is already in db.php (which is in data_access.php)sh message check (optional if we want to show messages on index too)
 session_start();
 ?>
 <!DOCTYPE html>
@@ -154,70 +153,71 @@ session_start();
 		$where_sql = "WHERE " . implode(" AND ", $where);
 	}
 
-	// Fetch Notes with Content Preview
-	// ORDER BY is_pinned DESC (so 1 comes first), then date_last DESC
-	$sql = "SELECT n.id, n.title, n.category, n.is_pinned, n.date_created, n.date_last, p.text 
-				FROM notes n 
-				LEFT JOIN pages p ON n.id = p.note_id AND p.page_number = 1
-				$where_sql
-				ORDER BY n.is_pinned DESC, n.date_last DESC";
+	// Filter setup
+	$is_archived_view = isset($_GET['archived']) && $_GET['archived'] == 1;
+	$search_query = $_GET['q'] ?? '';
+	$cat_filter = $_GET['cat'] ?? '';
 
-	$result = mysqli_query($conn, $sql);
+	$filters = ['archived' => $is_archived_view];
+	if ($search_query)
+		$filters['search'] = $search_query;
+	if ($cat_filter)
+		$filters['category'] = $cat_filter;
 
-	if ($result) {
-		if (mysqli_num_rows($result) > 0) {
-			while ($row = mysqli_fetch_assoc($result)) {
-				$nid = $row['id'];
-				$dtitle = $row['title'];
-				$dcat = $row['category'];
-				// Format Date nicely
-				$ddatc = date("M j, Y", strtotime($row['date_created']));
-				$ddatl = date("M j, H:i", strtotime($row['date_last']));
+	// Fetch Categories for Colors
+	$all_cats = get_categories();
+	$cat_colors = [];
+	foreach ($all_cats as $c) {
+		$cat_colors[$c['name']] = $c['color'];
+	}
 
-				// Truncate text (Visual Layout Update)
-				$raw_text = $row['text'] ?? '';
+	// Fetch Notes (DB or Session)
+	$notes = get_notes($filters);
 
-				// 1. Convert block endings to <br> to preserve verticality
-				// We use complex replacement to ensure we don't get double double spaces from simple replacements
-				$raw_text = str_replace(['</div>', '</p>', '</h1>', '<h2>', '</h3>', '</h4>', '</h5>', '</h6>'], '<br>', $raw_text);
-				$raw_text = str_replace('<li>', '<br>&bull; ', $raw_text); // Bullet on new line
-	
-				// 2. Allow <br> in strip_tags so line breaks render
-				$clean_text = strip_tags($raw_text, '<b><i><u><strong><em><br>');
+	// Display
+	if (count($notes) > 0) {
+		foreach ($notes as $row) {
+			$nid = $row['id'];
+			$title = htmlspecialchars($row['title']);
+			$category = htmlspecialchars($row['category']);
+			$date_last = date("M j, H:i", strtotime($row['date_last']));
+			$pin_icon = ($row['is_pinned'] == 1) ? "<span style='float: right; font-size: 1.2rem;'>📌</span>" : "";
+			$date_created = date("M j, Y", strtotime($row['date_created']));
 
-				// 3. Optional: Clean up excessive repetitive breaks if needed, but for now raw input is fine.
-				$dtxt = $clean_text;
+			// Determine Color
+			$bg_color = isset($cat_colors[$category]) ? $cat_colors[$category] : '#ffffff';
 
-				if (empty(trim(strip_tags($dtxt)))) // Check empty text ignoring html tags
-					$dtxt = "<em>No content...</em>";
+			// Preview Text
+			$raw_text = $row['text'] ?? '';
+			// Visual Layout Update for Verticality
+			$raw_text = str_replace(['</div>', '</p>', '<h1>', '<h2>', '<h3>', '<h4>', '</h5>', '<h6>'], '<br>', $raw_text);
+			$raw_text = str_replace('<li>', '<br>&bull; ', $raw_text);
+			$clean_text = strip_tags($raw_text, '<b><i><u><strong><em><br>');
+			$dtxt = $clean_text;
+			if (empty(trim(strip_tags($dtxt))))
+				$dtxt = "<em>No content...</em>";
 
-				// Render Card
-				$pin_icon = ($row['is_pinned'] == 1) ? "<span style='float: right; font-size: 1.2rem;'>📌</span>" : "";
-				echo "<a href='notepad.php?id=$nid' class='note-card'>";
-				echo "<div class='note-title'>$pin_icon" . htmlspecialchars($dtitle) . "</div>";
-				echo "<div class='note-meta'>$dcat &bull; $ddatl</div>";
-				echo "<div class='note-preview'>$dtxt</div>";
-				echo "<div class='note-footer'>";
-				echo "<span>Created: $ddatc</span>";
-				echo "</div>";
-				echo "</a>";
-			}
-		} else {
-			// Empty State Message
-			$empty_msg = "No notes found.";
-			if (isset($_GET['archived']) && $_GET['archived'] == 1) {
-				$empty_msg = "No archived notes found.";
-			} else if (isset($_GET['q'])) {
-				$empty_msg = "No notes found matching your search.";
-			}
-
-			echo "<div style='grid-column: 1 / -1; text-align: center; color: #777; padding: 40px;'>
-                    <div style='font-size: 40px; margin-bottom: 10px; opacity: 0.5;'>📭</div>
-                    <div style='font-size: 18px;'>$empty_msg</div>
-                   </div>";
+			echo "<a href='notepad.php?id=$nid' class='note-card' style='background-color: $bg_color;'>";
+			echo "<div class='note-title'>$pin_icon" . $title . "</div>";
+			echo "<div class='note-meta'>$category &bull; $date_last</div>";
+			echo "<div class='note-preview'>$dtxt</div>";
+			echo "<div class='note-footer'>";
+			echo "<span>Created: $date_created</span>";
+			echo "</a>";
 		}
 	} else {
-		echo "<p>Error fetching notes: " . mysqli_error($conn) . "</p>";
+		// Empty State Message
+		$empty_msg = "No notes found.";
+		if ($is_archived_view) {
+			$empty_msg = "No archived notes found.";
+		} else if ($search_query) {
+			$empty_msg = "No notes found matching your search.";
+		}
+
+		echo "<div style='grid-column: 1 / -1; text-align: center; color: #777; padding: 40px;'>
+                            <div style='font-size: 40px; margin-bottom: 10px; opacity: 0.5;'>📭</div>
+                            <div style='font-size: 18px;'>$empty_msg</div>
+                           </div>";
 	}
 	?>
 </div>

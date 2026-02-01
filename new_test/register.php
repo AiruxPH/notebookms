@@ -1,5 +1,5 @@
 <?php
-include 'includes/db.php';
+include 'includes/data_access.php'; // For migration function
 session_start();
 
 if (isset($_SESSION['user_id'])) {
@@ -29,6 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($stmt->execute()) {
                 $_SESSION['user_id'] = $stmt->insert_id;
                 $_SESSION['username'] = $username;
+
+                // --- MIGRATION: GUEST TO USER ---
+                // Move session notes to this new user ID
+                migrate_guest_data_to_db($_SESSION['user_id']);
+                // --------------------------------
+
                 header("Location: dashboard.php");
                 exit();
             } else {

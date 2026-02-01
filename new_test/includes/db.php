@@ -17,12 +17,9 @@ if (!$conn) {
 }
 
 // Authentication Check
-// If script is NOT login.php or register.php, require login
-$current_page = basename($_SERVER['PHP_SELF']);
-if ($current_page != 'login.php' && $current_page != 'register.php') {
-    if (!isset($_SESSION['user_id'])) {
-        header("Location: login.php");
-        exit();
-    }
-}
+// If script is NOT login.php or register.php, we just start session. 
+// We DO NOT force redirect here anymore, because we support Guest Mode.
+// Specific pages (like "change password" or "profile" if added later) might need manual checks.
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+// $user_id = 0 means Guest.
 ?>

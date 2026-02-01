@@ -17,125 +17,7 @@ if (isset($_SESSION['flash'])) {
 	$msg_type = $_SESSION['flash']['type'];
 	unset($_SESSION['flash']); // Clear immediately
 }
-
-// 1. Check for ID and Fetch Existing Data FIRST
-if (isset($_GET['id'])) {
-	$nid = intval($_GET['id']);
-	$res = mysqli_query($conn, "SELECT * FROM notes WHERE id = $nid");
-	if ($row = mysqli_fetch_assoc($res)) {
-		$ntitle = $row['title'];
-		$ncat = $row['category'];
-		$is_pinned_val = $row['is_pinned'];
-		$is_archived_val = $row['is_archived'];
-	} else {
-		$nid = ""; // Invalid ID
-	}
-}
-
-// 2. Handle Form Submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset($_POST['save_exit']) || isset($_POST['action_type']))) {
-	$date = date('Y-m-d H:i:s');
-	$action_type = isset($_POST['action_type']) ? $_POST['action_type'] : 'save';
-
-	// *** SPECIAL HANDLING FOR ARCHIVE/UNARCHIVE ONLY ***
-	if ($action_type == 'archive_redirect') {
-		// Validation: Must have a valid ID
-		if ($nid == "") {
-			header("Location: index.php");
-			exit();
-		}
-
-		$is_archived = isset($_POST['is_archived']) ? intval($_POST['is_archived']) : 0;
-
-		// Simple Update Query - ONLY touches is_archived and date_last
-		$stmt = $conn->prepare("UPDATE notes SET is_archived = ?, date_last = ? WHERE id = ?");
-		$stmt->bind_param("isi", $is_archived, $date, $nid);
-
-		if ($stmt->execute()) {
-			$msg_text = ($is_archived == 1) ? "Note Archived" : "Note Unarchived"; // Short specific message
-			$_SESSION['flash'] = ['message' => $msg_text, 'type' => 'success'];
-		} else {
-			$_SESSION['flash'] = ['message' => 'Database Error', 'type' => 'error'];
-		}
-		$stmt->close();
-
-		header("Location: index.php");
-		exit();
-	}
-
-	// *** STANDARD SAVE LOGIC (Insert/Update Content) ***
-	// NOTE: We do NOT use mysqli_real_escape_string here because we use prepared statements (bind_param) below.
-	// Using both would result in double-escaping (e.g. "It\'s").
-	$content_input = isset($_POST['page']) ? $_POST['page'] : $content;
-
-	// Use existing values ($ntitle, $ncat) if POST is missing (disabled inputs)
-	$title_input = isset($_POST['new_title']) ? trim($_POST['new_title']) : $ntitle;
-	$category_input = isset($_POST['category']) ? $_POST['category'] : $ncat;
-
-	$new_title = $title_input; // Raw input for bind_param
-	$category = $category_input; // Raw input for bind_param
-	$is_pinned = isset($_POST['is_pinned']) ? 1 : 0;
-	// Archive status shouldn't change here usually, but we keep it sync
-	$is_archived = isset($_POST['is_archived']) ? intval($_POST['is_archived']) : $is_archived_val;
-
-	if ($nid == "") {
-		// Insert new note
-		$stmt = $conn->prepare("INSERT INTO notes (title, category, is_pinned, is_archived, date_created, date_last) VALUES (?, ?, ?, ?, ?, ?)");
-		$stmt->bind_param("ssiiss", $new_title, $category, $is_pinned, $is_archived, $date, $date);
-		$stmt->execute();
-		$nid = $stmt->insert_id;
-		$stmt->close();
-
-		// Insert initial page
-		$stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, 1, ?)");
-		$stmt->bind_param("is", $nid, $content_input);
-		$stmt->execute();
-		$stmt->close();
-
-		$_SESSION['flash'] = ['message' => 'Note Created', 'type' => 'success'];
-	} else {
-		// Update existing note
-		$stmt = $conn->prepare("UPDATE notes SET title = ?, category = ?, is_pinned = ?, is_archived = ?, date_last = ? WHERE id = ?");
-		$stmt->bind_param("ssiisi", $new_title, $category, $is_pinned, $is_archived, $date, $nid);
-		$stmt->execute();
-		$stmt->close();
-
-		// Update existing page (ONLY if page content was sent - i.e. not disabled)
-		if (isset($_POST['page'])) {
-			$check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id = $nid AND page_number = 1");
-			if (mysqli_num_rows($check) > 0) {
-				$stmt = $conn->prepare("UPDATE pages SET text = ? WHERE note_id = ? AND page_number = 1");
-				$stmt->bind_param("si", $content_input, $nid);
-				$stmt->execute();
-				$stmt->close();
-			} else {
-				$stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, 1, ?)");
-				$stmt->bind_param("is", $nid, $content_input);
-				$stmt->execute();
-				$stmt->close();
-			}
-		}
-
-		$_SESSION['flash'] = ['message' => 'Note Saved', 'type' => 'success'];
-	}
-
-	// Redirect based on action
-	if (isset($_POST['save_exit'])) {
-		header("Location: index.php");
-		exit();
-	} else {
-		header("Location: notepad.php?id=$nid");
-		exit();
-	}
-}
-
-// 3. Load Content (if not already loaded/handled)
-if ($nid != "" && $content == "") {
-	$res = mysqli_query($conn, "SELECT text FROM pages WHERE note_id = $nid AND page_number = 1");
-	if ($page_row = mysqli_fetch_assoc($res)) {
-		$content = $page_row['text'];
-	}
-}
+// End of header logic
 ?>
 <!DOCTYPE html>
 <html>
@@ -173,10 +55,11 @@ if ($nid != "" && $content == "") {
 					<select name="category" class="title-input"
 						style="width: auto; font-size: 16px; border-bottom: 2px solid #999;" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
 						<?php
-						$cats = ["General", "Personal", "Work", "Study", "Ideas"];
-						foreach ($cats as $c) {
-							$sel = ($ncat == $c) ? "selected" : "";
-							echo "<option value='$c' $sel>$c</option>";
+						$all_cats = get_categories();
+						foreach ($all_cats as $c) {
+							$cname = $c['name'];
+							$sel = ($ncat == $cname) ? "selected" : "";
+							echo "<option value='$cname' $sel>$cname</option>";
 						}
 						?>
 					</select>
@@ -212,6 +95,9 @@ if ($nid != "" && $content == "") {
 						title="Heading">H</button>
 					<button type="button" onclick="formatText('li')" style="width: 30px;" title="List Item">•</button>
 				</div>
+
+				<input type="hidden" name="note_id" value="<?php echo htmlspecialchars($nid); ?>">
+				<input type="hidden" name="is_archived" value="<?php echo $is_archived_val; ?>">
 
 				<!-- Editor Section (WYSIWYG) -->
 				<!-- Hidden input to store actual value for POST -->
