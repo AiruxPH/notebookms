@@ -4,9 +4,9 @@ if (!isset($_SESSION)) {
 }
 
 $servername = "srv1858.hstgr.io";
-$username = "u130348899_notebookms";
+$username = "u130348899_nbmstest";
 $password = "Note999@";
-$dbname = "u130348899_notebook";
+$dbname = "u130348899_notebookmstest";
 
 // Create connection
 $conn = mysqli_connect($servername, $username, $password, $dbname);
