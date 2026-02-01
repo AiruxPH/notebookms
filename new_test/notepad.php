@@ -18,7 +18,62 @@ if (isset($_SESSION['flash'])) {
 	unset($_SESSION['flash']); // Clear immediately
 }
 
-// 1. Check for ID in URL
+// 2. Handle Form Submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset($_POST['save_exit']) || isset($_POST['action_type']))) {
+	$content_input = isset($_POST['page']) ? mysqli_real_escape_string($conn, $_POST['page']) : $content;
+	$date = date('Y-m-d H:i:s');
+
+	// Use existing values ($ntitle, $ncat) if POST is missing (disabled inputs)
+	$title_input = isset($_POST['new_title']) ? trim($_POST['new_title']) : $ntitle;
+	$category_input = isset($_POST['category']) ? $_POST['category'] : $ncat;
+
+	$new_title = mysqli_real_escape_string($conn, $title_input);
+	$category = mysqli_real_escape_string($conn, $category_input);
+	$is_pinned = isset($_POST['is_pinned']) ? 1 : 0;
+	$is_archived = isset($_POST['is_archived']) ? 1 : 0;
+	$action_type = isset($_POST['action_type']) ? $_POST['action_type'] : 'save'; // Default to save
+
+	if ($nid == "") {
+		// Insert new note
+		$stmt = $conn->prepare("INSERT INTO notes (title, category, is_pinned, is_archived, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)");
+		$stmt->bind_param("ssiiss", $new_title, $category, $is_pinned, $is_archived, $date, $date);
+		$stmt->execute();
+		$nid = $stmt->insert_id;
+		$stmt->close();
+
+		// Insert initial page
+		$stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text, created_at, updated_at) VALUES (?, 1, ?, ?, ?)");
+		$stmt->bind_param("isss", $nid, $content_input, $date, $date);
+		$stmt->execute();
+		$stmt->close();
+
+		$_SESSION['flash'] = ['message' => 'Note created successfully!', 'type' => 'success'];
+	} else {
+		// Update existing note
+		$stmt = $conn->prepare("UPDATE notes SET title = ?, category = ?, is_pinned = ?, is_archived = ?, updated_at = ? WHERE id = ?");
+		$stmt->bind_param("ssiisi", $new_title, $category, $is_pinned, $is_archived, $date, $nid);
+		$stmt->execute();
+		$stmt->close();
+
+		// Update existing page (assuming only one page for now)
+		$stmt = $conn->prepare("UPDATE pages SET text = ?, updated_at = ? WHERE note_id = ? AND page_number = 1");
+		$stmt->bind_param("ssi", $content_input, $date, $nid);
+		$stmt->execute();
+		$stmt->close();
+
+		$_SESSION['flash'] = ['message' => 'Note updated successfully!', 'type' => 'success'];
+	}
+
+	// Redirect based on action
+	if ($action_type == 'archive_redirect' || isset($_POST['save_exit'])) {
+		header("Location: index.php");
+		exit();
+	} else {
+		header("Location: edit.php?id=$nid");
+		exit();
+	}
+}
+
 // 1. Check for ID in URL
 if (isset($_GET['id'])) {
 	$nid = intval($_GET['id']);
@@ -80,8 +135,7 @@ if ($nid != "" && $content == "") {
 				<!-- Meta Section -->
 				<div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
 					<select name="category" class="title-input"
-						style="width: auto; font-size: 16px; border-bottom: 2px solid #999;"
-                        <?php echo $is_archived_val ? 'disabled' : ''; ?>>
+						style="width: auto; font-size: 16px; border-bottom: 2px solid #999;" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
 						<?php
 						$cats = ["General", "Personal", "Work", "Study", "Ideas"];
 						foreach ($cats as $c) {
@@ -92,7 +146,9 @@ if ($nid != "" && $content == "") {
 					</select>
 
 					<label style="font-size: 14px; display: flex; align-items: center; gap: 5px;">
-						<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val) echo "checked"; ?> <?php echo $is_archived_val ? 'disabled' : ''; ?>>
+						<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
+							echo "checked"; ?>
+							<?php echo $is_archived_val ? 'disabled' : ''; ?>>
 						Pin
 					</label>
 
@@ -107,8 +163,7 @@ if ($nid != "" && $content == "") {
 				</div>
 
 				<!-- Editor Section -->
-				<textarea name="page" class="editor-textarea"
-					placeholder="Start writing your note..." <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($content); ?></textarea>
+				<textarea name="page" class="editor-textarea" placeholder="Start writing your note..." <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($content); ?></textarea>
 
 				<!-- Stats Bar -->
 				<div style="font-size: 12px; color: #777; margin-top: 5px; text-align: right;">
@@ -129,10 +184,11 @@ if ($nid != "" && $content == "") {
 						<?php endif; ?>
 					<?php endif; ?>
 
-                    <?php if (!$is_archived_val): ?>
-					    <button type="submit" name="save_note" class="btn btn-primary" style="margin-left: auto; margin-right: 10px;">Save</button>
-                        <button type="submit" name="save_exit" class="btn btn-primary">Save & Exit</button>
-                    <?php endif; ?>
+					<?php if (!$is_archived_val): ?>
+						<button type="submit" name="save_note" class="btn btn-primary"
+							style="margin-left: auto; margin-right: 10px;">Save</button>
+						<button type="submit" name="save_exit" class="btn btn-primary">Save & Exit</button>
+					<?php endif; ?>
 				</div>
 			</form>
 		</div>
@@ -146,7 +202,7 @@ if ($nid != "" && $content == "") {
 		function confirmArchive() {
 			if (confirm("Are you sure you want to ARCHIVE this note?\nIt will be hidden from the main list.")) {
 				document.getElementById('is_archived_input').value = 1;
-                document.getElementById('action_type').value = 'archive_redirect';
+				document.getElementById('action_type').value = 'archive_redirect';
 				// Submit form
 				document.querySelector('form').submit();
 			}
@@ -155,7 +211,7 @@ if ($nid != "" && $content == "") {
 		function confirmUnarchive() {
 			if (confirm("Are you sure you want to UNARCHIVE this note?\nIt will return to the main list.")) {
 				document.getElementById('is_archived_input').value = 0;
-                document.getElementById('action_type').value = 'archive_redirect';
+				document.getElementById('action_type').value = 'archive_redirect';
 				// Submit form
 				document.querySelector('form').submit();
 			}
