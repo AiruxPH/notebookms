@@ -5,3 +5,30 @@ ALTER TABLE `notes` ADD COLUMN `is_pinned` TINYINT(1) DEFAULT 0;
 
 -- 2. Add 'is_archived' column to 'notes' table
 ALTER TABLE `notes` ADD COLUMN `is_archived` TINYINT(1) DEFAULT 0;
+
+-- Update: Create Categories Table
+CREATE TABLE IF NOT EXISTS categories (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user_id int(11) DEFAULT 0,
+  name varchar(100) NOT NULL,
+  color varchar(50) DEFAULT '#ffffff',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Seed Default Categories
+INSERT INTO categories (user_id, name, color) VALUES
+(0, 'General', '#fff9c4'), -- Yellow
+(0, 'Personal', '#e8f5e9'), -- Green
+(0, 'Work', '#e3f2fd'), -- Blue
+(0, 'Study', '#fce4ec'), -- Pink
+(0, 'Ideas', '#f3e5f5'); -- Purple
+
+-- Update: Create Users Table (if not exists)
+CREATE TABLE IF NOT EXISTS users (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  username varchar(255) NOT NULL,
+  password varchar(255) NOT NULL,
+  is_guest tinyint(1) DEFAULT 0,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
