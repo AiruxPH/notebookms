@@ -89,7 +89,9 @@ a.note-card {
 	flex-direction: column;
 	background-color: var(--card-bg);
 	border: 1px solid var(--border-color);
-	height: 220px;
+	min-height: 220px;
+	max-height: 400px;
+	/* Cap growth */
 	padding: 15px;
 	box-shadow: var(--shadow);
 	transition: transform 0.2s;
@@ -129,7 +131,19 @@ a.note-add-card:hover {
 }
 
 .note-preview {
+	font-size: 0.9rem;
+	color: #666;
+	margin-bottom: 10px;
+	flex-grow: 1;
+	line-height: 1.4;
+
+	/* CSS Line Clamp */
+	display: -webkit-box;
+	-webkit-line-clamp: 10;
+	/* Increased to show more text */
+	-webkit-box-orient: vertical;
 	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .note-footer {

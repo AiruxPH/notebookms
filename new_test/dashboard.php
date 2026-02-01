@@ -91,7 +91,7 @@ session_start();
                             if (empty(trim($dtxt)))
                                 $dtxt = "<em>No content...</em>";
 
-                            echo "<a href='notepad.php?id=$nid' class='note-card' style='height: 180px;'>";
+                            echo "<a href='notepad.php?id=$nid' class='note-card'>";
                             echo "<div class='note-title'>$dtitle</div>";
                             echo "<div class='note-meta'>$dcat &bull; $ddatl</div>";
                             echo "<div class='note-preview'>$dtxt</div>";
