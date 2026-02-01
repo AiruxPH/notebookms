@@ -8,7 +8,7 @@ session_start();
 <html>
 
 <head>
-	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
 	<title>My Notes - Notebook</title>
 </head>
 

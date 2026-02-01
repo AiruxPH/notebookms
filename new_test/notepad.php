@@ -90,7 +90,7 @@ if ($nid != "" && $content == "") {
 <html>
 
 <head>
-	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
 	<title><?php echo $ntitle ? htmlspecialchars($ntitle) : "New Note"; ?> - Notebook</title>
 </head>
 
