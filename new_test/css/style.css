@@ -360,6 +360,8 @@ a.note-add-card:hover {
 	resize: vertical;
 	overflow-y: auto;
 	outline: none;
+	box-sizing: border-box;
+	/* Fixes overflow caused by padding */
 }
 
 .editor-div:focus {

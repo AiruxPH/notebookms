@@ -79,9 +79,10 @@ session_start();
                             $dcat = $row['category'];
                             $ddatl = date("M j, H:i", strtotime($row['date_last']));
 
-                            // Strip tags for preview
-                            $clean_text = strip_tags($row['text'] ?? '');
-                            $dtxt = htmlspecialchars(substr($clean_text, 0, 80));
+                            // Strip tags regarding block elements, but allow inline styles
+                            $clean_text = strip_tags($row['text'] ?? '', '<b><i><u><strong><em>');
+                            $dtxt = substr($clean_text, 0, 80);
+
                             if (strlen($clean_text) > 80)
                                 $dtxt .= "...";
                             if (empty($dtxt))

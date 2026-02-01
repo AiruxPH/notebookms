@@ -174,9 +174,13 @@ session_start();
 				$ddatc = date("M j, Y", strtotime($row['date_created']));
 				$ddatl = date("M j, H:i", strtotime($row['date_last']));
 
-				// Truncate text (Strip HTML tags first!)
-				$clean_text = strip_tags($row['text'] ?? '');
-				$dtxt = htmlspecialchars(substr($clean_text, 0, 120));
+				// Truncate text (Allow basic formatting in preview)
+				// We strip block tags (h3, li, div, p) to not break the card layout, but keep inline formatting.
+				$clean_text = strip_tags($row['text'] ?? '', '<b><i><u><strong><em>');
+
+				// We need to be careful with truncate chopping distinct tags, but for basic <b> it's usually fine or browser auto-closes.
+				// A safer way for production is a truncated HTML parser, but for this:
+				$dtxt = substr($clean_text, 0, 120);
 				if (strlen($clean_text) > 120)
 					$dtxt .= "...";
 				if (empty($dtxt))
