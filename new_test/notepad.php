@@ -1,23 +1,83 @@
 <?php
-include 'includes/db.php';
-session_start(); // Start session for Flash messages
+include 'includes/data_access.php';
+// session_start(); is already in data_access via db.php (conditionally) or we can ensure it.
+// db.php usually does session_start.
 
 $msg = "";
 $msg_type = "";
 $nid = "";
 $ntitle = "";
-$ncat = "General"; // Default category
+$ncat = "General";
 $is_pinned_val = 0;
 $is_archived_val = 0;
 $content = "";
 
-// Check for Flash Message
+// 1. Handle POST (Save / Update / Archive)
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset($_POST['save_exit']) || (isset($_POST['action_type']) && $_POST['action_type'] == 'archive_redirect'))) {
+
+	// Collect Data
+	$save_data = [
+		'id' => $_POST['note_id'] ?? '',
+		'title' => $_POST['new_title'] ?? 'Untitled',
+		'category' => $_POST['category'] ?? 'General',
+		'text' => $_POST['page'] ?? '',
+		'is_pinned' => isset($_POST['is_pinned']) ? 1 : 0,
+		'is_archived' => $_POST['is_archived'] ?? 0
+	];
+
+	// SAVE
+	$saved_id = save_note($save_data);
+
+	if ($saved_id) {
+		$nid = $saved_id; // Update ID if it was new
+		$msg = "Note saved successfully!";
+		$msg_type = "success";
+
+		// Redirect logic
+		if (isset($_POST['save_exit'])) {
+			header("Location: index.php");
+			exit();
+		}
+		if (isset($_POST['action_type']) && $_POST['action_type'] == 'archive_redirect') {
+			header("Location: index.php");
+			exit();
+		}
+		// If just Save, stay here but reload clean to show updates/ID
+		// We can just populate variables from POST to show valid state immediately
+		$ntitle = $save_data['title'];
+		$ncat = $save_data['category'];
+		$content = $save_data['text'];
+		$is_pinned_val = $save_data['is_pinned'];
+		$is_archived_val = $save_data['is_archived'];
+	} else {
+		$msg = "Error saving note.";
+		$msg_type = "error";
+	}
+}
+
+// 2. Handle GET (Load Note)
+if (isset($_GET['id'])) {
+	$nid = $_GET['id'];
+	$note = get_note($nid);
+	if ($note) {
+		$ntitle = $note['title'];
+		$ncat = $note['category'];
+		$content = $note['text'];
+		$is_pinned_val = $note['is_pinned'];
+		$is_archived_val = $note['is_archived'];
+	} else {
+		// Note not found or not owned
+		header("Location: index.php");
+		exit();
+	}
+}
+
+// Check for Flash Message (from redirection)
 if (isset($_SESSION['flash'])) {
 	$msg = $_SESSION['flash']['message'];
 	$msg_type = $_SESSION['flash']['type'];
-	unset($_SESSION['flash']); // Clear immediately
+	unset($_SESSION['flash']);
 }
-// End of header logic
 ?>
 <!DOCTYPE html>
 <html>
