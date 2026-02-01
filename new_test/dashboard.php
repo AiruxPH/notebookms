@@ -81,10 +81,14 @@ session_start();
 
                             // Strip tags regarding block elements, but allow inline styles
                             // Use CSS line-clamp for truncation
-                            $clean_text = strip_tags($row['text'] ?? '', '<b><i><u><strong><em>');
+                            $raw_text = $row['text'] ?? '';
+                            $raw_text = str_replace('<li>', ' &bull; ', $raw_text);
+                            $raw_text = str_replace(['</p>', '</div>', '<br>', '<br/>'], ' ', $raw_text);
+
+                            $clean_text = strip_tags($raw_text, '<b><i><u><strong><em>');
                             $dtxt = $clean_text;
 
-                            if (empty($dtxt))
+                            if (empty(trim($dtxt)))
                                 $dtxt = "<em>No content...</em>";
 
                             echo "<a href='notepad.php?id=$nid' class='note-card' style='height: 180px;'>";
