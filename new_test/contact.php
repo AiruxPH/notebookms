@@ -1,3 +1,4 @@
+<?php include 'includes/db.php'; ?>
 <!DOCTYPE html>
 <html>
 
@@ -13,9 +14,14 @@
 			<h1><a href="dashboard.php">Notebook-BAR</a></h1>
 			<nav>
 				<a href="dashboard.php">Dashboard</a>
-				<a href="about.html">About</a>
 				<a href="index.php">Notes</a>
-				<a href="contact.html">Contact Us</a>
+				<?php if (is_logged_in()): ?>
+					<a href="logout.php" style="color: #c62828;">Logout</a>
+				<?php else: ?>
+					<a href="login.php" style="color: #2e7d32;">Login</a>
+				<?php endif; ?>
+				<a href="about.php">About</a>
+				<a href="contact.php">Contact Us</a>
 			</nav>
 		</div>
 	</header>
