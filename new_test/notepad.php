@@ -40,8 +40,8 @@ if (isset($_SESSION['flash'])) {
 				<?php else: ?>
 					<a href="login.php" style="color: #2e7d32;">Login</a>
 				<?php endif; ?>
-				<a href="about.html">About</a>
-				<a href="contact.html">Contact Us</a>
+				<a href="about.php">About</a>
+				<a href="contact.php">Contact Us</a>
 			</nav>
 		</div>
 	</header>
