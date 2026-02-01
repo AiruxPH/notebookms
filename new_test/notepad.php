@@ -76,10 +76,12 @@ if ($nid != "" && $content == "") {
 
 		<div class="editor-layout">
 			<form method="post">
+				<input type="hidden" name="action_type" id="action_type" value="save">
 				<!-- Meta Section -->
 				<div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
 					<select name="category" class="title-input"
-						style="width: auto; font-size: 16px; border-bottom: 2px solid #999;">
+						style="width: auto; font-size: 16px; border-bottom: 2px solid #999;"
+                        <?php echo $is_archived_val ? 'disabled' : ''; ?>>
 						<?php
 						$cats = ["General", "Personal", "Work", "Study", "Ideas"];
 						foreach ($cats as $c) {
@@ -90,8 +92,7 @@ if ($nid != "" && $content == "") {
 					</select>
 
 					<label style="font-size: 14px; display: flex; align-items: center; gap: 5px;">
-						<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
-							echo "checked"; ?>>
+						<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val) echo "checked"; ?> <?php echo $is_archived_val ? 'disabled' : ''; ?>>
 						Pin
 					</label>
 
@@ -102,12 +103,12 @@ if ($nid != "" && $content == "") {
 					<?php endif; ?>
 
 					<input type="text" name="new_title" class="title-input" placeholder="Note Title" required
-						value="<?php echo htmlspecialchars($ntitle); ?>" style="flex-grow: 1;">
+						value="<?php echo htmlspecialchars($ntitle); ?>" style="flex-grow: 1;" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
 				</div>
 
 				<!-- Editor Section -->
 				<textarea name="page" class="editor-textarea"
-					placeholder="Start writing your note..."><?php echo htmlspecialchars($content); ?></textarea>
+					placeholder="Start writing your note..." <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($content); ?></textarea>
 
 				<!-- Stats Bar -->
 				<div style="font-size: 12px; color: #777; margin-top: 5px; text-align: right;">
@@ -128,7 +129,10 @@ if ($nid != "" && $content == "") {
 						<?php endif; ?>
 					<?php endif; ?>
 
-					<button type="submit" name="save_note" class="btn btn-primary">Save Note</button>
+                    <?php if (!$is_archived_val): ?>
+					    <button type="submit" name="save_note" class="btn btn-primary" style="margin-left: auto; margin-right: 10px;">Save</button>
+                        <button type="submit" name="save_exit" class="btn btn-primary">Save & Exit</button>
+                    <?php endif; ?>
 				</div>
 			</form>
 		</div>
@@ -142,6 +146,7 @@ if ($nid != "" && $content == "") {
 		function confirmArchive() {
 			if (confirm("Are you sure you want to ARCHIVE this note?\nIt will be hidden from the main list.")) {
 				document.getElementById('is_archived_input').value = 1;
+                document.getElementById('action_type').value = 'archive_redirect';
 				// Submit form
 				document.querySelector('form').submit();
 			}
@@ -150,6 +155,7 @@ if ($nid != "" && $content == "") {
 		function confirmUnarchive() {
 			if (confirm("Are you sure you want to UNARCHIVE this note?\nIt will return to the main list.")) {
 				document.getElementById('is_archived_input').value = 0;
+                document.getElementById('action_type').value = 'archive_redirect';
 				// Submit form
 				document.querySelector('form').submit();
 			}
