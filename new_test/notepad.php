@@ -57,7 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_note'])) {
 		}
 	} else {
 		// --- UPDATE NOTE ---
-		mysqli_query($conn, "UPDATE notes SET date_last = '$date' WHERE id = $nid");
+		$title_input = isset($_POST['new_title']) ? trim($_POST['new_title']) : $ntitle;
+		$safe_title = mysqli_real_escape_string($conn, $title_input);
+
+		mysqli_query($conn, "UPDATE notes SET title = '$safe_title', date_last = '$date' WHERE id = $nid");
 
 		$check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id = $nid AND page_number = 1");
 		if (mysqli_num_rows($check) > 0) {
@@ -117,15 +120,8 @@ if ($nid != "" && $content == "") {
 		<div class="editor-layout">
 			<form method="post">
 				<!-- Title Section -->
-				<?php if ($nid == ""): ?>
-					<input type="text" name="new_title" class="title-input" placeholder="Enter Note Title Here..." required
-						value="<?php echo htmlspecialchars($ntitle); ?>" autofocus>
-				<?php else: ?>
-					<div class="note-title"
-						style="font-size: 1.8rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem; margin-bottom: 1rem;">
-						<?php echo htmlspecialchars($ntitle); ?>
-					</div>
-				<?php endif; ?>
+				<input type="text" name="new_title" class="title-input" placeholder="Note Title" required
+					value="<?php echo htmlspecialchars($ntitle); ?>">
 
 				<!-- Editor Section -->
 				<textarea name="page" class="editor-textarea"
