@@ -121,10 +121,37 @@ if (isset($_SESSION['flash'])) {
 						style="width: auto; font-size: 16px; border-bottom: 2px solid #999;" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
 						<?php
 						$all_cats = get_categories();
+
+						$defaults = [];
+						$custom = [];
+						$default_names = ['General', 'Personal', 'Work', 'Study', 'Ideas'];
+
 						foreach ($all_cats as $c) {
-							$cname = $c['name'];
-							$sel = ($ncat == $cname) ? "selected" : "";
-							echo "<option value='$cname' $sel>$cname</option>";
+							if (in_array($c['name'], $default_names)) {
+								$defaults[] = $c;
+							} else {
+								$custom[] = $c;
+							}
+						}
+
+						if (!empty($defaults)) {
+							echo "<optgroup label='Defaults'>";
+							foreach ($defaults as $c) {
+								$cname = htmlspecialchars($c['name']);
+								$sel = ($ncat == $cname) ? "selected" : "";
+								echo "<option value='$cname' $sel>$cname</option>";
+							}
+							echo "</optgroup>";
+						}
+
+						if (!empty($custom)) {
+							echo "<optgroup label='My Categories'>";
+							foreach ($custom as $c) {
+								$cname = htmlspecialchars($c['name']);
+								$sel = ($ncat == $cname) ? "selected" : "";
+								echo "<option value='$cname' $sel>$cname</option>";
+							}
+							echo "</optgroup>";
 						}
 						?>
 					</select>

@@ -48,7 +48,7 @@ include 'includes/data_access.php';
             <!-- Left Column: Categories & Tools -->
             <div class="dashboard-sidebar">
                 <h3>Quick Categories</h3>
-                <div class="category-list">
+                <div class="category-list" style="max-height: 300px; overflow-y: auto;">
                     <?php
                     $quick_cats = get_categories();
                     foreach ($quick_cats as $c) {

@@ -91,11 +91,42 @@ session_start();
 			<?php
 			$all_cats = get_categories();
 			$curr_cat = $_GET['cat'] ?? '';
+
+			// Separate groups
+			$defaults = [];
+			$custom = [];
 			foreach ($all_cats as $c) {
-				// Access 'name' from the array returned by get_categories
-				$cname = htmlspecialchars($c['name']);
-				$sel = ($curr_cat == $cname) ? "selected" : "";
-				echo "<option value='$cname' $sel>$cname</option>";
+				// Determine if custom: if user_id is set and > 0, or if it isn't in our hardcoded defaults list
+				// Since get_categories returns array with user_id context (from DB), we can use that.
+				// However, for Guests, we might need to rely on names if user_id isn't explicitly set in the merged array for session items.
+				// Let's assume standard defaults for check if user_id check is ambiguous
+				$default_names = ['General', 'Personal', 'Work', 'Study', 'Ideas'];
+
+				if (in_array($c['name'], $default_names)) {
+					$defaults[] = $c;
+				} else {
+					$custom[] = $c;
+				}
+			}
+
+			if (!empty($defaults)) {
+				echo "<optgroup label='Defaults'>";
+				foreach ($defaults as $c) {
+					$cname = htmlspecialchars($c['name']);
+					$sel = ($curr_cat == $cname) ? "selected" : "";
+					echo "<option value='$cname' $sel>$cname</option>";
+				}
+				echo "</optgroup>";
+			}
+
+			if (!empty($custom)) {
+				echo "<optgroup label='My Categories'>";
+				foreach ($custom as $c) {
+					$cname = htmlspecialchars($c['name']);
+					$sel = ($curr_cat == $cname) ? "selected" : "";
+					echo "<option value='$cname' $sel>$cname</option>";
+				}
+				echo "</optgroup>";
 			}
 			?>
 		</select>
