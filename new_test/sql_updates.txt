@@ -1,0 +1,7 @@
+-- Run these commands in your Database SQL Tab (phpMyAdmin or similar)
+
+-- 1. Add 'is_pinned' column to 'notes' table
+ALTER TABLE `notes` ADD COLUMN `is_pinned` TINYINT(1) DEFAULT 0;
+
+-- 2. Add 'is_archived' column to 'notes' table
+ALTER TABLE `notes` ADD COLUMN `is_archived` TINYINT(1) DEFAULT 0;

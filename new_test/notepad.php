@@ -20,10 +20,12 @@ if (isset($_SESSION['flash'])) {
 if (isset($_GET['id'])) {
 	$nid = intval($_GET['id']);
 	// Fetch Title (and verify note exists)
-	$res = mysqli_query($conn, "SELECT title FROM notes WHERE id = $nid");
+	$res = mysqli_query($conn, "SELECT * FROM notes WHERE id = $nid");
 	if ($row = mysqli_fetch_assoc($res)) {
 		$ntitle = $row['title'];
 		$ncat = $row['category'];
+		// Fetch ALL row data to access later
+		// $row is already available
 	} else {
 		$nid = ""; // Invalid ID
 	}
@@ -45,7 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_note'])) {
 			$cat_input = isset($_POST['category']) ? $_POST['category'] : 'General';
 			$safe_cat = mysqli_real_escape_string($conn, $cat_input);
 
-			$sql_note = "INSERT INTO notes (user_id, title, category, date_created, date_last) VALUES (0, '$safe_title', '$safe_cat', '$date', '$date')";
+			$is_pinned = isset($_POST['is_pinned']) ? 1 : 0;
+			// New notes are generally not archived immediately, but we stick to defaults (0) or explicit input if provided.
+
+			$sql_note = "INSERT INTO notes (user_id, title, category, is_pinned, is_archived, date_created, date_last) VALUES (0, '$safe_title', '$safe_cat', $is_pinned, 0, '$date', '$date')";
 			if (mysqli_query($conn, $sql_note)) {
 				$nid = mysqli_insert_id($conn);
 				$sql_page = "INSERT INTO pages (note_id, page_number, text) VALUES ($nid, 1, '$content_input')";
@@ -68,7 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_note'])) {
 		$safe_title = mysqli_real_escape_string($conn, $title_input);
 		$safe_cat = mysqli_real_escape_string($conn, $cat_input);
 
-		mysqli_query($conn, "UPDATE notes SET title = '$safe_title', category = '$safe_cat', date_last = '$date' WHERE id = $nid");
+		$is_pinned = isset($_POST['is_pinned']) ? 1 : 0;
+		$is_archived = isset($_POST['is_archived']) ? 1 : 0;
+
+		mysqli_query($conn, "UPDATE notes SET title = '$safe_title', category = '$safe_cat', is_pinned = $is_pinned, is_archived = $is_archived, date_last = '$date' WHERE id = $nid");
 
 		$check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id = $nid AND page_number = 1");
 		if (mysqli_num_rows($check) > 0) {
@@ -128,7 +136,7 @@ if ($nid != "" && $content == "") {
 		<div class="editor-layout">
 			<form method="post">
 				<!-- Meta Section -->
-				<div style="margin-bottom: 15px; display: flex; gap: 10px;">
+				<div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
 					<select name="category" class="title-input"
 						style="width: auto; font-size: 16px; border-bottom: 2px solid #999;">
 						<?php
@@ -139,6 +147,20 @@ if ($nid != "" && $content == "") {
 						}
 						?>
 					</select>
+
+					<label style="font-size: 14px; display: flex; align-items: center; gap: 5px;">
+						<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
+							echo "checked"; ?>>
+						Pin
+					</label>
+
+					<?php if ($nid != ""): ?>
+						<label style="font-size: 14px; display: flex; align-items: center; gap: 5px;">
+							<input type="checkbox" name="is_archived" value="1" <?php if ($is_archived_val)
+								echo "checked"; ?>> Archive
+						</label>
+					<?php endif; ?>
+
 					<input type="text" name="new_title" class="title-input" placeholder="Note Title" required
 						value="<?php echo htmlspecialchars($ntitle); ?>" style="flex-grow: 1;">
 				</div>
@@ -146,6 +168,11 @@ if ($nid != "" && $content == "") {
 				<!-- Editor Section -->
 				<textarea name="page" class="editor-textarea"
 					placeholder="Start writing your note..."><?php echo htmlspecialchars($content); ?></textarea>
+
+				<!-- Stats Bar -->
+				<div style="font-size: 12px; color: #777; margin-top: 5px; text-align: right;">
+					<span id="word-count">0</span> Words | <span id="char-count">0</span> Characters
+				</div>
 
 				<!-- Toolbar -->
 				<div class="toolbar">
@@ -155,6 +182,25 @@ if ($nid != "" && $content == "") {
 			</form>
 		</div>
 	</div>
+
+	<script>
+		const textarea = document.querySelector('.editor-textarea');
+		const wordCount = document.getElementById('word-count');
+		const charCount = document.getElementById('char-count');
+
+		function updateStats() {
+			const text = textarea.value;
+			charCount.textContent = text.length;
+
+			// Basic word count (split by spaces/newlines)
+			const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+			wordCount.textContent = words.length;
+		}
+
+		textarea.addEventListener('input', updateStats);
+		// Initial call
+		updateStats();
+	</script>
 
 </body>
 

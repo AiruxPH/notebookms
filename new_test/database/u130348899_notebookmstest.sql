@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 01, 2026 at 10:04 AM
+-- Generation Time: Feb 01, 2026 at 11:41 AM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -34,8 +34,19 @@ CREATE TABLE `notes` (
   `category` varchar(100) DEFAULT 'General',
   `color` int(11) DEFAULT 0,
   `date_created` datetime DEFAULT current_timestamp(),
-  `date_last` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `date_last` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_pinned` tinyint(1) DEFAULT 0,
+  `is_archived` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Dumping data for table `notes`
+--
+
+INSERT INTO `notes` (`id`, `user_id`, `title`, `category`, `color`, `date_created`, `date_last`, `is_pinned`, `is_archived`) VALUES
+(1, 0, 'this is the title', 'General', 0, '2026-02-01 10:05:02', '2026-02-01 10:54:18', 0, 0),
+(2, 0, 'Yes', 'General', 0, '2026-02-01 10:20:25', '2026-02-01 10:20:25', 0, 0),
+(3, 0, 'CSIT6 PRELIM', 'Study', 0, '2026-02-01 11:18:14', '2026-02-01 11:18:14', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -49,6 +60,15 @@ CREATE TABLE `pages` (
   `page_number` int(11) DEFAULT 1,
   `text` longtext DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Dumping data for table `pages`
+--
+
+INSERT INTO `pages` (`id`, `note_id`, `page_number`, `text`) VALUES
+(1, 1, 1, 'test note'),
+(2, 2, 1, 'Test'),
+(3, 3, 1, 'This website is a preliminary examination requirement\r\n');
 
 -- --------------------------------------------------------
 
@@ -94,13 +114,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `users`

@@ -71,27 +71,43 @@ session_start();
 
 				<?php
 				// Search & Filter Logic
-			$where = [];
-			if (isset($_GET['q']) && !empty($_GET['q'])) {
-				$q = mysqli_real_escape_string($conn, $_GET['q']);
-				$where[] = "(n.title LIKE '%$q%' OR p.text LIKE '%$q%')";
-			}
-			if (isset($_GET['cat']) && !empty($_GET['cat'])) {
-				$cat = mysqli_real_escape_string($conn, $_GET['cat']);
-				$where[] = "n.category = '$cat'";
-			}
-			
-			$where_sql = "";
-			if (!empty($where)) {
-				$where_sql = "WHERE " . implode(" AND ", $where);
-			}
+				$where = [];
 
-			// Fetch Notes with Content Preview
-			$sql = "SELECT n.id, n.title, n.category, n.date_created, n.date_last, p.text 
+				// Default: Hide archived notes unless specifically filtering for them (logic can vary)
+				// For now, let's say we hide archived notes by default.
+				// $where[] = "n.is_archived = 0"; 
+				
+				// Actually, let's check if 'show_archived' parameter is present
+				if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+					$where[] = "n.is_archived = 1";
+				} else {
+					// Important: To prevent breaking if column doesn't exist yet (in case user hasn't run SQL), 
+					// we might skip this restriction for a split second, but ideally we add it. 
+					// Assuming user runs SQL:
+					$where[] = "n.is_archived = 0";
+				}
+
+				if (isset($_GET['q']) && !empty($_GET['q'])) {
+					$q = mysqli_real_escape_string($conn, $_GET['q']);
+					$where[] = "(n.title LIKE '%$q%' OR p.text LIKE '%$q%')";
+				}
+				if (isset($_GET['cat']) && !empty($_GET['cat'])) {
+					$cat = mysqli_real_escape_string($conn, $_GET['cat']);
+					$where[] = "n.category = '$cat'";
+				}
+
+				$where_sql = "";
+				if (!empty($where)) {
+					$where_sql = "WHERE " . implode(" AND ", $where);
+				}
+
+				// Fetch Notes with Content Preview
+				// ORDER BY is_pinned DESC (so 1 comes first), then date_last DESC
+				$sql = "SELECT n.id, n.title, n.category, n.is_pinned, n.date_created, n.date_last, p.text 
 				FROM notes n 
 				LEFT JOIN pages p ON n.id = p.note_id AND p.page_number = 1
 				$where_sql
-				ORDER BY n.date_last DESC";
+				ORDER BY n.is_pinned DESC, n.date_last DESC";
 
 				$result = mysqli_query($conn, $sql);
 
@@ -112,8 +128,9 @@ session_start();
 							$dtxt = "<em>No content...</em>";
 
 						// Render Card
+						$pin_icon = ($row['is_pinned'] == 1) ? "<span style='float: right; font-size: 1.2rem;'>📌</span>" : "";
 						echo "<a href='notepad.php?id=$nid' class='note-card'>";
-						echo "<div class='note-title'>" . htmlspecialchars($dtitle) . "</div>";
+						echo "<div class='note-title'>$pin_icon" . htmlspecialchars($dtitle) . "</div>";
 						echo "<div class='note-meta'>$dcat &bull; $ddatl</div>";
 						echo "<div class='note-preview'>$dtxt</div>";
 						echo "<div class='note-footer'>";
