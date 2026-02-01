@@ -165,9 +165,67 @@ if ($nid != "" && $content == "") {
 		<div class="editor-layout">
 			<form method="post">
 				<input type="hidden" name="action_type" id="action_type" value="save">
-				<!-- ... rest of form ... -->
-                
-                <!-- (Skipping middle section - replacing end script) -->
+				<!-- Meta Section -->
+				<div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+					<select name="category" class="title-input"
+						style="width: auto; font-size: 16px; border-bottom: 2px solid #999;" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
+						<?php
+						$cats = ["General", "Personal", "Work", "Study", "Ideas"];
+						foreach ($cats as $c) {
+							$sel = ($ncat == $c) ? "selected" : "";
+							echo "<option value='$c' $sel>$c</option>";
+						}
+						?>
+					</select>
+
+					<label style="font-size: 14px; display: flex; align-items: center; gap: 5px;">
+						<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
+							echo "checked"; ?>
+						<?php echo $is_archived_val ? 'disabled' : ''; ?>>
+						Pin
+					</label>
+
+					<?php if ($nid != ""): ?>
+						<!-- Archive button moved to toolbar -->
+						<input type="hidden" name="is_archived" id="is_archived_input"
+							value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
+					<?php endif; ?>
+
+					<input type="text" name="new_title" class="title-input" placeholder="Note Title" required
+						value="<?php echo htmlspecialchars($ntitle); ?>" style="flex-grow: 1;" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
+				</div>
+
+				<!-- Editor Section -->
+				<textarea name="page" class="editor-textarea" placeholder="Start writing your note..." <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($content); ?></textarea>
+
+				<!-- Stats Bar -->
+				<div style="font-size: 12px; color: #777; margin-top: 5px; text-align: right;">
+					<span id="word-count">0</span> Words | <span id="char-count">0</span> Characters
+				</div>
+
+				<!-- Toolbar -->
+				<div class="toolbar">
+					<a href="index.php" class="btn btn-secondary">Back to List</a>
+
+					<?php if ($nid != ""): ?>
+						<?php if (isset($is_archived_val) && $is_archived_val): ?>
+							<button type="button" onclick="confirmUnarchive()" class="btn"
+								style="background: #e1f5fe; border-color: #039be5; color: #0277bd;">Unarchive Note</button>
+						<?php else: ?>
+							<button type="button" onclick="confirmArchive()" class="btn"
+								style="background: #ffebee; border-color: #ef5350; color: #c62828;">Archive Note</button>
+						<?php endif; ?>
+					<?php endif; ?>
+
+					<?php if (!$is_archived_val): ?>
+						<button type="submit" name="save_note" class="btn btn-primary"
+							style="margin-left: auto; margin-right: 10px;">Save</button>
+						<button type="submit" name="save_exit" class="btn btn-primary">Save & Exit</button>
+					<?php endif; ?>
+				</div>
+			</form>
+		</div>
+	</div>
 	<script>
 		const textarea = document.querySelector('.editor-textarea');
 		const wordCount = document.getElementById('word-count');
@@ -190,40 +248,40 @@ if ($nid != "" && $content == "") {
 		}
 
 		function updateStats() {
-            if(!textarea) return;
+			if (!textarea) return;
 			const text = textarea.value;
 			charCount.textContent = text.length;
 			const words = text.trim().split(/\s+/).filter(word => word.length > 0);
 			wordCount.textContent = words.length;
 		}
 
-		if(textarea) {
-            textarea.addEventListener('input', updateStats);
-            updateStats();
-        }
+		if (textarea) {
+			textarea.addEventListener('input', updateStats);
+			updateStats();
+		}
 
 		// Toast Logic
 		const toastOverlay = document.getElementById('toast-overlay');
 		const toastMessage = document.getElementById('toast-message');
 
 		function showToast(msg, type) {
-            toastMessage.textContent = msg;
+			toastMessage.textContent = msg;
 			toastMessage.className = "toast-message " + (type === 'error' ? 'toast-error' : 'toast-success');
-            // Force reflow
-            void toastMessage.offsetWidth; 
-            
-            toastOverlay.style.display = 'flex';
-            requestAnimationFrame(() => {
-                 toastMessage.classList.add('show');
-            });
+			// Force reflow
+			void toastMessage.offsetWidth;
 
-            // Auto hide after 3 seconds
-            setTimeout(() => {
-                toastMessage.classList.remove('show');
-                setTimeout(() => {
-                     toastOverlay.style.display = 'none';
-                }, 300); // Wait for fade out
-            }, 3000);
+			toastOverlay.style.display = 'flex';
+			requestAnimationFrame(() => {
+				toastMessage.classList.add('show');
+			});
+
+			// Auto hide after 3 seconds
+			setTimeout(() => {
+				toastMessage.classList.remove('show');
+				setTimeout(() => {
+					toastOverlay.style.display = 'none';
+				}, 300); // Wait for fade out
+			}, 3000);
 		}
 
 		// Trigger from PHP
