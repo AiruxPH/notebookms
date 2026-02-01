@@ -1,77 +1,82 @@
 <?php
 include 'includes/db.php';
 
-if (isset($_SESSION['passnote']) && !is_null($_SESSION['passnote'])) {
-	$_SESSION['passnote'] = null;
-}
-
-?><!DOCTYPE html>
-
+// Flash message check (optional if we want to show messages on index too)
+session_start();
+?>
+<!DOCTYPE html>
 <html>
 
 <head>
 	<link rel="stylesheet" href="css/style.css">
+	<title>My Notes - Notebook</title>
 </head>
 
-<header>
-	<br />
-	<h1> <a href="index.php"> Notebook-BAR </a> </h1>
-	<nav>
-		<a href="about.html"> About </a>
-		<a href="index.php"> Notes </a>
-		<a href="contact.html"> Contact Us </a>
-	</nav>
-	<br />
-</header>
-
 <body>
-	<div id="bwrap">
-		<br>
-		<figure>
-			<a href="notepad.php">
-				<h2 class="new_note"> Add New Note </h2>
-				<b style="font-size: 120px; text-align: center; overflow:  hidden; vertical-align: center;"> + </b>
-			</a>
-		</figure>
 
-		<?php
-		// Use LEFT JOIN to get note details and page 1 content in one query
-		// NEW SCHEMA: notes.id, pages.note_id
-		$sql = "SELECT n.id, n.title, n.category, n.date_created, n.date_last, p.text 
+	<header>
+		<div class="header-inner">
+			<h1><a href="index.php">Notebook-BAR</a></h1>
+			<nav>
+				<a href="about.html">About</a>
+				<a href="index.php">Notes</a>
+				<a href="contact.html">Contact Us</a>
+			</nav>
+		</div>
+	</header>
+
+	<div class="container">
+		<div class="note-grid">
+			<!-- Add New Note Card -->
+			<a href="notepad.php" class="note-card note-add-card">
+				<div style="text-align: center;">
+					<div style="font-size: 3rem; font-weight: bold;">+</div>
+					<div>Add New Note</div>
+				</div>
+			</a>
+
+			<?php
+			// Fetch Notes with Content Preview
+			$sql = "SELECT n.id, n.title, n.category, n.date_created, n.date_last, p.text 
 				FROM notes n 
 				LEFT JOIN pages p ON n.id = p.note_id AND p.page_number = 1
 				ORDER BY n.date_last DESC";
 
-		$result = mysqli_query($conn, $sql);
+			$result = mysqli_query($conn, $sql);
 
-		if ($result) {
-			while ($row = mysqli_fetch_assoc($result)) {
-				$nid = $row['id'];
-				$dtitle = $row['title'];
-				$dcat = $row['category'];
-				$ddatc = $row['date_created'];
-				$ddatl = $row['date_last'];
-				// Truncate text for preview (e.g., first 100 chars)
-				$dtxt = htmlspecialchars(substr($row['text'] ?? '', 0, 100)) . (strlen($row['text'] ?? '') > 100 ? '...' : '');
+			if ($result) {
+				while ($row = mysqli_fetch_assoc($result)) {
+					$nid = $row['id'];
+					$dtitle = $row['title'];
+					$dcat = $row['category'];
+					// Format Date nicely
+					$ddatc = date("M j, Y", strtotime($row['date_created']));
+					$ddatl = date("M j, H:i", strtotime($row['date_last']));
 
-				echo "<figure>";
-				echo "<a href='notepad.php?id=" . $nid . "'>"; // Link using ID now
-				echo "<h2>" . htmlspecialchars($dtitle) . "</h2>";
-				echo "<h5>" . htmlspecialchars($dcat) . "</h5>";
-				echo "<p>" . $dtxt . "</p>";
-				echo "<table class='tbldetails'>";
-				echo "<colgroup><col span='1' class='dtc1'><col span='1' class='dtc2'></colgroup>";
-				echo "<tr><td>Date Created</td><td>" . htmlspecialchars($ddatc) . "</td></tr>";
-				echo "<tr><td>Last Modified</td><td>" . htmlspecialchars($ddatl) . "</td></tr>";
-				echo "</table>";
-				echo "</a>";
-				echo "</figure>";
+					// Truncate text
+					$dtxt = htmlspecialchars(substr($row['text'] ?? '', 0, 120));
+					if (strlen($row['text'] ?? '') > 120)
+						$dtxt .= "...";
+					if (empty($dtxt))
+						$dtxt = "<em>No content...</em>";
+
+					// Render Card
+					echo "<a href='notepad.php?id=$nid' class='note-card'>";
+					echo "<div class='note-title'>" . htmlspecialchars($dtitle) . "</div>";
+					echo "<div class='note-meta'>$dcat &bull; $ddatl</div>";
+					echo "<div class='note-preview'>$dtxt</div>";
+					echo "<div class='note-footer'>";
+					echo "<span>Created: $ddatc</span>";
+					echo "</div>";
+					echo "</a>";
+				}
+			} else {
+				echo "<p>Error fetching notes: " . mysqli_error($conn) . "</p>";
 			}
-		} else {
-			echo "<p>Error fetching notes: " . mysqli_error($conn) . "</p>";
-		}
-		?>
+			?>
+		</div>
 	</div>
+
 </body>
 
 </html>
