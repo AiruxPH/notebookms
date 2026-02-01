@@ -208,6 +208,7 @@ session_start();
 			echo "<div class='note-preview'>$dtxt</div>";
 			echo "<div class='note-footer'>";
 			echo "<span>Created: $date_created</span>";
+			echo "</div>";
 			echo "</a>";
 		}
 	} else {
