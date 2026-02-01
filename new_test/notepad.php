@@ -6,6 +6,7 @@ $msg = "";
 $msg_type = "";
 $nid = "";
 $ntitle = "";
+$ncat = "General"; // Default category
 $content = "";
 
 // Check for Flash Message
@@ -22,6 +23,7 @@ if (isset($_GET['id'])) {
 	$res = mysqli_query($conn, "SELECT title FROM notes WHERE id = $nid");
 	if ($row = mysqli_fetch_assoc($res)) {
 		$ntitle = $row['title'];
+		$ncat = $row['category'];
 	} else {
 		$nid = ""; // Invalid ID
 	}
@@ -40,7 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_note'])) {
 			$msg_type = "error";
 		} else {
 			$safe_title = mysqli_real_escape_string($conn, $title_input);
-			$sql_note = "INSERT INTO notes (user_id, title, category, date_created, date_last) VALUES (0, '$safe_title', 'General', '$date', '$date')";
+			$cat_input = isset($_POST['category']) ? $_POST['category'] : 'General';
+			$safe_cat = mysqli_real_escape_string($conn, $cat_input);
+
+			$sql_note = "INSERT INTO notes (user_id, title, category, date_created, date_last) VALUES (0, '$safe_title', '$safe_cat', '$date', '$date')";
 			if (mysqli_query($conn, $sql_note)) {
 				$nid = mysqli_insert_id($conn);
 				$sql_page = "INSERT INTO pages (note_id, page_number, text) VALUES ($nid, 1, '$content_input')";
@@ -58,9 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_note'])) {
 	} else {
 		// --- UPDATE NOTE ---
 		$title_input = isset($_POST['new_title']) ? trim($_POST['new_title']) : $ntitle;
-		$safe_title = mysqli_real_escape_string($conn, $title_input);
+		$cat_input = isset($_POST['category']) ? $_POST['category'] : 'General';
 
-		mysqli_query($conn, "UPDATE notes SET title = '$safe_title', date_last = '$date' WHERE id = $nid");
+		$safe_title = mysqli_real_escape_string($conn, $title_input);
+		$safe_cat = mysqli_real_escape_string($conn, $cat_input);
+
+		mysqli_query($conn, "UPDATE notes SET title = '$safe_title', category = '$safe_cat', date_last = '$date' WHERE id = $nid");
 
 		$check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id = $nid AND page_number = 1");
 		if (mysqli_num_rows($check) > 0) {
@@ -119,9 +127,21 @@ if ($nid != "" && $content == "") {
 
 		<div class="editor-layout">
 			<form method="post">
-				<!-- Title Section -->
-				<input type="text" name="new_title" class="title-input" placeholder="Note Title" required
-					value="<?php echo htmlspecialchars($ntitle); ?>">
+				<!-- Meta Section -->
+				<div style="margin-bottom: 15px; display: flex; gap: 10px;">
+					<select name="category" class="title-input"
+						style="width: auto; font-size: 16px; border-bottom: 2px solid #999;">
+						<?php
+						$cats = ["General", "Personal", "Work", "Study", "Ideas"];
+						foreach ($cats as $c) {
+							$sel = ($ncat == $c) ? "selected" : "";
+							echo "<option value='$c' $sel>$c</option>";
+						}
+						?>
+					</select>
+					<input type="text" name="new_title" class="title-input" placeholder="Note Title" required
+						value="<?php echo htmlspecialchars($ntitle); ?>" style="flex-grow: 1;">
+				</div>
 
 				<!-- Editor Section -->
 				<textarea name="page" class="editor-textarea"
