@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 01, 2026 at 09:30 AM
+-- Generation Time: Feb 01, 2026 at 10:04 AM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -28,20 +28,14 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `notes` (
-  `title` varchar(64) NOT NULL,
-  `date_created` date NOT NULL,
-  `date_last` date NOT NULL,
-  `category` varchar(40) NOT NULL,
-  `color` int(2) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
---
--- Dumping data for table `notes`
---
-
-INSERT INTO `notes` (`title`, `date_created`, `date_last`, `category`, `color`) VALUES
-('Testing 123', '2024-02-21', '2024-02-21', 'Random Category', 0),
-('Shoppinglist', '2024-02-22', '2024-02-22', 'gear', 11);
+  `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT 0,
+  `title` varchar(255) NOT NULL,
+  `category` varchar(100) DEFAULT 'General',
+  `color` int(11) DEFAULT 0,
+  `date_created` datetime DEFAULT current_timestamp(),
+  `date_last` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -50,18 +44,24 @@ INSERT INTO `notes` (`title`, `date_created`, `date_last`, `category`, `color`) 
 --
 
 CREATE TABLE `pages` (
-  `owner` varchar(64) NOT NULL,
-  `page` int(2) NOT NULL,
-  `text` text NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `id` int(11) NOT NULL,
+  `note_id` int(11) NOT NULL,
+  `page_number` int(11) DEFAULT 1,
+  `text` longtext DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- --------------------------------------------------------
 
 --
--- Dumping data for table `pages`
+-- Table structure for table `users`
 --
 
-INSERT INTO `pages` (`owner`, `page`, `text`) VALUES
-('Testing 123', 1, 'This is a sample block of text that amounts to two hundred fifty five (255)characters long. Given how the text fields in HTML are limited to only 255 characters, instead of trying to find a way around it Ive decided to implement it instead as a feature.'),
-('Shoppinglist', 1, '3 cans of sardines\r\n1 can of corned beef\r\n1 pack of misua\r\n9 packs of pancit (lemon)');
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `is_guest` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
 -- Indexes for dumped tables
@@ -71,13 +71,52 @@ INSERT INTO `pages` (`owner`, `page`, `text`) VALUES
 -- Indexes for table `notes`
 --
 ALTER TABLE `notes`
-  ADD PRIMARY KEY (`title`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `pages`
 --
 ALTER TABLE `pages`
-  ADD KEY `owner` (`owner`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `note_id` (`note_id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `notes`
+--
+ALTER TABLE `notes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `pages`
+--
+ALTER TABLE `pages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `pages`
+--
+ALTER TABLE `pages`
+  ADD CONSTRAINT `pages_ibfk_1` FOREIGN KEY (`note_id`) REFERENCES `notes` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
