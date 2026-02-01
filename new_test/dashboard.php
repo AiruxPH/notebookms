@@ -80,11 +80,10 @@ session_start();
                             $ddatl = date("M j, H:i", strtotime($row['date_last']));
 
                             // Strip tags regarding block elements, but allow inline styles
+                            // Use CSS line-clamp for truncation
                             $clean_text = strip_tags($row['text'] ?? '', '<b><i><u><strong><em>');
-                            $dtxt = substr($clean_text, 0, 80);
+                            $dtxt = $clean_text;
 
-                            if (strlen($clean_text) > 80)
-                                $dtxt .= "...";
                             if (empty($dtxt))
                                 $dtxt = "<em>No content...</em>";
 
