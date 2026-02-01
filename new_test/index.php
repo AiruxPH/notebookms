@@ -164,31 +164,46 @@ session_start();
 	$result = mysqli_query($conn, $sql);
 
 	if ($result) {
-		while ($row = mysqli_fetch_assoc($result)) {
-			$nid = $row['id'];
-			$dtitle = $row['title'];
-			$dcat = $row['category'];
-			// Format Date nicely
-			$ddatc = date("M j, Y", strtotime($row['date_created']));
-			$ddatl = date("M j, H:i", strtotime($row['date_last']));
+		if (mysqli_num_rows($result) > 0) {
+			while ($row = mysqli_fetch_assoc($result)) {
+				$nid = $row['id'];
+				$dtitle = $row['title'];
+				$dcat = $row['category'];
+				// Format Date nicely
+				$ddatc = date("M j, Y", strtotime($row['date_created']));
+				$ddatl = date("M j, H:i", strtotime($row['date_last']));
 
-			// Truncate text
-			$dtxt = htmlspecialchars(substr($row['text'] ?? '', 0, 120));
-			if (strlen($row['text'] ?? '') > 120)
-				$dtxt .= "...";
-			if (empty($dtxt))
-				$dtxt = "<em>No content...</em>";
+				// Truncate text
+				$dtxt = htmlspecialchars(substr($row['text'] ?? '', 0, 120));
+				if (strlen($row['text'] ?? '') > 120)
+					$dtxt .= "...";
+				if (empty($dtxt))
+					$dtxt = "<em>No content...</em>";
 
-			// Render Card
-			$pin_icon = ($row['is_pinned'] == 1) ? "<span style='float: right; font-size: 1.2rem;'>📌</span>" : "";
-			echo "<a href='notepad.php?id=$nid' class='note-card'>";
-			echo "<div class='note-title'>$pin_icon" . htmlspecialchars($dtitle) . "</div>";
-			echo "<div class='note-meta'>$dcat &bull; $ddatl</div>";
-			echo "<div class='note-preview'>$dtxt</div>";
-			echo "<div class='note-footer'>";
-			echo "<span>Created: $ddatc</span>";
-			echo "</div>";
-			echo "</a>";
+				// Render Card
+				$pin_icon = ($row['is_pinned'] == 1) ? "<span style='float: right; font-size: 1.2rem;'>📌</span>" : "";
+				echo "<a href='notepad.php?id=$nid' class='note-card'>";
+				echo "<div class='note-title'>$pin_icon" . htmlspecialchars($dtitle) . "</div>";
+				echo "<div class='note-meta'>$dcat &bull; $ddatl</div>";
+				echo "<div class='note-preview'>$dtxt</div>";
+				echo "<div class='note-footer'>";
+				echo "<span>Created: $ddatc</span>";
+				echo "</div>";
+				echo "</a>";
+			}
+		} else {
+			// Empty State Message
+			$empty_msg = "No notes found.";
+			if (isset($_GET['archived']) && $_GET['archived'] == 1) {
+				$empty_msg = "No archived notes found.";
+			} else if (isset($_GET['q'])) {
+				$empty_msg = "No notes found matching your search.";
+			}
+
+			echo "<div style='grid-column: 1 / -1; text-align: center; color: #777; padding: 40px;'>
+                    <div style='font-size: 40px; margin-bottom: 10px; opacity: 0.5;'>📭</div>
+                    <div style='font-size: 18px;'>$empty_msg</div>
+                   </div>";
 		}
 	} else {
 		echo "<p>Error fetching notes: " . mysqli_error($conn) . "</p>";
