@@ -32,3 +32,20 @@ CREATE TABLE IF NOT EXISTS users (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+-- 3. Create Trigger to Limit Categories per User (Max 20)
+DELIMITER //
+CREATE TRIGGER limit_category_count
+BEFORE INSERT ON categories
+FOR EACH ROW
+BEGIN
+    DECLARE cat_count INT;
+    SELECT COUNT(*) INTO cat_count FROM categories WHERE user_id = NEW.user_id;
+    IF cat_count >= 20 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Limit reached: Maximum 20 categories per user allowed.';
+    END IF;
+END;
+//
+DELIMITER ;
+
