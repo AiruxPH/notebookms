@@ -89,11 +89,13 @@ session_start();
 		<select name="cat" style="padding: 8px; font-family: inherit; font-size: 14px; border: 1px solid #ccc;">
 			<option value="">All Categories</option>
 			<?php
-			$cats = ["General", "Personal", "Work", "Study", "Ideas"];
+			$all_cats = get_categories();
 			$curr_cat = $_GET['cat'] ?? '';
-			foreach ($cats as $c) {
-				$sel = ($curr_cat == $c) ? "selected" : "";
-				echo "<option value='$c' $sel>$c</option>";
+			foreach ($all_cats as $c) {
+				// Access 'name' from the array returned by get_categories
+				$cname = htmlspecialchars($c['name']);
+				$sel = ($curr_cat == $cname) ? "selected" : "";
+				echo "<option value='$cname' $sel>$cname</option>";
 			}
 			?>
 		</select>
