@@ -34,8 +34,13 @@ if (isset($_SESSION['flash'])) {
 			<h1><a href="dashboard.php">Notebook-BAR</a></h1>
 			<nav>
 				<a href="dashboard.php">Dashboard</a>
-				<a href="about.html">About</a>
 				<a href="index.php">Notes</a>
+				<?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0): ?>
+					<a href="logout.php" style="color: #c62828;">Logout</a>
+				<?php else: ?>
+					<a href="login.php" style="color: #2e7d32;">Login</a>
+				<?php endif; ?>
+				<a href="about.html">About</a>
 				<a href="contact.html">Contact Us</a>
 			</nav>
 		</div>

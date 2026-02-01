@@ -17,8 +17,13 @@ include 'includes/data_access.php';
             <h1><a href="dashboard.php">Notebook-BAR</a></h1>
             <nav>
                 <a href="dashboard.php">Dashboard</a>
-                <a href="about.html">About</a>
                 <a href="index.php">Notes</a>
+                <?php if (is_logged_in()): ?>
+                    <a href="logout.php" style="color: #c62828;">Logout</a>
+                <?php else: ?>
+                    <a href="login.php" style="color: #2e7d32;">Login</a>
+                <?php endif; ?>
+                <a href="about.html">About</a>
                 <a href="contact.html">Contact Us</a>
             </nav>
         </div>
@@ -82,10 +87,16 @@ include 'includes/data_access.php';
                 }
                 ?>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <a href="notepad.php" class="btn btn-primary" style="text-decoration: none;">+ New Note</a>
-                    <button onclick="document.getElementById('cat-modal').style.display='block'"
-                        class="btn btn-secondary" style="border: 1px solid #ccc;">Manage Categories</button>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                    <a href="notepad.php" class="btn btn-primary" style="text-decoration: none; text-align: center;">+
+                        New Note</a>
+                    <div style="display: flex; gap: 5px;">
+                        <button onclick="document.getElementById('cat-modal').style.display='block'"
+                            class="btn btn-secondary" style="border: 1px solid #ccc; flex: 1;">Categories</button>
+                        <a href="index.php" class="btn btn-secondary"
+                            style="text-decoration: none; text-align: center; flex: 1; border: 1px solid #ccc;">All
+                            Notes</a>
+                    </div>
                 </div>
 
                 <!-- Category Modal -->
@@ -149,10 +160,7 @@ include 'includes/data_access.php';
                         </div>
                     </div>
                 </div>
-                <div style="margin-top: 30px;">
-                    <a href="index.php" class="btn btn-secondary"
-                        style="display: block; text-align: center; margin-top: 10px;">📂 View All Notes</a>
-                </div>
+                <!-- Sidebar Actions moved to top -->
             </div>
 
             <!-- Right Column: Pinned Notes -->
