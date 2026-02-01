@@ -171,7 +171,8 @@ a.note-add-card:hover {
 
 .editor-textarea {
 	width: 100%;
-	height: 60vh;
+	height: 45vh;
+	/* Reduced height to ensure buttons fit */
 	border: none;
 	background: transparent;
 	font-family: inherit;
