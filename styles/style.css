@@ -1,0 +1,126 @@
+html	{
+	background: #ffffbf;
+	font-family: Verdana;
+}
+
+header	{
+	width: 100%;
+	margin:0;
+	text-align: center;
+	background: #f4f488;
+	
+}
+
+header h1 {
+	font-size: 40px;
+}
+
+header h1 a	{
+	text-decoration: none;
+	padding: 15px 15px 15px 15px;
+	margin: 1px;
+}
+
+nav a	{
+	color: black;
+	display: inline-block;
+	text-decoration: none;
+	width: 30%;
+	background: #e8e860;
+	font-size: 25px;
+	padding: 5px;
+}
+
+div#bwrap	 {
+	text-align: center;
+	width: 95%;
+	margin: 0 2.5% 0 2.5%;
+}
+
+div#nwrap {
+  text-align: left;
+  width: 95%;
+  margin: 0 2.5% 0 2.5%;
+}
+
+#nwrap table  {
+  width: 80%;
+  margin: 0 auto 0 auto;
+}
+
+#nwrap textarea	{
+	text-align: left;
+	vertical-align: top;
+	height: 500px;
+	width: 100%;
+}
+
+
+div#cwrap {
+  text-align: left;
+  width: 95%;
+  margin: 0 2.5% 0 2.5%;
+}
+
+
+
+#bwrap figure	{
+	width: 30%;
+	min-width: 300px;
+	height: 340px;
+	display: inline-block;
+	/*border: 1px solid black;*/
+	margin: 10px 1% 10px 1%	;
+	background: #e8e860;
+	vertical-align: top;
+}
+
+#bwrap figure h2, #bwrap figure h5	{
+	text-align: left;
+	margin: 4px 5% 8px 5%;
+}
+
+#bwrap figure p	{
+	text-align: justify;
+  height: 200px;
+	margin: 0 8% 0 8%;
+	overflow: hidden;
+	font-size:18px;
+	padding: 4px;
+	background: #ffffb3;
+}
+
+#bwrap figure a {
+  text-decoration: none;
+  color:  black;
+}
+
+.new_note h2 {
+  vertical-align: center;
+}
+
+table.tbldetails	{
+	margin: 10px auto 10px auto;
+	text-align: left;
+	width: 90%;
+	font-size: 12px;
+	border: 1px solid black;
+}
+
+.tbldetails dtc1	{
+	width: 40%;
+}
+
+.tbldetails dtc2	{
+	width: 60%;
+}
+
+b.note_cap  {
+  text-align: left;
+}
+
+#note_title {
+  
+}
+
+#note_
