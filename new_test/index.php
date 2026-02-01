@@ -16,8 +16,9 @@ session_start();
 
 	<header>
 		<div class="header-inner">
-			<h1><a href="index.php">Notebook-BAR</a></h1>
+			<h1><a href="dashboard.php">Notebook-BAR</a></h1>
 			<nav>
+				<a href="dashboard.php">Dashboard</a>
 				<a href="about.html">About</a>
 				<a href="index.php">Notes</a>
 				<a href="contact.html">Contact Us</a>
@@ -173,9 +174,10 @@ session_start();
 				$ddatc = date("M j, Y", strtotime($row['date_created']));
 				$ddatl = date("M j, H:i", strtotime($row['date_last']));
 
-				// Truncate text
-				$dtxt = htmlspecialchars(substr($row['text'] ?? '', 0, 120));
-				if (strlen($row['text'] ?? '') > 120)
+				// Truncate text (Strip HTML tags first!)
+				$clean_text = strip_tags($row['text'] ?? '');
+				$dtxt = htmlspecialchars(substr($clean_text, 0, 120));
+				if (strlen($clean_text) > 120)
 					$dtxt .= "...";
 				if (empty($dtxt))
 					$dtxt = "<em>No content...</em>";

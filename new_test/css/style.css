@@ -280,3 +280,66 @@ a.note-add-card:hover {
 .toast-error {
 	border-left: 5px solid #F44336;
 }
+
+/* Dashboard Styles */
+.dashboard-section {
+	background: #fff;
+	border: 1px solid #aaa;
+	padding: 20px;
+	margin-bottom: 30px;
+	border-radius: 2px;
+	box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.announcement-box {
+	background: #fffde7;
+	/* Note card bg */
+	border: 2px solid #d1d190;
+}
+
+.announcement-box h2 {
+	margin-top: 0;
+	font-size: 1.5rem;
+}
+
+.dashboard-grid-layout {
+	display: grid;
+	grid-template-columns: 250px 1fr;
+	gap: 30px;
+}
+
+@media (max-width: 700px) {
+	.dashboard-grid-layout {
+		grid-template-columns: 1fr;
+	}
+}
+
+.dashboard-sidebar h3,
+.dashboard-main h3 {
+	border-bottom: 2px solid #333;
+	padding-bottom: 10px;
+	margin-top: 0;
+}
+
+.category-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.cat-btn {
+	display: block;
+	padding: 10px 15px;
+	background: #fff;
+	border: 1px solid #ccc;
+	color: #333;
+	font-weight: bold;
+	text-decoration: none;
+	transition: all 0.2s;
+	border-left: 4px solid var(--nav-bg);
+}
+
+.cat-btn:hover {
+	background: var(--nav-bg);
+	padding-left: 20px;
+}

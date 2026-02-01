@@ -147,8 +147,9 @@ if ($nid != "" && $content == "") {
 
 	<header>
 		<div class="header-inner">
-			<h1><a href="index.php">Notebook-BAR</a></h1>
+			<h1><a href="dashboard.php">Notebook-BAR</a></h1>
 			<nav>
+				<a href="dashboard.php">Dashboard</a>
 				<a href="about.html">About</a>
 				<a href="index.php">Notes</a>
 				<a href="contact.html">Contact Us</a>
@@ -181,7 +182,7 @@ if ($nid != "" && $content == "") {
 					<label style="font-size: 14px; display: flex; align-items: center; gap: 5px;">
 						<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
 							echo "checked"; ?>
-						<?php echo $is_archived_val ? 'disabled' : ''; ?>>
+							<?php echo $is_archived_val ? 'disabled' : ''; ?>>
 						Pin
 					</label>
 
@@ -195,8 +196,24 @@ if ($nid != "" && $content == "") {
 						value="<?php echo htmlspecialchars($ntitle); ?>" style="flex-grow: 1;" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
 				</div>
 
+				<!-- Formatting Toolbar -->
+				<div
+					style="background: #eee; padding: 5px; border: 1px solid #ccc; border-bottom: none; display: flex; gap: 5px;">
+					<button type="button" onclick="formatText('b')" style="font-weight: bold; width: 30px;"
+						title="Bold">B</button>
+					<button type="button" onclick="formatText('i')" style="font-style: italic; width: 30px;"
+						title="Italic">I</button>
+					<button type="button" onclick="formatText('u')" style="text-decoration: underline; width: 30px;"
+						title="Underline">U</button>
+					<span style="border-left: 1px solid #ccc; margin: 0 5px;"></span>
+					<button type="button" onclick="formatText('h3')" style="font-weight: bold; width: 30px;"
+						title="Heading">H</button>
+					<button type="button" onclick="formatText('li')" style="width: 30px;" title="List Item">•</button>
+				</div>
+
 				<!-- Editor Section -->
-				<textarea name="page" class="editor-textarea" placeholder="Start writing your note..." <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($content); ?></textarea>
+				<textarea name="page" class="editor-textarea" style="border-top: none; margin-top: 0;"
+					placeholder="Start writing your note..." <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($content); ?></textarea>
 
 				<!-- Stats Bar -->
 				<div style="font-size: 12px; color: #777; margin-top: 5px; text-align: right;">
@@ -230,6 +247,26 @@ if ($nid != "" && $content == "") {
 		const textarea = document.querySelector('.editor-textarea');
 		const wordCount = document.getElementById('word-count');
 		const charCount = document.getElementById('char-count');
+
+		function formatText(tag) {
+			if (!textarea) return;
+
+			const start = textarea.selectionStart;
+			const end = textarea.selectionEnd;
+			const text = textarea.value;
+			const selectedText = text.substring(start, end);
+
+			let replacement = "";
+
+			if (tag === 'b') replacement = `<b>${selectedText}</b>`;
+			else if (tag === 'i') replacement = `<i>${selectedText}</i>`;
+			else if (tag === 'u') replacement = `<u>${selectedText}</u>`;
+			else if (tag === 'h3') replacement = `<h3>${selectedText}</h3>`;
+			else if (tag === 'li') replacement = `\n<li>${selectedText}</li>`;
+
+			textarea.setRangeText(replacement, start, end, 'select');
+			updateStats();
+		}
 
 		function confirmArchive() {
 			if (confirm("Are you sure you want to ARCHIVE ?")) {
