@@ -71,18 +71,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset
 		$stmt->execute();
 		$stmt->close();
 
-		// Update existing page
-		$check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id = $nid AND page_number = 1");
-		if (mysqli_num_rows($check) > 0) {
-			$stmt = $conn->prepare("UPDATE pages SET text = ? WHERE note_id = ? AND page_number = 1");
-			$stmt->bind_param("si", $content_input, $nid);
-			$stmt->execute();
-			$stmt->close();
-		} else {
-			$stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, 1, ?)");
-			$stmt->bind_param("is", $nid, $content_input);
-			$stmt->execute();
-			$stmt->close();
+		// Update existing page (ONLY if page content was sent - i.e. not disabled)
+		if (isset($_POST['page'])) {
+			$check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id = $nid AND page_number = 1");
+			if (mysqli_num_rows($check) > 0) {
+				$stmt = $conn->prepare("UPDATE pages SET text = ? WHERE note_id = ? AND page_number = 1");
+				$stmt->bind_param("si", $content_input, $nid);
+				$stmt->execute();
+				$stmt->close();
+			} else {
+				$stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, 1, ?)");
+				$stmt->bind_param("is", $nid, $content_input);
+				$stmt->execute();
+				$stmt->close();
+			}
 		}
 
 		$_SESSION['flash'] = ['message' => 'Note updated successfully!', 'type' => 'success'];
