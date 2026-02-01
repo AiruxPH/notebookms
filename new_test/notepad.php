@@ -64,14 +64,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset
 	}
 
 	// *** STANDARD SAVE LOGIC (Insert/Update Content) ***
-	$content_input = isset($_POST['page']) ? mysqli_real_escape_string($conn, $_POST['page']) : $content;
+	// NOTE: We do NOT use mysqli_real_escape_string here because we use prepared statements (bind_param) below.
+	// Using both would result in double-escaping (e.g. "It\'s").
+	$content_input = isset($_POST['page']) ? $_POST['page'] : $content;
 
 	// Use existing values ($ntitle, $ncat) if POST is missing (disabled inputs)
 	$title_input = isset($_POST['new_title']) ? trim($_POST['new_title']) : $ntitle;
 	$category_input = isset($_POST['category']) ? $_POST['category'] : $ncat;
 
-	$new_title = mysqli_real_escape_string($conn, $title_input);
-	$category = mysqli_real_escape_string($conn, $category_input);
+	$new_title = $title_input; // Raw input for bind_param
+	$category = $category_input; // Raw input for bind_param
 	$is_pinned = isset($_POST['is_pinned']) ? 1 : 0;
 	// Archive status shouldn't change here usually, but we keep it sync
 	$is_archived = isset($_POST['is_archived']) ? intval($_POST['is_archived']) : $is_archived_val;
@@ -216,14 +218,7 @@ if ($nid != "" && $content == "") {
 				<input type="hidden" name="page" id="page_content" value="<?php echo htmlspecialchars($content); ?>">
 
 				<div class="editor-div" id="editor" <?php echo $is_archived_val ? 'contenteditable="false"' : 'contenteditable="true"'; ?>>
-					<?php
-					// If content is empty, show placeholder-like behavior (handled via CSS/JS usually, or just empty)
-					// If content has HTML, it renders. If plain text, it renders. 
-					// We must NOT escape HTML here because we want it to render.
-					// BUT we must be careful of XSS. Since this is a local app/test, we assume trust or basic sanitization.
-					// For now, echo logic:
-					echo $content;
-					?>
+					<?php echo $content; ?>
 				</div>
 
 				<!-- Stats Bar -->
