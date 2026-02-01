@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 01, 2026 at 02:03 PM
+-- Generation Time: Feb 01, 2026 at 03:37 PM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -43,7 +43,23 @@ INSERT INTO `categories` (`id`, `user_id`, `name`, `color`) VALUES
 (2, 0, 'Personal', '#e8f5e9'),
 (3, 0, 'Work', '#e3f2fd'),
 (4, 0, 'Study', '#fce4ec'),
-(5, 0, 'Ideas', '#f3e5f5');
+(5, 0, 'Ideas', '#f3e5f5'),
+(6, 1, 'Green', '#75d94a');
+
+--
+-- Triggers `categories`
+--
+DELIMITER $$
+CREATE TRIGGER `limit_category_count` BEFORE INSERT ON `categories` FOR EACH ROW BEGIN
+    DECLARE cat_count INT;
+    SELECT COUNT(*) INTO cat_count FROM categories WHERE user_id = NEW.user_id;
+    IF cat_count >= 20 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Limit reached: Maximum 20 categories per user allowed.';
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -68,9 +84,10 @@ CREATE TABLE `notes` (
 --
 
 INSERT INTO `notes` (`id`, `user_id`, `title`, `category`, `color`, `date_created`, `date_last`, `is_pinned`, `is_archived`) VALUES
-(1, 0, 'this is the title', 'General', 0, '2026-02-01 10:05:02', '2026-02-01 13:39:30', 0, 0),
-(2, 0, 'Yes', 'General', 0, '2026-02-01 10:20:25', '2026-02-01 10:20:25', 0, 0),
-(3, 0, 'CSIT6 PRELIM', 'Study', 0, '2026-02-01 11:18:14', '2026-02-01 11:43:28', 1, 0);
+(1, 1, 'this is the title', 'General', 0, '2026-02-01 10:05:02', '2026-02-01 14:54:17', 0, 0),
+(2, 1, 'Yes', 'General', 0, '2026-02-01 10:20:25', '2026-02-01 14:54:17', 0, 0),
+(3, 1, 'CSIT6 PRELIM', 'Study', 0, '2026-02-01 11:18:14', '2026-02-01 14:54:17', 1, 0),
+(4, 1, 'Green', 'Green', 0, '2026-02-01 15:18:13', '2026-02-01 15:18:13', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -92,7 +109,8 @@ CREATE TABLE `pages` (
 INSERT INTO `pages` (`id`, `note_id`, `page_number`, `text`) VALUES
 (1, 1, 1, '\r\n					\r\n					\r\n					\r\n					<b>This is a body</b><div><b><br></b></div><div>this <b><i>this is italic</i></b></div><div><b><i><br></i></b></div><div><b><i><u>this is iitalic underlined<br><br></u></i></b><h3><b><i><u>hey<br><br><ul><li><b><i><u>Thiss is a list</u></i></b></li><li><b><i><u>secon</u></i></b></li><li><b><i><u>third</u></i></b></li><li><b><i><u>fourth</u></i></b></li><li><b><i><u>fith</u></i></b></li><li><b><i><u>sixh</u></i></b></li><li><b><i><u>jhdfjwad</u></i></b></li><li><b><i><u>ad</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>wd</u></i></b></li><li><b><i><u>wad</u></i></b></li><li><b><i><u><br></u></i></b></li></ul></u></i></b></h3></div>																'),
 (2, 2, 1, 'Test'),
-(3, 3, 1, 'This website is a preliminary examination requirement and yes there is a thing cc\r\n');
+(3, 3, 1, 'This website is a preliminary examination requirement and yes there is a thing cc\r\n'),
+(4, 4, 1, '<h3>Green</h3><div>This is green</div>');
 
 -- --------------------------------------------------------
 
@@ -106,6 +124,13 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `is_guest` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `password`, `is_guest`) VALUES
+(1, 'AiruxPH', 'AiruxPH', 0);
 
 --
 -- Indexes for dumped tables
@@ -144,25 +169,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
