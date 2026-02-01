@@ -67,8 +67,11 @@ include 'includes/data_access.php';
                         $c_name = trim($_POST['cat_name']);
                         $c_color = $_POST['cat_color'];
                         if ($c_name) {
-                            if (add_category($c_name, $c_color)) {
+                            $res = add_category($c_name, $c_color);
+                            if ($res === 1) {
                                 $_SESSION['flash'] = ['message' => 'Category Added', 'type' => 'success'];
+                            } elseif ($res === -1) {
+                                $_SESSION['flash'] = ['message' => 'Limit reached (Max 20 categories)', 'type' => 'error'];
                             } else {
                                 $_SESSION['flash'] = ['message' => 'Error adding category (Duplicate?)', 'type' => 'error'];
                             }

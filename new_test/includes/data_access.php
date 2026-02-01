@@ -298,29 +298,42 @@ function add_category($name, $color)
     global $conn;
     $uid = get_current_user_id();
 
+    $MAX_CATS = 20;
+
     if (is_logged_in()) {
-        $name = strip_tags($name); // Basic Sanitization
+        $name = strip_tags($name);
         $name_esc = mysqli_real_escape_string($conn, $name);
         $color_esc = mysqli_real_escape_string($conn, $color);
 
-        // Check duplicate name for this user
+        // Check Count
+        $count_res = mysqli_query($conn, "SELECT COUNT(*) as c FROM categories WHERE user_id=$uid");
+        $row = mysqli_fetch_assoc($count_res);
+        if ($row['c'] >= $MAX_CATS) {
+            return -1; // Limit Reached
+        }
+
+        // Check duplicate
         $check = mysqli_query($conn, "SELECT id FROM categories WHERE user_id=$uid AND name='$name_esc'");
         if (mysqli_num_rows($check) > 0)
-            return false;
+            return 0; // Duplicate
 
         $sql = "INSERT INTO categories (user_id, name, color) VALUES ($uid, '$name_esc', '$color_esc')";
-        return mysqli_query($conn, $sql);
+        return mysqli_query($conn, $sql) ? 1 : 0;
     } else {
-        // Guest Session Category
+        // Guest
         if (!isset($_SESSION['guest_cats']))
             $_SESSION['guest_cats'] = [];
-        // Check dup
+
+        if (count($_SESSION['guest_cats']) >= $MAX_CATS) {
+            return -1; // Limit Reached
+        }
+
         foreach ($_SESSION['guest_cats'] as $c) {
             if ($c['name'] == $name)
-                return false;
+                return 0; // Duplicate
         }
         $_SESSION['guest_cats'][] = ['name' => $name, 'color' => $color, 'user_id' => 0];
-        return true;
+        return 1;
     }
 }
 /**
