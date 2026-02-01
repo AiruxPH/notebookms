@@ -54,6 +54,15 @@ session_start();
 						style="font-weight: normal; font-size: 12px; padding: 10px;">Clear</a>
 				<?php endif; ?>
 			</form>
+
+			<div style="border-left: 1px solid #ccc; padding-left: 10px; margin-left: auto;">
+				<?php if (isset($_GET['archived']) && $_GET['archived'] == 1): ?>
+					<a href="index.php" style="color: green; font-weight: bold; font-size: 14px;">&laquo; View Active
+						Notes</a>
+				<?php else: ?>
+					<a href="index.php?archived=1" style="color: #999; font-size: 14px;">View Archived Notes &raquo;</a>
+				<?php endif; ?>
+			</div>
 		</div>
 
 		<div class="note-grid">

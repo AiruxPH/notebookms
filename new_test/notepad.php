@@ -74,7 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_note'])) {
 		$safe_cat = mysqli_real_escape_string($conn, $cat_input);
 
 		$is_pinned = isset($_POST['is_pinned']) ? 1 : 0;
-		$is_archived = isset($_POST['is_archived']) ? 1 : 0;
+		// Checkbox sends '1' if checked, nothing if not. Hidden input sends value.
+		// We use intval to be safe for both cases if we switch UI elements.
+		$is_archived = isset($_POST['is_archived']) ? intval($_POST['is_archived']) : 0;
 
 		mysqli_query($conn, "UPDATE notes SET title = '$safe_title', category = '$safe_cat', is_pinned = $is_pinned, is_archived = $is_archived, date_last = '$date' WHERE id = $nid");
 
@@ -127,11 +129,13 @@ if ($nid != "" && $content == "") {
 	</header>
 
 	<div class="container">
-		<?php if ($msg): ?>
-			<div class="flash-message flash-<?php echo $msg_type; ?>">
-				<?php echo htmlspecialchars($msg); ?>
+		<!-- Popup Container -->
+		<div id="popup-overlay" class="popup-overlay">
+			<div class="popup-content">
+				<div id="popup-message" class="popup-message"></div>
+				<button class="popup-btn" onclick="closePopup()">OK</button>
 			</div>
-		<?php endif; ?>
+		</div>
 
 		<div class="editor-layout">
 			<form method="post">
@@ -155,10 +159,9 @@ if ($nid != "" && $content == "") {
 					</label>
 
 					<?php if ($nid != ""): ?>
-						<label style="font-size: 14px; display: flex; align-items: center; gap: 5px;">
-							<input type="checkbox" name="is_archived" value="1" <?php if ($is_archived_val)
-								echo "checked"; ?>> Archive
-						</label>
+						<!-- Archive button moved to toolbar -->
+						<input type="hidden" name="is_archived" id="is_archived_input"
+							value="<?php echo isset($row['is_archived']) ? $row['is_archived'] : 0; ?>">
 					<?php endif; ?>
 
 					<input type="text" name="new_title" class="title-input" placeholder="Note Title" required
@@ -177,6 +180,17 @@ if ($nid != "" && $content == "") {
 				<!-- Toolbar -->
 				<div class="toolbar">
 					<a href="index.php" class="btn btn-secondary">Back to List</a>
+
+					<?php if ($nid != ""): ?>
+						<?php if (isset($row['is_archived']) && $row['is_archived']): ?>
+							<button type="button" onclick="confirmUnarchive()" class="btn"
+								style="background: #e1f5fe; border-color: #039be5; color: #0277bd;">Unarchive Note</button>
+						<?php else: ?>
+							<button type="button" onclick="confirmArchive()" class="btn"
+								style="background: #ffebee; border-color: #ef5350; color: #c62828;">Archive Note</button>
+						<?php endif; ?>
+					<?php endif; ?>
+
 					<button type="submit" name="save_note" class="btn btn-primary">Save Note</button>
 				</div>
 			</form>
@@ -187,6 +201,22 @@ if ($nid != "" && $content == "") {
 		const textarea = document.querySelector('.editor-textarea');
 		const wordCount = document.getElementById('word-count');
 		const charCount = document.getElementById('char-count');
+
+		function confirmArchive() {
+			if (confirm("Are you sure you want to ARCHIVE this note?\nIt will be hidden from the main list.")) {
+				document.getElementById('is_archived_input').value = 1;
+				// Submit form
+				document.querySelector('form').submit();
+			}
+		}
+
+		function confirmUnarchive() {
+			if (confirm("Are you sure you want to UNARCHIVE this note?\nIt will return to the main list.")) {
+				document.getElementById('is_archived_input').value = 0;
+				// Submit form
+				document.querySelector('form').submit();
+			}
+		}
 
 		function updateStats() {
 			const text = textarea.value;
@@ -200,6 +230,29 @@ if ($nid != "" && $content == "") {
 		textarea.addEventListener('input', updateStats);
 		// Initial call
 		updateStats();
+
+		// Popup Logic
+		const popupOverlay = document.getElementById('popup-overlay');
+		const popupMessage = document.getElementById('popup-message');
+
+		function showPopup(msg, type) {
+			popupMessage.textContent = msg;
+			popupMessage.className = "popup-message " + (type === 'error' ? 'flash-error' : 'flash-success');
+			// We reuse flash-error/success for text color if we want, or just leave it standard.
+			// Let's reset color to black just in case, or use specific colors.
+			popupMessage.style.color = (type === 'error') ? '#c62828' : '#2e7d32';
+
+			popupOverlay.style.display = 'flex';
+		}
+
+		function closePopup() {
+			popupOverlay.style.display = 'none';
+		}
+
+		// Trigger from PHP
+		<?php if ($msg): ?>
+			showPopup("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
+		<?php endif; ?>
 	</script>
 
 </body>
