@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 02, 2026 at 04:41 PM
+-- Generation Time: Feb 02, 2026 at 04:53 PM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -77,7 +77,7 @@ CREATE TABLE `notes` (
   `date_last` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `is_pinned` tinyint(1) DEFAULT 0,
   `is_archived` tinyint(1) DEFAULT 0,
-  `category_id` int(11) DEFAULT NULL
+  `category_id` int(11) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
@@ -128,16 +128,18 @@ CREATE TABLE `users` (
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` enum('user','admin') NOT NULL DEFAULT 'user',
-  `is_active` tinyint(1) DEFAULT 1
+  `is_active` tinyint(1) DEFAULT 1,
+  `date_created` datetime NOT NULL DEFAULT current_timestamp(),
+  `date_modified` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `role`, `is_active`) VALUES
-(1, 'AiruxPH', 'AiruxPH', 'user', 1),
-(2, 'archer', '123', 'user', 1);
+INSERT INTO `users` (`id`, `username`, `password`, `role`, `is_active`, `date_created`, `date_modified`) VALUES
+(1, 'AiruxPH', 'AiruxPH', 'user', 1, '2026-02-02 16:50:04', '2026-02-02 16:50:04'),
+(2, 'archer', '123', 'user', 1, '2026-02-02 16:50:04', '2026-02-02 16:50:04');
 
 --
 -- Indexes for dumped tables
@@ -200,12 +202,6 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
-
---
--- Constraints for table `notes`
---
-ALTER TABLE `notes`
-  ADD CONSTRAINT `fk_note_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `pages`
