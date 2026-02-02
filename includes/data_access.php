@@ -390,24 +390,94 @@ function add_category($name, $color)
 /**
  * Delete a custom category
  */
-function delete_category($name)
+function delete_category($id)
 {
     global $conn;
     $uid = get_current_user_id();
 
+    // PROTECTION: Never delete default categories (1-5)
+    if (is_numeric($id) && intval($id) <= 5) {
+        return false;
+    }
+
     if (is_logged_in()) {
-        $name_esc = mysqli_real_escape_string($conn, $name);
+        $id = intval($id);
+
+        // MIGRATION: Move notes to General (1) before deleting
+        mysqli_query($conn, "UPDATE notes SET category_id = 1 WHERE category_id = $id AND user_id = $uid");
+
         // Only delete if it belongs to this user
-        $sql = "DELETE FROM categories WHERE user_id=$uid AND name='$name_esc'";
+        $sql = "DELETE FROM categories WHERE user_id=$uid AND id=$id";
         return mysqli_query($conn, $sql);
     } else {
         // Guest
         if (isset($_SESSION['guest_cats'])) {
-            foreach ($_SESSION['guest_cats'] as $k => $c) {
-                if ($c['name'] == $name) {
-                    unset($_SESSION['guest_cats'][$k]);
-                    return true;
+            // guest_id is like 'g_0'
+            $idx = str_replace('g_', '', $id);
+            if (isset($_SESSION['guest_cats'][$idx])) {
+                $cname = $_SESSION['guest_cats'][$idx]['name'];
+
+                // MIGRATION: Move guest notes to General (1)
+                if (isset($_SESSION['guest_notes'])) {
+                    foreach ($_SESSION['guest_notes'] as &$n) {
+                        if ($n['category'] == $id) {
+                            $n['category'] = 1;
+                        }
+                    }
                 }
+
+                unset($_SESSION['guest_cats'][$idx]);
+                // Re-index to keep IDs consistent if they are based on index
+                $_SESSION['guest_cats'] = array_values($_SESSION['guest_cats']);
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+/**
+ * Update a custom category
+ */
+function update_category($id, $name, $color)
+{
+    global $conn;
+    $uid = get_current_user_id();
+
+    // PROTECTION: Never edit default categories (1-5)
+    if (is_numeric($id) && intval($id) <= 5) {
+        return false;
+    }
+
+    $name = strip_tags($name);
+    // Limit name to 50
+    $name = substr($name, 0, 50);
+
+    if (is_logged_in()) {
+        $id = intval($id);
+        $name_esc = mysqli_real_escape_string($conn, $name);
+        $color_esc = mysqli_real_escape_string($conn, $color);
+
+        // Check if name taken by another category of same user
+        $check = mysqli_query($conn, "SELECT id FROM categories WHERE user_id=$uid AND name='$name_esc' AND id != $id");
+        if (mysqli_num_rows($check) > 0)
+            return 0; // Duplicate
+
+        $sql = "UPDATE categories SET name='$name_esc', color='$color_esc' WHERE user_id=$uid AND id=$id";
+        return mysqli_query($conn, $sql);
+    } else {
+        // Guest
+        if (isset($_SESSION['guest_cats'])) {
+            $idx = str_replace('g_', '', $id);
+            if (isset($_SESSION['guest_cats'][$idx])) {
+                // Check duplicate
+                foreach ($_SESSION['guest_cats'] as $i => $c) {
+                    if ($i != $idx && $c['name'] == $name)
+                        return 0;
+                }
+                $_SESSION['guest_cats'][$idx]['name'] = $name;
+                $_SESSION['guest_cats'][$idx]['color'] = $color;
+                return true;
             }
         }
         return false;
