@@ -23,6 +23,15 @@ CSIT601 preliminary exam requirement
 ### 10.  Basic Rich Text Formatting
   This allow the users to apply basic text formatting makes notes more readable and allows the user to bring more emphasis to certain parts.
 
+## To-do
+### Placement of stats of note cards, like time stamps
+### Height of note cards, static or flexible with a max?
+### Set overflow for note card preview text
+### Display page
+### Dedicated cateogry page
+### Reminder feature, nice-to-have, low priority
+### Re-do the database design, trim unnecesary tables and columns
+
 ## Editors
 **Verne Mhel N. Calledo**
 **Anecito Randy E.Calunod Jr.**
