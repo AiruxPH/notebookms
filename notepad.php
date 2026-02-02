@@ -412,6 +412,11 @@ if (isset($_SESSION['flash'])) {
 							<button type="button" onclick="addNewPage()" class="page-btn add-page-btn" title="Add New Page">
 								<i class="fa-solid fa-plus"></i>
 							</button>
+
+							<!-- Delete Page -->
+							<button type="button" onclick="deletePage()" class="page-btn delete-page-btn" id="btn-delete" title="Delete Current Page" style="margin-left: 5px;">
+								<i class="fa-solid fa-trash-can"></i>
+							</button>
 						</div>
 
 				</div>
@@ -570,6 +575,39 @@ if (isset($_SESSION['flash'])) {
 			window.currentPage = totalPages;
 			allPages[currentPage] = ""; // Init empty
 			editor.innerHTML = "";
+			updateUI();
+		}
+
+		function deletePage() {
+			if (!editor) return;
+			if (totalPages <= 1) {
+				alert("Cannot delete the only page.");
+				return;
+			}
+
+			if (!confirm("Are you sure you want to delete this page? This cannot be undone.")) return;
+
+			// 1. Shift pages after the current one
+			for (let i = currentPage; i < totalPages; i++) {
+				allPages[i] = allPages[i + 1];
+			}
+			// 2. Remove the last entry
+			delete allPages[totalPages];
+			
+			// 3. Update total
+			totalPages--;
+			window.totalPages = totalPages;
+
+			// 4. Adjust current page if we deleted the last page
+			if (currentPage > totalPages) {
+				currentPage = totalPages;
+				window.currentPage = totalPages;
+			}
+
+			// 5. Render
+			editor.innerHTML = allPages[currentPage] || "";
+			
+			// 6. Update UI (hides controls if now 1 page)
 			updateUI();
 		}
 

@@ -210,6 +210,9 @@ function save_note($data)
             if (isset($data['pages_json']) && is_string($data['pages_json'])) {
                 $pages_array = json_decode($data['pages_json'], true);
                 if (is_array($pages_array)) {
+                    // DELETE EXISTING PAGES FIRST (to support deletion/re-indexing)
+                    mysqli_query($conn, "DELETE FROM pages WHERE note_id = $id");
+
                     foreach ($pages_array as $p_num => $p_text) {
                         save_note_page($id, intval($p_num), $p_text);
                     }
@@ -230,6 +233,7 @@ function save_note($data)
             if (isset($data['pages_json']) && is_string($data['pages_json'])) {
                 $pages_array = json_decode($data['pages_json'], true);
                 if (is_array($pages_array)) {
+                    // No need to delete yet as it's a new insert, but good practice if we ever change flow
                     foreach ($pages_array as $p_num => $p_text) {
                         save_note_page($new_id, intval($p_num), $p_text);
                     }
@@ -268,6 +272,8 @@ function save_note($data)
         if (isset($data['pages_json']) && is_string($data['pages_json'])) {
             $pages_array = json_decode($data['pages_json'], true);
             if (is_array($pages_array)) {
+                // For Guests: Replace array entirely to support deletion/re-indexing
+                $existing_pages = [];
                 foreach ($pages_array as $p_num => $p_text) {
                     $existing_pages[intval($p_num)] = $p_text;
                 }
