@@ -71,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <h1><a href="dashboard.php">Notebook-BAR ADMIN</a></h1>
             <nav>
                 <a href="dashboard.php" style="background: #fff;">Dashboard</a>
-                <a href="../index.php" target="_blank">View Site</a>
                 <a href="../logout.php" style="color: #c62828;">Logout</a>
             </nav>
         </div>
