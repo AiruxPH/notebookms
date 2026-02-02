@@ -19,6 +19,7 @@ session_start();
 			<nav>
 				<a href="dashboard.php">Dashboard</a>
 				<a href="index.php">Notes</a>
+				<a href="categories.php">Categories</a>
 				<?php if (is_logged_in()): ?>
 					<a href="logout.php" style="color: #c62828;">Logout</a>
 				<?php else: ?>

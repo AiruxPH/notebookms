@@ -97,6 +97,7 @@ if (isset($_SESSION['flash'])) {
 			<nav>
 				<a href="dashboard.php">Dashboard</a>
 				<a href="index.php">Notes</a>
+				<a href="categories.php">Categories</a>
 				<?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0): ?>
 					<a href="logout.php" style="color: #c62828;">Logout</a>
 				<?php else: ?>
