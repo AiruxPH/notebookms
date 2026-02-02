@@ -46,6 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			'page_number' => $_POST['page_number'] ?? 1
 		];
 
+		// DEBUG LOGGING
+		file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . " - Saving Note: ID=" . $save_data['id'] . ", Page=" . $save_data['page_number'] . ", POST_PAGE=" . ($_POST['page_number'] ?? 'NULL') . "\n", FILE_APPEND);
+
 		// SAVE
 		$saved_id = save_note($save_data);
 
@@ -531,7 +534,7 @@ if (isset($_SESSION['flash'])) {
 		}
 
 		<?php if ($msg): ?>
-			showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
+				showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
 		<?php endif; ?>
 	</script>
 </body>
