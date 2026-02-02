@@ -1,6 +1,6 @@
 <?php
 include 'includes/data_access.php';
-session_start();
+// session_start(); handled in db.php via data_access.php
 
 $step = 1;
 $error = "";
@@ -24,7 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['verify_username'])) {
         $username = mysqli_real_escape_string($conn, $_POST['username']);
         $check = mysqli_query($conn, "SELECT id, security_word_set FROM users WHERE username='$username'");
-        if ($row = mysqli_fetch_assoc($check)) {
+
+        if (!$check) {
+            // DEBUG: Show SQL Error
+            $error = "SQL Error: " . mysqli_error($conn);
+        } elseif ($row = mysqli_fetch_assoc($check)) {
             if ($row['security_word_set'] == 0) {
                 $error = "This account does not have a security word set. Please contact admin.";
             } else {

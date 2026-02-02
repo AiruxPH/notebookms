@@ -615,7 +615,8 @@ function check_security_word($username, $word)
 
     if ($row = mysqli_fetch_assoc($result)) {
         // Case-insensitive comparison
-        if (strtolower(trim($row['security_word'])) === strtolower($word)) {
+        $db_word = isset($row['security_word']) ? trim($row['security_word']) : '';
+        if ($db_word !== '' && strtolower($db_word) === strtolower($word)) {
             return true;
         }
     }
