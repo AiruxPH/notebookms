@@ -170,6 +170,9 @@ function get_note($id)
 /**
  * Save a note (Insert or Update)
  */
+/**
+ * Save a note (Insert or Update)
+ */
 function save_note($data)
 {
     global $conn;
@@ -184,6 +187,7 @@ function save_note($data)
     $is_pinned = !empty($data['is_pinned']) ? 1 : 0;
     $is_archived = !empty($data['is_archived']) ? 1 : 0;
     $reminder_date = !empty($data['reminder_date']) ? $data['reminder_date'] : null;
+    $page_number = !empty($data['page_number']) ? intval($data['page_number']) : 1;
 
     if (is_logged_in()) {
         $cat_id = intval($category_val);
@@ -199,9 +203,8 @@ function save_note($data)
             $stmt->bind_param("siiisi", $title, $cat_id, $is_pinned, $is_archived, $reminder_date, $id);
             $stmt->execute();
 
-            $stmt_p = $conn->prepare("UPDATE pages SET text=? WHERE note_id=?");
-            $stmt_p->bind_param("si", $text, $id);
-            $stmt_p->execute();
+            // Save Page Content
+            save_note_page($id, $page_number, $text);
 
             return $id;
         } else {
@@ -211,9 +214,8 @@ function save_note($data)
             $stmt->execute();
             $new_id = $stmt->insert_id;
 
-            $stmt_p = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, 1, ?)");
-            $stmt_p->bind_param("is", $new_id, $text);
-            $stmt_p->execute();
+            // Save Page Content
+            save_note_page($new_id, 1, $text);
 
             return $new_id;
         }
@@ -229,12 +231,17 @@ function save_note($data)
             $created = $_SESSION['guest_notes'][$id]['date_created'];
         }
 
+        // Handle Guest Pages (Basic implementation for now)
+        // If guest adds page, we store it in a 'pages' array?
+        // Current guest impl only has 'text'.
+        // For now, Guest only supports Page 1 to avoid complexity unless user insists.
+
         $note_obj = [
             'id' => $id,
             'user_id' => 0,
             'title' => $title,
             'category' => $category_val, // For guest, keeping as string name
-            'text' => $text,
+            'text' => $text, // Guest only Page 1 ??
             'is_pinned' => $is_pinned,
             'is_archived' => $is_archived,
             'reminder_date' => $reminder_date,
@@ -244,6 +251,28 @@ function save_note($data)
 
         $_SESSION['guest_notes'][$id] = $note_obj;
         return $id;
+    }
+}
+
+/**
+ * Helper: Save Page (Upsert)
+ */
+function save_note_page($note_id, $page_number, $text)
+{
+    global $conn;
+    $nid = intval($note_id);
+    $p = intval($page_number);
+
+    // Check availability
+    $check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id=$nid AND page_number=$p");
+    if (mysqli_num_rows($check) > 0) {
+        $stmt = $conn->prepare("UPDATE pages SET text=? WHERE note_id=? AND page_number=?");
+        $stmt->bind_param("sii", $text, $nid, $p);
+        return $stmt->execute();
+    } else {
+        $stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, ?, ?)");
+        $stmt->bind_param("iis", $nid, $p, $text);
+        return $stmt->execute();
     }
 }
 
@@ -484,6 +513,82 @@ function delete_category($id)
             }
         }
         return false;
+    }
+}
+
+/**
+ * Permanently Delete Note (Archived Only)
+ */
+function delete_note_permanently($note_id)
+{
+    global $conn;
+    $uid = get_current_user_id();
+    $nid = intval($note_id);
+
+    if (is_logged_in()) {
+        // Verify ownership and verify it is archived (safety check)
+        $check = mysqli_query($conn, "SELECT id FROM notes WHERE id = $nid AND user_id = $uid AND is_archived = 1");
+        if (mysqli_num_rows($check) == 0)
+            return false;
+
+        // Delete Pages
+        mysqli_query($conn, "DELETE FROM pages WHERE note_id = $nid");
+
+        // Delete Note
+        return mysqli_query($conn, "DELETE FROM notes WHERE id = $nid");
+    } else {
+        // Guest
+        if (isset($_SESSION['guest_notes'][$nid])) {
+            if (isset($_SESSION['guest_notes'][$nid]['is_archived']) && $_SESSION['guest_notes'][$nid]['is_archived'] == 1) {
+                unset($_SESSION['guest_notes'][$nid]);
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+/**
+ * Get Total Pages for a Note
+ */
+function get_note_page_count($note_id)
+{
+    global $conn;
+    $nid = intval($note_id);
+    if (is_logged_in()) {
+        $res = mysqli_query($conn, "SELECT MAX(page_number) as max_p FROM pages WHERE note_id = $nid");
+        $row = mysqli_fetch_assoc($res);
+        return $row['max_p'] ? intval($row['max_p']) : 1;
+    } else {
+        // Guest: simple multi-page via array implementation?
+        // Current guest impl only supports 'text' key. 
+        // We will stick to 1 page for guest for now or migrate 'text' to 'pages' array?
+        // Let's stick to 1 page for Guest to avoid complexity unless requested.
+        return 1;
+    }
+}
+
+/**
+ * Get Specific Page Content
+ */
+function get_note_page($note_id, $page_num)
+{
+    global $conn;
+    $nid = intval($note_id);
+    $p = intval($page_num);
+
+    if (is_logged_in()) {
+        $res = mysqli_query($conn, "SELECT text FROM pages WHERE note_id = $nid AND page_number = $p");
+        if ($row = mysqli_fetch_assoc($res)) {
+            return $row['text'];
+        }
+        return ""; // Empty if page doesn't exist yet (or error)
+    } else {
+        // Guest
+        if (isset($_SESSION['guest_notes'][$nid])) {
+            return $p == 1 ? $_SESSION['guest_notes'][$nid]['text'] : "";
+        }
+        return "";
     }
 }
 

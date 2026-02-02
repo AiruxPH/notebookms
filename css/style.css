@@ -589,3 +589,97 @@ a.note-add-card:hover {
 	flex-direction: column;
 	flex-grow: 1;
 }
+
+/* Notebook View Mode Styles */
+.notebook-container {
+	background-color: #f8f9fa;
+	border: 1px solid #ccc;
+	box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+	padding: 2px;
+	/* Border effect */
+	margin-bottom: 20px;
+}
+
+.notebook-paper {
+	background-color: #fff;
+	background-image: linear-gradient(#e5e5e5 1px, transparent 1px);
+	background-size: 100% 30px;
+	/* Line spacing */
+	padding: 30px 40px;
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 18px;
+	line-height: 30px;
+	/* Match background size */
+	color: #2c3e50;
+	min-height: 500px;
+	position: relative;
+}
+
+/* Red margin line */
+.notebook-paper::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 30px;
+	width: 2px;
+	background-color: #ffcdd2;
+	/* Red line */
+	z-index: 1;
+}
+
+.notebook-paper h1,
+.notebook-paper h2,
+.notebook-paper h3 {
+	font-family: 'Arial', sans-serif;
+	/* Contrast font for headers */
+	background: #fff;
+	/* White background to clear lines for headers */
+	display: inline-block;
+	padding: 0 5px;
+}
+
+/* Pagination */
+.pagination-bar {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 15px;
+	background: #fdfdad;
+	border-top: 1px solid #d1d190;
+	gap: 10px;
+}
+
+.page-btn {
+	padding: 5px 12px;
+	background: #fff;
+	border: 1px solid #aaa;
+	border-radius: 4px;
+	cursor: pointer;
+	font-weight: bold;
+	font-size: 14px;
+	text-decoration: none;
+	color: #333;
+}
+
+.page-btn:hover {
+	background: #eee;
+}
+
+.page-btn.disabled {
+	opacity: 0.5;
+	cursor: default;
+	background: #f9f9f9;
+}
+
+.page-indicator {
+	font-weight: bold;
+	color: #555;
+}
+
+.add-page-btn {
+	margin-left: 20px;
+	background: #e8f5e9;
+	border-color: #a5d6a7;
+	color: #2e7d32;
+}

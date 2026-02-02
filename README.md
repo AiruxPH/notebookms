@@ -29,10 +29,14 @@ CSIT601 preliminary exam requirement
 ### Set overflow for note card preview text (done)
 ### Display page -V
 ### Dedicated cateogry page (done)
-### Reminder feature, nice-to-have, low priority
-### Re-do the database design, trim unnecesary tables and columns
-### Admin and admin panel, user will have a "privilege" column denoting their admin access
+### Reminder feature, nice-to-have, low priority (done)
+### Re-do the database design, trim unnecesary tables and columns (done)
+### Admin and admin panel, user will have a "privilege" column denoting their admin access (done)
 ### Making the test folder official(done)
+
+## Notes
+### Add a "delete permanent" button for archived notes (done)
+### Added a "page" feature to notes, allowing users to have multiple pages per note (done)
 
 ## Editors
 **Verne Mhel N. Calledo**
