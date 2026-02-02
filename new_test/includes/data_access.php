@@ -171,8 +171,8 @@ function save_note($data)
     // $category is now an ID for users
     $category_val = $data['category'];
     $text = $data['text'];
-    $is_pinned = isset($data['is_pinned']) ? 1 : 0;
-    $is_archived = isset($data['is_archived']) ? 1 : 0;
+    $is_pinned = !empty($data['is_pinned']) ? 1 : 0;
+    $is_archived = !empty($data['is_archived']) ? 1 : 0;
 
     if (is_logged_in()) {
         $cat_id = intval($category_val);
