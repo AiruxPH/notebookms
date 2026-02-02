@@ -4,7 +4,6 @@ include 'includes/data_access.php';
 
 $step = 1;
 $error = "";
-$success_msg = "";
 
 if (isset($_SESSION['reset_param_username'])) {
     $reset_username = $_SESSION['reset_param_username'];
@@ -23,13 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // STEP 1: VERIFY USERNAME
         if (isset($_POST['verify_username'])) {
             $username = mysqli_real_escape_string($conn, $_POST['username']);
-            // We check for 'security_word' directly now
-            $check = mysqli_query($conn, "SELECT id, security_word FROM users WHERE username='$username'");
+            // We check for 'security_word_set' flag
+            $check = mysqli_query($conn, "SELECT id, security_word_set FROM users WHERE username='$username'");
 
             if (!$check) {
                 throw new Exception("SQL Error: " . mysqli_error($conn));
             } elseif ($row = mysqli_fetch_assoc($check)) {
-                if (empty($row['security_word'])) {
+                if ($row['security_word_set'] == 0) {
                     $error = "This account does not have a security word set. Please contact admin.";
                 } else {
                     $_SESSION['reset_param_username'] = $username;
