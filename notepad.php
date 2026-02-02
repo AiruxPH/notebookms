@@ -178,14 +178,15 @@ if (isset($_SESSION['flash'])) {
 				$is_view_mode = ($mode == 'view');
 				?>
 
-				<!-- VIEW MODE HEADER (New Look) -->
+				<!-- VIEW MODE HEADER (Clean Look) -->
 				<?php if ($is_view_mode): ?>
 					<div class="editor-metadata-bar"
 						style="justify-content: space-between; border-bottom: 2px solid #ddd; padding-bottom: 15px;">
 
 						<!-- Left: Title & Category -->
 						<div>
-							<h1 style="margin: 0; font-size: 28px; font-family: 'Courier New', monospace;">
+							<h1
+								style="margin: 0; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">
 								<?php echo htmlspecialchars($ntitle); ?></h1>
 							<div style="font-size: 13px; color: #666; margin-top: 5px;">
 								<span style="background: #eee; padding: 2px 6px; border-radius: 4px;">
@@ -210,28 +211,13 @@ if (isset($_SESSION['flash'])) {
 							</div>
 						</div>
 
-						<!-- Right: Actions (Pin, Archive, Edit) -->
+						<!-- Right: Status Icons Only (Clean) -->
 						<div style="display: flex; gap: 10px; align-items: center;">
 							<?php if ($is_pinned_val): ?>
 								<span title="Pinned" style="font-size: 20px;">📌</span>
 							<?php endif; ?>
-
 							<?php if ($is_archived_val): ?>
-								<form method="post"
-									onsubmit="return confirm('Permanently delete this note? This cannot be undone.');">
-									<input type="hidden" name="note_id" value="<?php echo $nid; ?>">
-									<button type="submit" name="delete_permanent" class="btn"
-										style="background: #ffebee; color: #c62828; border-color: #ef9a9a; padding: 8px 15px; font-size: 12px;">DELETE
-										FOREVER</button>
-								</form>
-								<button type="button" onclick="confirmUnarchive()" class="btn"
-									style="background: #e1f5fe; color: #0277bd; border-color: #039be5; padding: 8px 15px; font-size: 12px;">UNARCHIVE</button>
-							<?php else: ?>
-								<a href="notepad.php?id=<?php echo $nid; ?>&mode=edit&page=<?php echo $current_page; ?>"
-									class="btn btn-primary"
-									style="background: #2196f3; border-color: #1976d2; padding: 8px 15px;">✏️ Edit</a>
-								<button type="button" onclick="confirmArchive()" class="btn"
-									style="padding: 8px 15px; font-size: 12px;">Archive</button>
+								<span title="Archived" style="font-size: 20px; color: #888;">📁</span>
 							<?php endif; ?>
 						</div>
 					</div>
@@ -241,7 +227,7 @@ if (isset($_SESSION['flash'])) {
 							<?php echo $content; ?>
 						</div>
 
-						<!-- View Pagination -->
+						<!-- Pagination -->
 						<?php if ($total_pages > 1): ?>
 							<div class="pagination-bar">
 								<?php if ($current_page > 1): ?>
@@ -262,11 +248,6 @@ if (isset($_SESSION['flash'])) {
 							</div>
 						<?php endif; ?>
 					</div>
-
-					<div style="margin-top: 10px;">
-						<a href="index.php" class="btn btn-secondary">Back to List</a>
-					</div>
-
 
 					<!-- EDIT MODE (Classic Editor) -->
 				<?php else: ?>
@@ -303,12 +284,7 @@ if (isset($_SESSION['flash'])) {
 							?>
 						</select>
 
-						<label class="pin-label">
-							<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
-								echo "checked"; ?>
-								<?php echo $is_archived_val ? 'disabled' : ''; ?>>
-							Pin
-						</label>
+						<!-- PIN CHECKBOX REMOVED FROM EDIT MODE BODY AS REQUESTED -->
 
 						<div style="margin-left: auto; display: flex; align-items: center; gap: 5px;">
 							<label>⏰</label>
@@ -350,7 +326,6 @@ if (isset($_SESSION['flash'])) {
 					<?php if ($nid != ""): ?>
 						<div class="pagination-bar" style="background: #f0f0f0;">
 							<?php if ($current_page > 1): ?>
-								<!-- WARNING: Navigation without save logic might lose data. Ideally JS warns. For now, we assume user saves. -->
 								<a href="?id=<?php echo $nid; ?>&page=<?php echo $current_page - 1; ?>&mode=edit"
 									onclick="return confirmNavigation()" class="page-btn">&laquo; Prev</a>
 							<?php endif; ?>
@@ -368,21 +343,76 @@ if (isset($_SESSION['flash'])) {
 						</div>
 					<?php endif; ?>
 
-					<!-- Toolbar -->
-					<div class="toolbar">
-						<a href="index.php" class="btn btn-secondary">Back to List</a>
-
-						<?php if ($nid != ""): ?>
-							<a href="notepad.php?id=<?php echo $nid; ?>&mode=view&page=<?php echo $current_page; ?>"
-								class="btn btn-secondary" onclick="return confirmNavigation()">👁️ View Mode</a>
-						<?php endif; ?>
-
-						<button type="submit" name="save_note" class="btn btn-primary"
-							style="margin-left: auto; margin-right: 10px;">Save Page</button>
-						<button type="submit" name="save_exit" class="btn btn-primary">Save & Exit</button>
-					</div>
-
 				<?php endif; ?>
+
+				<!-- Floating Action Buttons (FAB) -->
+				<div class="fab-container">
+
+					<!-- SAVE / EDIT Actions -->
+					<?php if (!$is_archived_val && !$is_view_mode): ?>
+						<button type="submit" name="save_exit" class="fab-btn fab-save" title="Save & Exit">
+							💾
+							<span class="fab-label">Save & Exit</span>
+						</button>
+						<button type="submit" name="save_note" class="fab-btn fab-secondary" title="Save">
+							Ok
+							<span class="fab-label">Save</span>
+						</button>
+					<?php endif; ?>
+
+					<!-- EDIT Toggle -->
+					<?php if ($is_view_mode && !$is_archived_val): ?>
+						<a href="notepad.php?id=<?php echo $nid; ?>&mode=edit&page=<?php echo $current_page; ?>"
+							class="fab-btn fab-primary" title="Edit Note">
+							✏️
+							<span class="fab-label">Edit</span>
+						</a>
+					<?php elseif (!$is_view_mode && $nid != ""): ?>
+						<a href="notepad.php?id=<?php echo $nid; ?>&mode=view&page=<?php echo $current_page; ?>"
+							class="fab-btn fab-secondary" onclick="return confirmNavigation()" title="View Mode">
+							👁️
+							<span class="fab-label">View</span>
+						</a>
+					<?php endif; ?>
+
+					<!-- Archive / Delete Actions -->
+					<?php if ($nid != ""): ?>
+						<?php if (isset($is_archived_val) && $is_archived_val): ?>
+							<!-- DELETE PERMANENT -->
+							<button type="button" onclick="confirmDeletePermanent()" class="fab-btn"
+								style="background: #ffebee; color: #c62828;">
+								🗑️
+								<span class="fab-label">Delete Forever</span>
+							</button>
+							<!-- UNARCHIVE -->
+							<button type="button" onclick="confirmUnarchive()" class="fab-btn"
+								style="background: #e1f5fe; color: #0277bd;">
+								📂
+								<span class="fab-label">Unarchive</span>
+							</button>
+						<?php elseif (!$is_view_mode): ?>
+							<!-- Archive (Edit Mode) -->
+							<button type="button" onclick="confirmArchive()" class="fab-btn"
+								style="background: #ffebee; color: #c62828;">
+								📦
+								<span class="fab-label">Archive</span>
+							</button>
+						<?php else: ?>
+							<!-- Archive (View Mode) -->
+							<button type="button" onclick="confirmArchive()" class="fab-btn"
+								style="background: #ffebee; color: #c62828;">
+								📦
+								<span class="fab-label">Archive</span>
+							</button>
+						<?php endif; ?>
+					<?php endif; ?>
+
+					<!-- Back to List -->
+					<a href="index.php" class="fab-btn fab-secondary" title="Back to List">
+						🏠
+						<span class="fab-label">Home</span>
+					</a>
+				</div>
 			</form>
 		</div>
 	</div>
@@ -457,14 +487,14 @@ if (isset($_SESSION['flash'])) {
 
 		const titleInput = document.querySelector('textarea[name="new_title"]');
 		if (titleInput) {
-			titleInput.addEventListener('input', function() {
-				this.style.height = ''; 
+			titleInput.addEventListener('input', function () {
+				this.style.height = '';
 				this.style.height = this.scrollHeight + 'px';
 				updateStats();
 			});
 			// Initial height
 			titleInput.style.height = titleInput.scrollHeight + 'px';
-			
+
 			titleInput.addEventListener('keydown', function (e) {
 				if (e.key === 'Enter') e.preventDefault();
 			});

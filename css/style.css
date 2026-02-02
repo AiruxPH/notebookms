@@ -590,53 +590,35 @@ a.note-add-card:hover {
 	flex-grow: 1;
 }
 
-/* Notebook View Mode Styles */
+/* Clean View Mode Styles (Reverted) */
 .notebook-container {
-	background-color: #f8f9fa;
-	border: 1px solid #ccc;
-	box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
-	padding: 2px;
-	/* Border effect */
-	margin-bottom: 20px;
+	background-color: #fff;
+	padding: 20px;
 }
 
 .notebook-paper {
 	background-color: #fff;
-	background-image: linear-gradient(#e5e5e5 1px, transparent 1px);
-	background-size: 100% 30px;
-	/* Line spacing */
-	padding: 30px 40px;
-	font-family: 'Courier New', Courier, monospace;
-	font-size: 18px;
-	line-height: 30px;
-	/* Match background size */
-	color: #2c3e50;
-	min-height: 500px;
+	padding: 0;
+	font-family: inherit;
+	font-size: 16px;
+	line-height: 1.6;
+	color: #333;
+	min-height: auto;
 	position: relative;
+	border: none;
 }
 
-/* Red margin line */
+/* Remove decorative elements */
 .notebook-paper::before {
-	content: '';
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 30px;
-	width: 2px;
-	background-color: #ffcdd2;
-	/* Red line */
-	z-index: 1;
+	display: none;
 }
 
 .notebook-paper h1,
 .notebook-paper h2,
 .notebook-paper h3 {
-	font-family: 'Arial', sans-serif;
-	/* Contrast font for headers */
-	background: #fff;
-	/* White background to clear lines for headers */
-	display: inline-block;
-	padding: 0 5px;
+	font-family: inherit;
+	background: transparent;
+	padding: 0;
 }
 
 /* Pagination */
@@ -645,25 +627,28 @@ a.note-add-card:hover {
 	justify-content: center;
 	align-items: center;
 	padding: 15px;
-	background: #fdfdad;
-	border-top: 1px solid #d1d190;
+	background: transparent;
+	border-top: 1px solid #eee;
 	gap: 10px;
+	margin-top: 20px;
 }
 
 .page-btn {
-	padding: 5px 12px;
+	padding: 6px 14px;
 	background: #fff;
-	border: 1px solid #aaa;
+	border: 1px solid #ccc;
 	border-radius: 4px;
 	cursor: pointer;
 	font-weight: bold;
 	font-size: 14px;
 	text-decoration: none;
-	color: #333;
+	color: #555;
+	transition: all 0.2s;
 }
 
 .page-btn:hover {
-	background: #eee;
+	background: #f5f5f5;
+	border-color: #bbb;
 }
 
 .page-btn.disabled {
@@ -674,7 +659,8 @@ a.note-add-card:hover {
 
 .page-indicator {
 	font-weight: bold;
-	color: #555;
+	color: #777;
+	font-size: 14px;
 }
 
 .add-page-btn {
@@ -682,4 +668,79 @@ a.note-add-card:hover {
 	background: #e8f5e9;
 	border-color: #a5d6a7;
 	color: #2e7d32;
+}
+
+.add-page-btn:hover {
+	background: #c8e6c9;
+}
+
+/* Floating Action Buttons (FAB) */
+.fab-container {
+	position: fixed;
+	bottom: 30px;
+	right: 30px;
+	display: flex;
+	flex-direction: column-reverse;
+	/* Stack upwards */
+	gap: 15px;
+	align-items: flex-end;
+	z-index: 1000;
+}
+
+.fab-btn {
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	border: none;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 24px;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+	background-color: #fff;
+	color: #555;
+	text-decoration: none;
+}
+
+.fab-btn:hover {
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+	transform: translateY(-2px);
+}
+
+.fab-primary {
+	background-color: var(--nav-bg);
+	/* Yellowish */
+	color: #000;
+}
+
+.fab-save {
+	background-color: #4caf50;
+	color: white;
+}
+
+.fab-secondary {
+	width: 48px;
+	height: 48px;
+	font-size: 20px;
+	background-color: #f5f5f5;
+}
+
+.fab-label {
+	position: absolute;
+	right: 70px;
+	background: rgba(0, 0, 0, 0.7);
+	color: white;
+	padding: 5px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	opacity: 0;
+	white-space: nowrap;
+	transition: opacity 0.2s;
+	pointer-events: none;
+}
+
+.fab-btn:hover .fab-label {
+	opacity: 1;
 }
