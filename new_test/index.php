@@ -79,7 +79,7 @@ session_start();
 </body>
 <div
 	style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center; background: #fff; padding: 10px; border: 1px solid #ccc; flex-wrap: wrap;">
-	<a href="notepad.php" class="btn btn-primary" style="text-decoration: none;">+ New Note</a>
+
 
 	<form method="get" style="display: flex; gap: 10px; flex-grow: 1;">
 		<input type="text" name="q" placeholder="Search notes..."
