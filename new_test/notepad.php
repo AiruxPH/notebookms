@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset
 	$save_data = [
 		'id' => $_POST['note_id'] ?? '',
 		'title' => $_POST['new_title'] ?? 'Untitled',
-		'category' => $_POST['category'] ?? 'General',
+		'category' => $_POST['category'] ?? 1,
 		'text' => $_POST['page'] ?? '',
 		'is_pinned' => isset($_POST['is_pinned']) ? 1 : 0,
 		'is_archived' => $_POST['is_archived'] ?? 0
