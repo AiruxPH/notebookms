@@ -362,9 +362,21 @@ function migrate_guest_data_to_db($user_id)
             $stmt->execute();
             $new_id = $stmt->insert_id;
 
-            $stmt_p = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, 1, ?)");
-            $stmt_p->bind_param("is", $new_id, $note['text']);
-            $stmt_p->execute();
+            // Migrate Pages
+            if (isset($note['pages']) && is_array($note['pages']) && !empty($note['pages'])) {
+                // Multi-page migration
+                $stmt_p = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, ?, ?)");
+                foreach ($note['pages'] as $p_num => $p_text) {
+                    $p_num_int = intval($p_num);
+                    $stmt_p->bind_param("iis", $new_id, $p_num_int, $p_text);
+                    $stmt_p->execute();
+                }
+            } else {
+                // Fallback: Single page from 'text' field
+                $stmt_p = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, 1, ?)");
+                $stmt_p->bind_param("is", $new_id, $note['text']);
+                $stmt_p->execute();
+            }
         }
 
         // Clear session data

@@ -210,13 +210,15 @@ if (is_admin()) {
 								echo "<span style='color: #c62828; font-weight: bold; display: block; margin-bottom: 3px;'>⏰ $rem_display</span>";
 							}
 
-							$p_cnt = isset($row['page_count']) ? $row['page_count'] : 1;
-							if ($p_cnt > 1) {
-								echo "<span style='float: right; font-weight: bold; color: #555; background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 11px;'>$p_cnt Pages</span>";
-							}
+
 
 							echo "<span>Created: $date_created</span><br>";
 							echo "<span>Updated: $date_last</span>";
+
+							$p_cnt = isset($row['page_count']) ? $row['page_count'] : 1;
+							if ($p_cnt > 1) {
+								echo "<span style='float: right; font-size: 11px; color: #888;'>$p_cnt Pages</span>";
+							}
 							echo "</div>";
 							echo "</div>";
 							echo "</a>";
