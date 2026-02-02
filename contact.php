@@ -30,23 +30,56 @@
 	</header>
 
 	<div class="container">
-		<div
-			style="background: var(--card-bg); padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow);">
-			<h2>Contact Me</h2>
-			<p>You can reach me through the following mediums:</p>
-			<ul style="list-style: none; padding: 0; font-size: 1.1em;">
-				<li style="margin-bottom: 10px;">
-					<strong>Facebook:</strong> Coll Studios
-				</li>
-				<li style="margin-bottom: 10px;">
-					<strong>Twitter:</strong> Archer Five
-				</li>
-				<li style="margin-bottom: 10px;">
-					<strong>Email:</strong> vcalledo@gmail.com
-				</li>
-			</ul>
+		<div class="container">
+			<div
+				style="background: var(--card-bg); padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow);">
+
+				<div style="text-align: center; margin-bottom: 40px;">
+					<h2 style="margin-top: 0; margin-bottom: 10px;">Get in Touch</h2>
+					<p style="color: #666;">We'd love to hear from you! Reach out to our development team below.</p>
+				</div>
+
+				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+
+					<!-- Lead Developer Card -->
+					<div class="contact-card"
+						style="background: #fff; border: 1px solid #ccc; padding: 25px; box-shadow: 2px 2px 0 rgba(0,0,0,0.05);">
+						<h3 style="margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #333;">Verne Mhel N.
+							Calledo</h3>
+						<div
+							style="font-size: 13px; font-weight: bold; color: #555; margin-bottom: 15px; text-transform: uppercase;">
+							Lead Developer</div>
+
+						<ul style="list-style: none; padding: 0; font-size: 14px; line-height: 1.8;">
+							<li><strong>📧 Email:</strong> vcalledo@gmail.com</li>
+							<li><strong>🐙 Github:</strong> <a href="https://github.com/Cole-Studios" target="_blank"
+									style="color: blue;">Cole-Studios</a></li>
+							<li><strong>📘 Facebook:</strong> Coll Studios</li>
+							<li><strong>🐦 Twitter:</strong> Archer Five</li>
+						</ul>
+					</div>
+
+					<!-- Developer Card -->
+					<div class="contact-card"
+						style="background: #fff; border: 1px solid #ccc; padding: 25px; box-shadow: 2px 2px 0 rgba(0,0,0,0.05);">
+						<h3 style="margin-top: 0; padding-bottom: 10px; border-bottom: 2px solid #333;">Anecito Randy E.
+							Calunod Jr.</h3>
+						<div
+							style="font-size: 13px; font-weight: bold; color: #555; margin-bottom: 15px; text-transform: uppercase;">
+							Developer</div>
+
+						<ul style="list-style: none; padding: 0; font-size: 14px; line-height: 1.8;">
+							<li><strong>📧 Email:</strong> randythegreat000@gmail.com</li>
+							<li><strong>🐙 Github:</strong> <a href="https://github.com/AiruxPH" target="_blank"
+									style="color: blue;">AiruxPH</a></li>
+							<li><strong>📘 Facebook:</strong> Randy Calunod Jr.</li>
+							<li><strong>📸 Instagram:</strong> itsmerandythegreat</li>
+						</ul>
+					</div>
+
+				</div>
+			</div>
 		</div>
-	</div>
 
 </body>
 
