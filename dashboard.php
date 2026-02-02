@@ -39,16 +39,26 @@ include 'includes/data_access.php';
         </div>
 
         <!-- Welcome / Announcements Section -->
-        <div class="dashboard-section announcement-box" style="margin-bottom: 20px;">
-            <h2>📢 Developer Announcements</h2>
-            <p>Welcome to <strong>Notebook-BAR v1.0</strong>! We have recently updated our features:</p>
-            <ul>
-                <li>✨ <strong>Dynamic Categories:</strong> Create custom categories with your own colors!</li>
-                <li>🚀 <strong>Guest Mode:</strong> Try the app without logging in (your data saves automatically when
-                    you register).</li>
-                <li>📌 <strong>Pinning & Archiving:</strong> Keep your workspace organized.</li>
-                <li>📊 <strong>Stats:</strong> Real-time word and character counts.</li>
+        <!-- Welcome / Announcements Section -->
+        <div id="dev-announcement" class="dashboard-section announcement-box" style="margin-bottom: 20px;">
+            <div class="announcement-header">
+                <h2 style="margin: 0;">📢 Updates & Announcements</h2>
+                <button onclick="toggleAnnouncement()"
+                    style="background: none; border: none; font-size: 20px; cursor: pointer; color: #555;"
+                    title="Minimize">_</button>
+            </div>
+            <p>Welcome to <strong>Notebook-BAR v1.1 Refined</strong>! Latest improvements:</p>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+                <li>📱 <strong>Mobile Polish:</strong> Improved headers and layout scaling on all devices.</li>
+                <li>🎨 <strong>Dynamic Categories:</strong> Custom colors with a unified look.</li>
+                <li>🚀 <strong>Refined Interface:</strong> Collapsible widgets and chip-style category filters.</li>
+                <li>📌 <strong>Pinning & Archiving:</strong> Organize your workspace efficiently.</li>
             </ul>
+        </div>
+
+        <div id="dev-announcement-minimized" class="announcement-minimized" onclick="toggleAnnouncement()">
+            <span>📢 Show Announcements</span>
+            <span>+</span>
         </div>
 
         <div class="dashboard-grid-layout">
@@ -70,24 +80,29 @@ include 'includes/data_access.php';
                     </div>
                 </div>
 
-                <div
-                    style="background: #fdfdad; padding: 20px; border: 1px solid #d1d190; box-shadow: 2px 2px 0 rgba(0,0,0,0.05);">
-                    <h3 style="margin-top: 0; margin-bottom: 15px;">Quick Categories</h3>
-                    <div class="category-list" style="max-height: 250px; overflow-y: auto;">
-                        <?php
-                        $quick_cats = get_categories();
-                        foreach ($quick_cats as $c) {
-                            $cname = htmlspecialchars($c['name']);
-                            $ccolor = htmlspecialchars($c['color']);
-                            echo "<a href='index.php?cat={$c['id']}' class='cat-btn' style='border-left: 5px solid $ccolor; margin-bottom: 8px; display: block; background: #fff; padding: 8px 12px; text-decoration: none; color: #333; font-size: 14px; border-radius: 0 4px 4px 0;'>$cname</a>";
-                        }
-                        ?>
-                    </div>
-                </div>
+                <!-- Quick Categories REMOVED (Moved to Main Area) -->
             </div>
 
-            <!-- Main: Pinned Notes -->
+            <!-- Main: Chips & Pinned Notes -->
             <div class="dashboard-main">
+                <h3 style="margin-top: 0; margin-bottom: 15px;">🔍 Filter by Category</h3>
+                <div class="category-chips-container">
+                    <?php
+                    $quick_cats = get_categories();
+                    foreach ($quick_cats as $c) {
+                        $cname = htmlspecialchars($c['name']);
+                        $ccolor = htmlspecialchars($c['color']);
+                        echo "<a href='index.php?cat={$c['id']}' class='cat-chip'>
+                                <span class='chip-dot' style='background-color: $ccolor;'></span>
+                                $cname
+                              </a>";
+                    }
+                    ?>
+                    <a href="categories.php" class="cat-chip" style="background: var(--nav-bg); border-color: #999;">
+                        <span style="font-size: 16px;">+</span> Manage
+                    </a>
+                </div>
+
                 <h3 style="margin-top: 0; margin-bottom: 15px;">📌 Pinned Notes</h3>
                 <div class="note-grid">
                     <?php
@@ -160,6 +175,33 @@ include 'includes/data_access.php';
 
     <!-- Toast Logic Scripts -->
     <script>
+        // Announcement Toggle with LocalStorage
+        const announcementBox = document.getElementById('dev-announcement');
+        const announcementMin = document.getElementById('dev-announcement-minimized');
+
+        // Initialize state
+        const isMinimized = localStorage.getItem('announcementMinimized') === 'true';
+
+        function updateAnnouncementState() {
+            if (isMinimized) {
+                announcementBox.style.display = 'none';
+                announcementMin.style.display = 'flex';
+            } else {
+                announcementBox.style.display = 'block';
+                announcementMin.style.display = 'none';
+            }
+        }
+
+        function toggleAnnouncement() {
+            isMinimized = !isMinimized;
+            localStorage.setItem('announcementMinimized', isMinimized);
+            updateAnnouncementState();
+        }
+
+        // Run on load
+        updateAnnouncementState();
+
+        // Toast Logic
         const toastOverlay = document.getElementById('toast-overlay');
         const toastMessage = document.getElementById('toast-message');
 
