@@ -139,13 +139,22 @@ include 'includes/data_access.php';
                             // Determine Color
                             $bg_color = isset($cat_colors[$dcat]) ? $cat_colors[$dcat] : '#ffffff';
 
+                            // Truncate logic
+                            if (strlen($dtitle) > 100) {
+                                $dtitle = substr($dtitle, 0, 100) . "...";
+                            }
+
                             $raw_text = $row['text'] ?? '';
                             $raw_text = str_replace(['</div>', '</p>', '<h1>', '<h2>', '<h3>', '<h4>', '</h5>', '<h6>'], '<br>', $raw_text);
                             $raw_text = str_replace('<li>', '<br>&bull; ', $raw_text);
                             $clean_text = strip_tags($raw_text, '<b><i><u><strong><em><br>');
-                            $dtxt = $clean_text;
+                            $dtxt = trim($clean_text);
 
-                            if (empty(trim(strip_tags($dtxt))))
+                            if (strlen(strip_tags($dtxt)) > 200) {
+                                $dtxt = substr(strip_tags($dtxt), 0, 200) . "...";
+                            }
+
+                            if (empty($dtxt))
                                 $dtxt = "<em>No content...</em>";
 
                             echo "<a href='notepad.php?id=$nid' class='note-card'>";

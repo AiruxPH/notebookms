@@ -101,6 +101,7 @@ a.note-card {
 	text-decoration: none !important;
 	/* Force no underline */
 	position: relative;
+	overflow: hidden;
 }
 
 a.note-card:hover {

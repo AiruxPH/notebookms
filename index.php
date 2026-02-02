@@ -173,13 +173,23 @@ session_start();
 							// Determine Color
 							$bg_color = isset($cat_colors[$category]) ? $cat_colors[$category] : '#ffffff';
 
+							// Truncate logic
+							if (strlen($title) > 100) {
+								$title = substr($title, 0, 100) . "...";
+							}
+
 							// Preview Text
 							$raw_text = $row['text'] ?? '';
 							$raw_text = str_replace(['</div>', '</p>', '<h1>', '<h2>', '<h3>', '<h4>', '</h5>', '<h6>'], '<br>', $raw_text);
 							$raw_text = str_replace('<li>', '<br>&bull; ', $raw_text);
 							$clean_text = strip_tags($raw_text, '<b><i><u><strong><em><br>');
-							$dtxt = $clean_text;
-							if (empty(trim(strip_tags($dtxt))))
+							$dtxt = trim($clean_text);
+
+							if (strlen(strip_tags($dtxt)) > 200) {
+								$dtxt = substr(strip_tags($dtxt), 0, 200) . "...";
+							}
+
+							if (empty($dtxt))
 								$dtxt = "<em>No content...</em>";
 
 							echo "<a href='notepad.php?id=$nid' class='note-card'>";
