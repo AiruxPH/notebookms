@@ -28,10 +28,11 @@ CSIT601 preliminary exam requirement
 ### Height of note cards, static or flexible with a max? -V
 ### Set overflow for note card preview text
 ### Display page -V
-### Dedicated cateogry page
+### Dedicated cateogry page (done)
 ### Reminder feature, nice-to-have, low priority
 ### Re-do the database design, trim unnecesary tables and columns
 ### Admin and admin panel, user will have a "privilege" column denoting their admin access
+### Making the test folder official(done)
 
 ## Editors
 **Verne Mhel N. Calledo**
