@@ -25,7 +25,7 @@ CSIT601 preliminary exam requirement
 
 ## To-do
 ### Placement of stats of note cards, like time stamps (done)
-### Height of note cards, static or flexible with a max? -V
+### Height of note cards, static or flexible with a max? -V (i let titles have 100 characters max and i let the preview text have a max of 200 characters, i also prevent white spaces)
 ### Set overflow for note card preview text (done)
 ### Display page -V
 ### Dedicated cateogry page (done)
