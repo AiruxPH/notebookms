@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 02, 2026 at 04:53 PM
+-- Generation Time: Feb 02, 2026 at 05:09 PM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -130,16 +130,41 @@ CREATE TABLE `users` (
   `role` enum('user','admin') NOT NULL DEFAULT 'user',
   `is_active` tinyint(1) DEFAULT 1,
   `date_created` datetime NOT NULL DEFAULT current_timestamp(),
-  `date_modified` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `date_modified` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `security_word` varchar(255) DEFAULT NULL,
+  `security_word_set` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `role`, `is_active`, `date_created`, `date_modified`) VALUES
-(1, 'AiruxPH', 'AiruxPH', 'user', 1, '2026-02-02 16:50:04', '2026-02-02 16:50:04'),
-(2, 'archer', '123', 'user', 1, '2026-02-02 16:50:04', '2026-02-02 16:50:04');
+INSERT INTO `users` (`id`, `username`, `password`, `role`, `is_active`, `date_created`, `date_modified`, `security_word`, `security_word_set`) VALUES
+(1, 'AiruxPH', 'AiruxPH', 'user', 1, '2026-02-02 16:50:04', '2026-02-02 16:50:04', NULL, 0),
+(2, 'archer', '123', 'user', 1, '2026-02-02 16:50:04', '2026-02-02 16:50:04', NULL, 0),
+(3, 'admin', 'admin', 'admin', 1, '2026-02-02 16:56:16', '2026-02-02 16:56:16', NULL, 0);
+
+--
+-- Triggers `users`
+--
+DELIMITER $$
+CREATE TRIGGER `prevent_last_admin_delete` BEFORE DELETE ON `users` FOR EACH ROW BEGIN
+    DECLARE admin_count INT;
+
+    -- Only check if the row being deleted is an admin
+    IF OLD.role = 'admin' THEN
+        SELECT COUNT(*) INTO admin_count
+        FROM users
+        WHERE role = 'admin';
+
+        IF admin_count <= 1 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Cannot delete the last admin account.';
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
 
 --
 -- Indexes for dumped tables
@@ -197,7 +222,7 @@ ALTER TABLE `pages`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables

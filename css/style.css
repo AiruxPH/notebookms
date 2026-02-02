@@ -281,6 +281,8 @@ a.note-add-card:hover {
 	font-size: 15px;
 	box-shadow: 2px 2px 0 #333;
 	transition: all 0.1s;
+	box-sizing: border-box;
+	/* ADDED: Fix width calculation */
 }
 
 .btn:hover {
@@ -459,6 +461,8 @@ a.note-add-card:hover {
 	.toolbar .btn {
 		width: 100%;
 		text-align: center;
+		margin: 0 !important;
+		/* ADDED: Override inline margins */
 	}
 }
 
