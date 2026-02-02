@@ -414,7 +414,8 @@ if (isset($_SESSION['flash'])) {
 							</button>
 
 							<!-- Delete Page -->
-							<button type="button" onclick="deletePage()" class="page-btn delete-page-btn" id="btn-delete" title="Delete Current Page" style="margin-left: 5px;">
+							<button type="button" onclick="deletePage()" class="page-btn delete-page-btn" id="btn-delete-page" title="Delete Current Page" 
+								style="margin-left: 5px; display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>;">
 								<i class="fa-solid fa-trash-can"></i>
 							</button>
 						</div>
@@ -615,9 +616,11 @@ if (isset($_SESSION['flash'])) {
 			// Toggle visibility based on totalPages
 			const viewBar = document.getElementById('view-pagination-bar');
 			const editControls = document.getElementById('pagination-controls');
-
+			const deleteBtn = document.getElementById('btn-delete-page');
+			
 			if (viewBar) viewBar.style.display = (totalPages > 1) ? 'flex' : 'none';
 			if (editControls) editControls.style.display = (totalPages > 1) ? 'flex' : 'none';
+			if (deleteBtn) deleteBtn.style.display = (totalPages > 1) ? 'flex' : 'none';
 
 			// Edit Mode UI
 			const jumpInput = document.getElementById('jump-page-input');
