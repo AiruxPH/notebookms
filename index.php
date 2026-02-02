@@ -240,12 +240,13 @@ session_start();
 			$empty_msg = "No notes found matching your search.";
 		}
 
-		echo "<div
-												style='grid-column: 1 / -1; width: 100%; text-align: center; color: #777; padding: 40px; margin-top: 20px;'>
-												<div style='font-size: 40px; margin-bottom: 10px; opacity: 0.5;'>📭
-												</div>
-												<div style='font-size: 18px;'>$empty_msg</div>
-											</div>";
+		echo "<div class='note-card note-add-card' style='border: 1px dashed #ccc; cursor: default; background: rgba(255,255,255,0.2);'>
+				<div style='text-align: center; color: #777;'>
+					<div style='font-size: 40px; margin-bottom: 10px; opacity: 0.5;'>📭</div>
+					<div style='font-size: 16px; font-weight: bold;'>$empty_msg</div>
+					<div style='font-size: 12px; margin-top: 5px;'>Try clearing filters or search</div>
+				</div>
+			</div>";
 	}
 	?>
 </div>
