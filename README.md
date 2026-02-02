@@ -25,9 +25,9 @@ CSIT601 preliminary exam requirement
 
 ## To-do
 ### Placement of stats of note cards, like time stamps
-### Height of note cards, static or flexible with a max?
+### Height of note cards, static or flexible with a max? -V
 ### Set overflow for note card preview text
-### Display page
+### Display page -V
 ### Dedicated cateogry page
 ### Reminder feature, nice-to-have, low priority
 ### Re-do the database design, trim unnecesary tables and columns
