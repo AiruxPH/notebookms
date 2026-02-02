@@ -24,7 +24,7 @@ CSIT601 preliminary exam requirement
   This allow the users to apply basic text formatting makes notes more readable and allows the user to bring more emphasis to certain parts.
 
 ## To-do
-### Placement of stats of note cards, like time stamps
+### Placement of stats of note cards, like time stamps (done)
 ### Height of note cards, static or flexible with a max? -V
 ### Set overflow for note card preview text
 ### Display page -V
