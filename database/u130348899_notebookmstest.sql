@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 01, 2026 at 03:49 PM
+-- Generation Time: Feb 02, 2026 at 04:41 PM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -44,7 +44,8 @@ INSERT INTO `categories` (`id`, `user_id`, `name`, `color`) VALUES
 (3, 0, 'Work', '#e3f2fd'),
 (4, 0, 'Study', '#fce4ec'),
 (5, 0, 'Ideas', '#f3e5f5'),
-(6, 1, 'Green', '#75d94a');
+(6, 1, 'Green', '#75d94a'),
+(7, 2, 'Supercalifragilisticexpialidocious', '#e0f7fa');
 
 --
 -- Triggers `categories`
@@ -87,7 +88,9 @@ INSERT INTO `notes` (`id`, `user_id`, `title`, `color`, `date_created`, `date_la
 (1, 1, 'this is the title', 0, '2026-02-01 10:05:02', '2026-02-01 15:49:26', 0, 0, 1),
 (2, 1, 'Yes', 0, '2026-02-01 10:20:25', '2026-02-01 15:49:26', 0, 0, 1),
 (3, 1, 'CSIT6 PRELIM', 0, '2026-02-01 11:18:14', '2026-02-01 15:49:26', 1, 0, 4),
-(4, 1, 'Green', 0, '2026-02-01 15:18:13', '2026-02-01 15:49:26', 1, 1, 6);
+(4, 1, 'Green', 0, '2026-02-01 15:18:13', '2026-02-01 15:49:26', 1, 1, 6),
+(5, 2, 'Testing', 0, '2026-02-02 01:45:53', '2026-02-02 02:03:09', 0, 0, 2),
+(6, 2, 'Archer', 0, '2026-02-02 02:13:50', '2026-02-02 02:13:53', 0, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -110,7 +113,9 @@ INSERT INTO `pages` (`id`, `note_id`, `page_number`, `text`) VALUES
 (1, 1, 1, '\r\n					\r\n					\r\n					\r\n					<b>This is a body</b><div><b><br></b></div><div>this <b><i>this is italic</i></b></div><div><b><i><br></i></b></div><div><b><i><u>this is iitalic underlined<br><br></u></i></b><h3><b><i><u>hey<br><br><ul><li><b><i><u>Thiss is a list</u></i></b></li><li><b><i><u>secon</u></i></b></li><li><b><i><u>third</u></i></b></li><li><b><i><u>fourth</u></i></b></li><li><b><i><u>fith</u></i></b></li><li><b><i><u>sixh</u></i></b></li><li><b><i><u>jhdfjwad</u></i></b></li><li><b><i><u>ad</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>wd</u></i></b></li><li><b><i><u>wad</u></i></b></li><li><b><i><u><br></u></i></b></li></ul></u></i></b></h3></div>																'),
 (2, 2, 1, 'Test'),
 (3, 3, 1, 'This website is a preliminary examination requirement and yes there is a thing cc\r\n'),
-(4, 4, 1, '<h3>Green</h3><div>This is green</div>');
+(4, 4, 1, '<h3>Green</h3><div>This is green</div>'),
+(5, 5, 1, '\r\n					\r\n					123								'),
+(6, 6, 1, '\r\n					Aasdfasdawasd				');
 
 -- --------------------------------------------------------
 
@@ -122,15 +127,17 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `is_guest` tinyint(1) DEFAULT 0
+  `role` enum('user','admin') NOT NULL DEFAULT 'user',
+  `is_active` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `is_guest`) VALUES
-(1, 'AiruxPH', 'AiruxPH', 0);
+INSERT INTO `users` (`id`, `username`, `password`, `role`, `is_active`) VALUES
+(1, 'AiruxPH', 'AiruxPH', 'user', 1),
+(2, 'archer', '123', 'user', 1);
 
 --
 -- Indexes for dumped tables
@@ -170,25 +177,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
