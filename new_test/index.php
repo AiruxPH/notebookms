@@ -161,8 +161,9 @@ session_start();
 		</a>
 	<?php endif; ?>
 
+	<?php
 	// Filters are handled by get_notes() via $filters array
-
+	
 
 	// Filter setup
 	$is_archived_view = isset($_GET['archived']) && $_GET['archived'] == 1;
@@ -171,15 +172,15 @@ session_start();
 
 	$filters = ['archived' => $is_archived_view];
 	if ($search_query)
-	$filters['search'] = $search_query;
+		$filters['search'] = $search_query;
 	if ($cat_filter)
-	$filters['category'] = $cat_filter;
+		$filters['category'] = $cat_filter;
 
 	// Fetch Categories for Colors
 	$all_cats = get_categories();
 	$cat_colors = [];
 	foreach ($all_cats as $c) {
-	$cat_colors[$c['name']] = $c['color'];
+		$cat_colors[$c['name']] = $c['color'];
 	}
 
 	// Fetch Notes (DB or Session)
@@ -187,87 +188,95 @@ session_start();
 
 	// Display
 	if (count($notes) > 0) {
-	foreach ($notes as $row) {
-	$nid = $row['id'];
-	$title = htmlspecialchars($row['title']);
-	$category = htmlspecialchars($row['category']);
-	$date_last = date("M j, H:i", strtotime($row['date_last']));
-	$pin_icon = ($row['is_pinned'] == 1) ? "<span style='float: right; font-size: 1.2rem;'>📌</span>" : "";
-	$date_created = date("M j, Y", strtotime($row['date_created']));
+		foreach ($notes as $row) {
+			$nid = $row['id'];
+			$title = htmlspecialchars($row['title']);
+			$category = htmlspecialchars($row['category']);
+			$date_last = date("M j, H:i", strtotime($row['date_last']));
+			$pin_icon = ($row['is_pinned'] == 1) ? "<span style='float: right; font-size: 1.2rem;'>📌</span>" : "";
+			$date_created = date("M j, Y", strtotime($row['date_created']));
 
-	// Determine Color
-	$bg_color = isset($cat_colors[$category]) ? $cat_colors[$category] : '#ffffff';
+			// Determine Color
+			$bg_color = isset($cat_colors[$category]) ? $cat_colors[$category] : '#ffffff';
 
-	// Preview Text
-	$raw_text = $row['text'] ?? '';
-	// Visual Layout Update for Verticality
-	$raw_text = str_replace(['
-</div>', '</p>', '<h1>', '<h2>', '<h3>', '<h4>', '</h5>', '<h6>'], '<br>', $raw_text);
-					$raw_text = str_replace('<li>', '<br>&bull; ', $raw_text);
-						$clean_text = strip_tags($raw_text, '<b><i><u><strong><em><br>');
-											$dtxt = $clean_text;
-											if (empty(trim(strip_tags($dtxt))))
-											$dtxt = "<em>No content...</em>";
+			// Preview Text
+			$raw_text = $row['text'] ?? '';
+			// Visual Layout Update for Verticality
+			$raw_text = str_replace(['
+</div>',
+				'</p>',
+				'<h1>',
+				'<h2>',
+				'<h3>',
+				'<h4>',
+				'</h5>',
+				'<h6>'
+			], '<br>', $raw_text);
+			$raw_text = str_replace('<li>', '<br>&bull; ', $raw_text);
+			$clean_text = strip_tags($raw_text, '<b><i><u><strong><em><br>');
+			$dtxt = $clean_text;
+			if (empty(trim(strip_tags($dtxt))))
+				$dtxt = "<em>No content...</em>";
 
-											echo "<a href='notepad.php?id=$nid' class='note-card'
+			echo "<a href='notepad.php?id=$nid' class='note-card'
 												style='background-color: $bg_color;'>";
-												echo "<div class='note-title'>$pin_icon" . $title . "</div>";
-												echo "<div class='note-meta'>$category &bull; $date_last</div>";
-												echo "<div class='note-preview'>$dtxt</div>";
-												echo "<div class='note-footer'>";
-													echo "<span>Created: $date_created</span>";
-													echo "</div>";
-												echo "</a>";
-											}
-											} else {
-											// Empty State Message
-											$empty_msg = "No notes found.";
-											if ($is_archived_view) {
-											$empty_msg = "No archived notes found.";
-											} else if ($search_query) {
-											$empty_msg = "No notes found matching your search.";
-											}
+			echo "<div class='note-title'>$pin_icon" . $title . "</div>";
+			echo "<div class='note-meta'>$category &bull; $date_last</div>";
+			echo "<div class='note-preview'>$dtxt</div>";
+			echo "<div class='note-footer'>";
+			echo "<span>Created: $date_created</span>";
+			echo "</div>";
+			echo "</a>";
+		}
+	} else {
+		// Empty State Message
+		$empty_msg = "No notes found.";
+		if ($is_archived_view) {
+			$empty_msg = "No archived notes found.";
+		} else if ($search_query) {
+			$empty_msg = "No notes found matching your search.";
+		}
 
-											echo "<div
+		echo "<div
 												style='grid-column: 1 / -1; text-align: center; color: #777; padding: 40px;'>
 												<div style='font-size: 40px; margin-bottom: 10px; opacity: 0.5;'>📭
 												</div>
 												<div style='font-size: 18px;'>$empty_msg</div>
 											</div>";
-											}
-											?>
-											</div>
-											</div>
+	}
+	?>
+</div>
+</div>
 
-											</div>
+</div>
 
-											<script>
-												// Popup Logic (Same as notepad.php)
-												const popupOverlay = document.getElementById('popup-overlay');
-												const popupMessage = document.getElementById('popup-message');
+<script>
+	// Popup Logic (Same as notepad.php)
+	const popupOverlay = document.getElementById('popup-overlay');
+	const popupMessage = document.getElementById('popup-message');
 
-												function showPopup(msg, type) {
-													popupMessage.textContent = msg;
-													popupMessage.className = "popup-message " + (type === 'error' ? 'flash-error' : 'flash-success');
-													popupMessage.style.color = (type === 'error') ? '#c62828' : '#2e7d32';
-													popupOverlay.style.display = 'flex';
-												}
+	function showPopup(msg, type) {
+		popupMessage.textContent = msg;
+		popupMessage.className = "popup-message " + (type === 'error' ? 'flash-error' : 'flash-success');
+		popupMessage.style.color = (type === 'error') ? '#c62828' : '#2e7d32';
+		popupOverlay.style.display = 'flex';
+	}
 
-												function closePopup() {
-													popupOverlay.style.display = 'none';
-												}
+	function closePopup() {
+		popupOverlay.style.display = 'none';
+	}
 
-												// Check for PHP Flash Message
-												<?php
-												if (isset($_SESSION['flash'])) {
-													$msg = $_SESSION['flash']['message'];
-													$msg_type = $_SESSION['flash']['type'];
-													unset($_SESSION['flash']); // Clear it so it doesn't show again
-													echo "showPopup('" . addslashes($msg) . "', '$msg_type');";
-												}
-												?>
-											</script>
+	// Check for PHP Flash Message
+	<?php
+	if (isset($_SESSION['flash'])) {
+		$msg = $_SESSION['flash']['message'];
+		$msg_type = $_SESSION['flash']['type'];
+		unset($_SESSION['flash']); // Clear it so it doesn't show again
+		echo "showPopup('" . addslashes($msg) . "', '$msg_type');";
+	}
+	?>
+</script>
 
-											</body>
+</body>
 
 </html>
