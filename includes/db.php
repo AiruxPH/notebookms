@@ -5,7 +5,7 @@ if (!isset($_SESSION)) {
 
 date_default_timezone_set('Asia/Manila');
 
-$servername = "srv1858.hstgr.io";
+$servername = "srv1999.hstgr.io";
 $username = "u130348899_nbmstest";
 $password = "Note999@";
 $dbname = "u130348899_notebookmstest";

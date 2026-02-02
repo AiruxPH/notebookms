@@ -597,7 +597,7 @@ function set_security_word($user_id, $word)
     // Plan says "case-insensitive for better UX", so we can store it as is but compare lower.
 
     $word_esc = mysqli_real_escape_string($conn, $word);
-    $sql = "UPDATE users SET security_word = '$word_esc', security_word_set = 1 WHERE id = $uid";
+    $sql = "UPDATE users SET security_word = '$word_esc' WHERE id = $uid";
     return mysqli_query($conn, $sql);
 }
 
@@ -644,9 +644,9 @@ function has_security_word_set($user_id)
 {
     global $conn;
     $uid = intval($user_id);
-    $result = mysqli_query($conn, "SELECT security_word_set FROM users WHERE id=$uid");
+    $result = mysqli_query($conn, "SELECT security_word FROM users WHERE id=$uid");
     if ($row = mysqli_fetch_assoc($result)) {
-        return $row['security_word_set'] == 1;
+        return !empty($row['security_word']);
     }
     return false;
 }

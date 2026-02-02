@@ -17,38 +17,19 @@ if (isset($_SESSION['reset_verified']) && $_SESSION['reset_verified'] === true) 
     $step = 3;
 }
 
-// SUPER DEBUG: Check Table Structure
-if (isset($_GET['debug_schema'])) {
-    echo "<h3>Debug Info</h3>";
-    echo "Connected to DB: " . $dbname . "<br>";
-    echo "Host: " . $servername . "<br>";
-    
-    $res = mysqli_query($conn, "SHOW COLUMNS FROM users");
-    if (!$res) {
-        echo "Query Failed: " . mysqli_error($conn);
-    } else {
-        echo "<pre>";
-        echo "<strong>Columns in 'users' table:</strong><br>";
-        while($r = mysqli_fetch_assoc($res)) {
-            print_r($r);
-        }
-        echo "</pre>";
-    }
-    exit;
-}
-
 // Handle Form Posts
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         // STEP 1: VERIFY USERNAME
         if (isset($_POST['verify_username'])) {
             $username = mysqli_real_escape_string($conn, $_POST['username']);
-            $check = mysqli_query($conn, "SELECT id, security_word_set FROM users WHERE username='$username'");
+            // We check for 'security_word' directly now
+            $check = mysqli_query($conn, "SELECT id, security_word FROM users WHERE username='$username'");
 
             if (!$check) {
                 throw new Exception("SQL Error: " . mysqli_error($conn));
             } elseif ($row = mysqli_fetch_assoc($check)) {
-                if ($row['security_word_set'] == 0) {
+                if (empty($row['security_word'])) {
                     $error = "This account does not have a security word set. Please contact admin.";
                 } else {
                     $_SESSION['reset_param_username'] = $username;
