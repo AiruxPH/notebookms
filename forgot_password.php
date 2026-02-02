@@ -19,12 +19,21 @@ if (isset($_SESSION['reset_verified']) && $_SESSION['reset_verified'] === true) 
 
 // SUPER DEBUG: Check Table Structure
 if (isset($_GET['debug_schema'])) {
-    $res = mysqli_query($conn, "DESCRIBE users");
-    echo "<pre>";
-    while ($r = mysqli_fetch_assoc($res)) {
-        print_r($r);
+    echo "<h3>Debug Info</h3>";
+    echo "Connected to DB: " . $dbname . "<br>";
+    echo "Host: " . $servername . "<br>";
+    
+    $res = mysqli_query($conn, "SHOW COLUMNS FROM users");
+    if (!$res) {
+        echo "Query Failed: " . mysqli_error($conn);
+    } else {
+        echo "<pre>";
+        echo "<strong>Columns in 'users' table:</strong><br>";
+        while($r = mysqli_fetch_assoc($res)) {
+            print_r($r);
+        }
+        echo "</pre>";
     }
-    echo "</pre>";
     exit;
 }
 
