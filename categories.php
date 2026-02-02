@@ -213,9 +213,15 @@ $categories = get_categories();
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">Name (Max
                                     50):</label>
-                                <input type="text" name="cat_name" class="cat-name-input" required maxlength="50"
-                                    placeholder="e.g. Health"
-                                    style="width: 100%; padding: 10px; border: 1px solid #ccc; font-family: inherit; box-sizing: border-box;">
+                                <div class="col-8">
+                                    <input type="text" name="cat_name" placeholder="Category Name (Max 30 chars)"
+                                        required maxlength="30"
+                                        style="width: 100%; padding: 8px; box-sizing: border-box;">
+                                </div>
+                                <div class="col-4">
+                                    <input type="color" name="cat_color" value="#fff9c4"
+                                        style="width: 100%; padding: 0; border: none; height: 36px;">
+                                </div>
                             </div>
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; font-weight: bold;">Select Color (Lightness

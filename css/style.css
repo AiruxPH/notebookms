@@ -143,15 +143,21 @@ a.note-add-card:hover {
 	line-height: 1.4;
 
 	/* CSS Line Clamp */
-	display: -webkit-box;
-	-webkit-line-clamp: 10;
-	line-clamp: 10;
-	/* Increased to show more text */
-	-webkit-box-orient: vertical;
+	/* display: -webkit-box; removed in favor of height limit */
+	/* -webkit-line-clamp: 10; removed */
+
+	/* New Logic: Percentage Height Limit */
+	display: block;
+	height: 100px;
+	/* Fallback */
+	max-height: 55%;
+	/* Limit to ~55% of card height */
 	overflow: hidden;
 	text-overflow: ellipsis;
 	overflow-wrap: break-word;
-	word-break: break-word;
+	/* Ensure long words break */
+	word-break: break-all;
+	/* Ensure even super long words break */
 }
 
 .note-footer {

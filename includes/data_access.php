@@ -167,7 +167,9 @@ function save_note($data)
     global $conn;
     $uid = get_current_user_id();
 
-    $title = $data['title'];
+    // Strip emojis from Title
+    $title = preg_replace('/[\x{1F300}-\x{1F5FF}\x{1F900}-\x{1F9FF}\x{1F600}-\x{1F64F}\x{1F680}-\x{1F6FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F1E6}-\x{1F1FF}\x{1F191}-\x{1F251}\x{1F004}\x{1F0CF}\x{1F170}-\x{1F171}\x{1F17E}-\x{1F17F}\x{1F18E}\x{3030}\x{2B50}\x{2B55}\x{2934}-\x{2935}\x{2B05}-\x{2B07}\x{2B1B}-\x{2B1C}\x{3297}\x{3299}]/u', '', $data['title']);
+
     // $category is now an ID for users
     $category_val = $data['category'];
     $text = $data['text'];
@@ -353,6 +355,14 @@ function add_category($name, $color)
 
     if (is_logged_in()) {
         $name = strip_tags($name);
+        // Strip Emojis from Category Name
+        $name = preg_replace('/[\x{1F300}-\x{1F5FF}\x{1F900}-\x{1F9FF}\x{1F600}-\x{1F64F}\x{1F680}-\x{1F6FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F1E6}-\x{1F1FF}\x{1F191}-\x{1F251}\x{1F004}\x{1F0CF}\x{1F170}-\x{1F171}\x{1F17E}-\x{1F17F}\x{1F18E}\x{3030}\x{2B50}\x{2B55}\x{2934}-\x{2935}\x{2B05}-\x{2B07}\x{2B1B}-\x{2B1C}\x{3297}\x{3299}]/u', '', $name);
+
+        // Enforce 30 char limit
+        if (mb_strlen($name) > 30) {
+            $name = mb_substr($name, 0, 30);
+        }
+
         $name_esc = mysqli_real_escape_string($conn, $name);
         $color_esc = mysqli_real_escape_string($conn, $color);
 
@@ -450,8 +460,13 @@ function update_category($id, $name, $color)
     }
 
     $name = strip_tags($name);
-    // Limit name to 50
-    $name = substr($name, 0, 50);
+    // Strip Emojis
+    $name = preg_replace('/[\x{1F300}-\x{1F5FF}\x{1F900}-\x{1F9FF}\x{1F600}-\x{1F64F}\x{1F680}-\x{1F6FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F1E6}-\x{1F1FF}\x{1F191}-\x{1F251}\x{1F004}\x{1F0CF}\x{1F170}-\x{1F171}\x{1F17E}-\x{1F17F}\x{1F18E}\x{3030}\x{2B50}\x{2B55}\x{2934}-\x{2935}\x{2B05}-\x{2B07}\x{2B1B}-\x{2B1C}\x{3297}\x{3299}]/u', '', $name);
+
+    // Limit name to 30 (User Request)
+    if (mb_strlen($name) > 30) {
+        $name = mb_substr($name, 0, 30);
+    }
 
     if (is_logged_in()) {
         $id = intval($id);

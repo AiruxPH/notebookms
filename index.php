@@ -185,10 +185,9 @@ session_start();
 							$clean_text = strip_tags($raw_text, '<b><i><u><strong><em><br>');
 							$dtxt = trim($clean_text);
 
-							if (strlen(strip_tags($dtxt)) > 140) {
-								$dtxt = substr(strip_tags($dtxt), 0, 140) . "...";
-							}
-
+							// Truncation now handled by CSS with Percentage Height
+							// if (strlen(strip_tags($dtxt)) > 140) ... removed
+					
 							if (empty($dtxt))
 								$dtxt = "<em>No content...</em>";
 
