@@ -97,6 +97,7 @@ if (isset($_GET['id'])) {
 		$is_pinned_val = $note['is_pinned'];
 		$is_archived_val = $note['is_archived'];
 		$reminder_date_val = $note['reminder_date'];
+		$date_last = $note['date_last'];
 
 		$total_pages = get_note_page_count($nid);
 
@@ -255,12 +256,18 @@ if (isset($_SESSION['flash'])) {
 
 					<!-- EDIT MODE (Classic Editor) -->
 				<?php else: ?>
-
-					<div class="title-row">
+					<div class="title-row" style="position: relative;">
 						<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
 							style="width: 100%; resize: none; overflow: hidden; min-height: 32px;"
 							oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
+                        <span id="title-char-counter" style="position: absolute; right: 5px; bottom: 5px; font-size: 11px; color: #aaa; pointer-events: none;">0/100</span>
 					</div>
+                    
+                    <div style="font-size: 11px; color: #888; margin-bottom: 10px; padding-left: 2px; font-family: sans-serif;">
+                        <span id="word-count-top">0</span> words <span style="margin: 0 4px; color: #ccc;">|</span> 
+                        <span id="body-char-count">0</span> / 1800 characters <span style="margin: 0 4px; color: #ccc;">|</span> 
+                        Updated: <?php echo date("M j, g:i A", strtotime($date_last)); ?>
+                    </div>
 
 					<div class="editor-metadata-bar">
 						<select name="category" class="cat-select" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
@@ -378,9 +385,6 @@ if (isset($_SESSION['flash'])) {
 							</button>
 						</div>
 
-						<!-- Char Counter -->
-						<div style="text-align: right; font-size: 11px; color: #777; padding-right: 10px; margin-top: 2px;">
-							<span id="char-count">0</span> / 1800 chars
 						</div>
 					<?php endif; ?>
 
@@ -578,21 +582,34 @@ if (isset($_SESSION['flash'])) {
 			}
 		}
 
-		function updateCharCount() {
-			if (!editor) return;
-			const text = editor.innerText || "";
-			const countSpan = document.getElementById('char-count');
-			if (countSpan) {
-				countSpan.innerText = text.length;
-				if (text.length > MAX_CHARS) {
-					countSpan.style.color = 'red';
-					countSpan.style.fontWeight = 'bold';
-				} else {
-					countSpan.style.color = '#777';
-					countSpan.style.fontWeight = 'normal';
-				}
-			}
-		}
+        function updateCharCount() {
+            if (!editor) return;
+            // 1. Body Count
+            const text = editor.innerText || "";
+            const wordCountTop = document.getElementById('word-count-top');
+            const bodyCharCount = document.getElementById('body-char-count');
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            
+            if (wordCountTop) wordCountTop.innerText = (text.trim() === "") ? 0 : words.length;
+            
+            if (bodyCharCount) {
+                bodyCharCount.innerText = text.length;
+                if (text.length > MAX_CHARS) {
+                    bodyCharCount.style.color = 'red';
+                    bodyCharCount.style.fontWeight = 'bold';
+                } else {
+                    bodyCharCount.style.color = '#777'; // default color
+                    bodyCharCount.style.fontWeight = 'normal';
+                }
+            }
+            
+            // 2. Title Count
+            const titleInput = document.querySelector('textarea[name="new_title"]');
+            const titleCounter = document.getElementById('title-char-counter');
+            if (titleInput && titleCounter) {
+                titleCounter.innerText = titleInput.value.length + "/100";
+            }
+        }
 
 		function handleKeyDown(e) {
 			// TAB SUPPORT
