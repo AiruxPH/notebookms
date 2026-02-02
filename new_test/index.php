@@ -152,7 +152,7 @@ session_start();
 
 <div class="note-grid">
 	<!-- Add New Note Card (Hidden if searching, filtering category, OR viewing archives) -->
-	<?php if (!isset($_GET['q']) && !isset($_GET['cat']) && (!isset($_GET['archived']) || $_GET['archived'] != 1)): ?>
+	<?php if (!isset($_GET['archived']) || $_GET['archived'] != 1): ?>
 		<a href="notepad.php" class="note-card note-add-card">
 			<div style="text-align: center;">
 				<div style="font-size: 3rem; font-weight: bold;">+</div>
@@ -240,7 +240,7 @@ session_start();
 		}
 
 		echo "<div
-												style='grid-column: 1 / -1; text-align: center; color: #777; padding: 40px;'>
+												style='grid-column: 1 / -1; width: 100%; text-align: center; color: #777; padding: 40px; margin-top: 20px;'>
 												<div style='font-size: 40px; margin-bottom: 10px; opacity: 0.5;'>📭
 												</div>
 												<div style='font-size: 18px;'>$empty_msg</div>
