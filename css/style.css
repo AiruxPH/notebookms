@@ -30,9 +30,9 @@ a {
 header {
 	background-color: var(--header-bg);
 	border-bottom: 1px solid #aaa;
-	padding: 20px 0;
+	padding: 10px 0;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	margin-bottom: 30px;
+	margin-bottom: 15px;
 }
 
 .header-inner {
@@ -54,13 +54,14 @@ header h1 a {
 
 header nav a {
 	font-family: Arial, sans-serif;
-	font-size: 14px;
-	margin-left: 15px;
-	padding: 8px 12px;
+	font-size: 13px;
+	margin-left: 8px;
+	padding: 6px 10px;
 	background-color: var(--nav-bg);
 	border: 1px solid #999;
 	border-radius: 2px;
 	color: #000;
+	display: inline-block;
 }
 
 header nav a:hover {
@@ -377,9 +378,65 @@ a.note-add-card:hover {
 	gap: 30px;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
 	.dashboard-grid-layout {
 		grid-template-columns: 1fr;
+	}
+
+	.header-inner {
+		flex-direction: column;
+		gap: 15px;
+		text-align: center;
+	}
+
+	header nav {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 10px;
+	}
+
+	header nav a {
+		margin-left: 0;
+	}
+
+	.note-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.editor-layout {
+		padding: 15px;
+	}
+
+	.editor-metadata-bar {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+	}
+
+	.cat-select {
+		width: 100%;
+	}
+
+	.toolbar {
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.toolbar .btn {
+		width: 100%;
+		text-align: center;
+	}
+}
+
+@media (max-width: 480px) {
+	header h1 a {
+		font-size: 20px;
+	}
+
+	.btn {
+		padding: 8px 15px;
+		font-size: 13px;
 	}
 }
 
