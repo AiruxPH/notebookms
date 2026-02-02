@@ -166,6 +166,38 @@ a.note-add-card:hover {
 	box-shadow: var(--shadow);
 }
 
+.editor-metadata-bar {
+	display: flex;
+	gap: 15px;
+	margin-bottom: 20px;
+	align-items: center;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #eee;
+}
+
+.cat-select {
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	padding: 5px 10px;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	background: #fff;
+}
+
+.pin-label {
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	cursor: pointer;
+	color: #555;
+}
+
+.title-row {
+	margin-bottom: 5px;
+}
+
 .title-input {
 	width: 100%;
 	font-family: inherit;
@@ -174,7 +206,7 @@ a.note-add-card:hover {
 	border: none;
 	border-bottom: 2px solid #333;
 	padding: 5px 0;
-	margin-bottom: 5px;
+	margin: 0;
 	outline: none;
 	background: transparent;
 	display: block;

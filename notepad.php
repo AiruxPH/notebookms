@@ -120,9 +120,8 @@ if (isset($_SESSION['flash'])) {
 			<form method="post">
 				<input type="hidden" name="action_type" id="action_type" value="save">
 				<!-- Meta Section -->
-				<div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-					<select name="category" class="title-input"
-						style="width: auto; font-size: 16px; border-bottom: 2px solid #999;" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
+				<div class="editor-metadata-bar">
+					<select name="category" class="cat-select" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
 						<?php
 						$all_cats = get_categories();
 
@@ -163,20 +162,22 @@ if (isset($_SESSION['flash'])) {
 						?>
 					</select>
 
-					<label style="font-size: 14px; display: flex; align-items: center; gap: 5px;">
+					<label class="pin-label">
 						<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
 							echo "checked"; ?>
 							<?php echo $is_archived_val ? 'disabled' : ''; ?>>
-						Pin
+						Pin Note
 					</label>
 
 					<!-- Archive button moved to toolbar -->
 					<input type="hidden" name="is_archived" id="is_archived_input"
 						value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
+				</div>
 
-					<div class="title-container" style="flex-grow: 1;">
+				<div class="title-row">
+					<div class="title-container">
 						<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
-							style="width: 100%; resize: none; overflow: hidden; min-height: 40px; height: auto;"
+							style="width: 100%; resize: none; overflow: hidden; min-height: 32px; height: auto;"
 							oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
 						<span id="title-char-counter" class="title-char-counter">0/100</span>
 					</div>
