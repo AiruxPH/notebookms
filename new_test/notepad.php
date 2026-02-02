@@ -271,6 +271,11 @@ if (isset($_SESSION['flash'])) {
 			if (confirm("Are you sure you want to UNARCHIVE ?")) {
 				document.getElementById('is_archived_input').value = 0;
 				document.getElementById('action_type').value = 'archive_redirect';
+
+				// Enable all disabled inputs so their values are submitted
+				const disabled = form.querySelectorAll('[disabled]');
+				disabled.forEach(el => el.disabled = false);
+
 				// Sync content before submit
 				hiddenInput.value = editor.innerHTML;
 				form.submit();
