@@ -47,15 +47,15 @@ function get_notes($filters = [])
     if (is_logged_in()) {
         // --- DATABASE FETCH ---
         // JOIN categories to get name and color
-        $sql = "SELECT n.*, p.text, c.name as category_name, c.color as category_color 
+        // Subquery for page count
+        $sql = "SELECT n.*, p.text, c.name as category_name, c.color as category_color, 
+                (SELECT COUNT(*) FROM pages WHERE note_id = n.id) as page_count
                 FROM notes n 
                 LEFT JOIN pages p ON n.id = p.note_id AND p.page_number = 1 
                 LEFT JOIN categories c ON n.category_id = c.id
                 WHERE n.user_id = $uid AND n.is_archived = $archived";
 
         if ($category) {
-            // Filter by ID if numeric, otherwise strict check? 
-            // We assume filters now send ID based on plan.
             $cat_id_esc = intval($category);
             $sql .= " AND n.category_id = $cat_id_esc";
         }
@@ -100,6 +100,9 @@ function get_notes($filters = [])
             $n['category_name'] = $cat_data['name'];
             $n['category_color'] = $cat_data['color'];
             $n['category_id'] = $cat_data['id']; // useful for edit
+
+            // Guest Page Count
+            $n['page_count'] = isset($n['pages']) ? count($n['pages']) : 1;
 
             if ($category && $n['category_id'] != $category)
                 continue;
