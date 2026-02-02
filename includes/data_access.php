@@ -175,6 +175,7 @@ function save_note($data)
     $text = $data['text'];
     $is_pinned = !empty($data['is_pinned']) ? 1 : 0;
     $is_archived = !empty($data['is_archived']) ? 1 : 0;
+    $reminder_date = !empty($data['reminder_date']) ? $data['reminder_date'] : null;
 
     if (is_logged_in()) {
         $cat_id = intval($category_val);
@@ -186,8 +187,8 @@ function save_note($data)
             if (mysqli_num_rows($check) == 0)
                 return false;
 
-            $stmt = $conn->prepare("UPDATE notes SET title=?, category_id=?, is_pinned=?, is_archived=?, date_last=NOW() WHERE id=?");
-            $stmt->bind_param("siiii", $title, $cat_id, $is_pinned, $is_archived, $id);
+            $stmt = $conn->prepare("UPDATE notes SET title=?, category_id=?, is_pinned=?, is_archived=?, reminder_date=?, date_last=NOW() WHERE id=?");
+            $stmt->bind_param("siiisi", $title, $cat_id, $is_pinned, $is_archived, $reminder_date, $id);
             $stmt->execute();
 
             $stmt_p = $conn->prepare("UPDATE pages SET text=? WHERE note_id=?");
@@ -197,8 +198,8 @@ function save_note($data)
             return $id;
         } else {
             // INSERT
-            $stmt = $conn->prepare("INSERT INTO notes (user_id, title, category_id, is_pinned, is_archived, date_created, date_last) VALUES (?, ?, ?, ?, ?, NOW(), NOW())");
-            $stmt->bind_param("isiii", $uid, $title, $cat_id, $is_pinned, $is_archived);
+            $stmt = $conn->prepare("INSERT INTO notes (user_id, title, category_id, is_pinned, is_archived, reminder_date, date_created, date_last) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
+            $stmt->bind_param("isiiis", $uid, $title, $cat_id, $is_pinned, $is_archived, $reminder_date);
             $stmt->execute();
             $new_id = $stmt->insert_id;
 
@@ -228,6 +229,7 @@ function save_note($data)
             'text' => $text,
             'is_pinned' => $is_pinned,
             'is_archived' => $is_archived,
+            'reminder_date' => $reminder_date,
             'date_created' => $created,
             'date_last' => date('Y-m-d H:i:s')
         ];
@@ -282,8 +284,11 @@ function migrate_guest_data_to_db($user_id)
             }
 
             // Insert into DB
-            $stmt = $conn->prepare("INSERT INTO notes (user_id, title, category_id, is_pinned, is_archived, date_created, date_last) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("isiiiss", $user_id, $note['title'], $final_cat_id, $note['is_pinned'], $note['is_archived'], $note['date_created'], $note['date_last']);
+            // FIXED: Added reminder_date mapping
+            $reminder_date = isset($note['reminder_date']) ? $note['reminder_date'] : null;
+
+            $stmt = $conn->prepare("INSERT INTO notes (user_id, title, category_id, is_pinned, is_archived, reminder_date, date_created, date_last) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("isiiisss", $user_id, $note['title'], $final_cat_id, $note['is_pinned'], $note['is_archived'], $reminder_date, $note['date_created'], $note['date_last']);
             $stmt->execute();
             $new_id = $stmt->insert_id;
 

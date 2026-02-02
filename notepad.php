@@ -10,6 +10,7 @@ $ntitle = "";
 $ncat = 1; // Default category ID (1 = General)
 $is_pinned_val = 0;
 $is_archived_val = 0;
+$reminder_date_val = ""; // NEW
 $content = "";
 
 // 1. Handle POST (Save / Update / Archive)
@@ -22,7 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset
 		'category' => $_POST['category'] ?? 1,
 		'text' => $_POST['page'] ?? '',
 		'is_pinned' => isset($_POST['is_pinned']) ? 1 : 0,
-		'is_archived' => $_POST['is_archived'] ?? 0
+		'is_archived' => $_POST['is_archived'] ?? 0,
+		'reminder_date' => !empty($_POST['reminder_date']) ? str_replace('T', ' ', $_POST['reminder_date']) : null // Handle DateTime input
 	];
 
 	// SAVE
@@ -51,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset
 		$content = $save_data['text'];
 		$is_pinned_val = $save_data['is_pinned'];
 		$is_archived_val = $save_data['is_archived'];
+		$reminder_date_val = $save_data['reminder_date']; // Keep it populated
 	} else {
 		$msg = "Error saving note.";
 		$msg_type = "error";
@@ -67,6 +70,7 @@ if (isset($_GET['id'])) {
 		$content = $note['text'];
 		$is_pinned_val = $note['is_pinned'];
 		$is_archived_val = $note['is_archived'];
+		$reminder_date_val = $note['reminder_date']; // NEW
 		$date_last_display = date("M j, Y, g:i A", strtotime($note['date_last']));
 	} else {
 		// Note not found or not owned
@@ -175,6 +179,15 @@ if (isset($_SESSION['flash'])) {
 					<!-- Archive button moved to toolbar -->
 					<input type="hidden" name="is_archived" id="is_archived_input"
 						value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
+
+					<!-- Reminder Input -->
+					<div style="display: flex; align-items: center; gap: 5px; margin-left: auto;">
+						<label style="font-size: 13px; font-weight: bold; color: #555;">⏰</label>
+						<input type="datetime-local" name="reminder_date"
+							value="<?php echo $reminder_date_val ? date('Y-m-d\TH:i', strtotime($reminder_date_val)) : ''; ?>"
+							style="padding: 5px; border: 1px solid #ccc; font-family: Arial, sans-serif; font-size: 13px;"
+							<?php echo $is_archived_val ? 'disabled' : ''; ?>>
+					</div>
 				</div>
 
 				<div class="title-row">

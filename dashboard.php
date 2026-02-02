@@ -163,6 +163,10 @@ include 'includes/data_access.php';
                             echo "<div class='note-preview'>$dtxt</div>";
                             echo "<div class='note-footer'>";
                             echo "<div style='font-weight: bold; margin-bottom: 5px; color: #333;'>$dcat</div>";
+                            if (!empty($row['reminder_date'])) {
+                                $rem_display = date("M j, g:i A", strtotime($row['reminder_date']));
+                                echo "<span style='color: #c62828; font-weight: bold; display: block; margin-bottom: 3px;'>⏰ $rem_display</span>";
+                            }
                             echo "Updated: $ddate $ddatl</div>";
                             echo "</div>";
                             echo "</a>";
