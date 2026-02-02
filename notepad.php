@@ -136,6 +136,7 @@ if (isset($_SESSION['flash'])) {
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
 	<link rel="icon" href="favicon.png" type="image/png">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<title><?php echo $ntitle ? htmlspecialchars($ntitle) : "New Note"; ?> - Notebook</title>
 </head>
 
@@ -187,7 +188,8 @@ if (isset($_SESSION['flash'])) {
 						<div>
 							<h1
 								style="margin: 0; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">
-								<?php echo htmlspecialchars($ntitle); ?></h1>
+								<?php echo htmlspecialchars($ntitle); ?>
+							</h1>
 							<div style="font-size: 13px; color: #666; margin-top: 5px;">
 								<span style="background: #eee; padding: 2px 6px; border-radius: 4px;">
 									<?php
@@ -203,7 +205,7 @@ if (isset($_SESSION['flash'])) {
 									?>
 								</span>
 								<?php if ($reminder_date_val): ?>
-									<span style="color: #c62828; margin-left: 10px;">⏰
+									<span style="color: #c62828; margin-left: 10px;"><i class="fa-regular fa-clock"></i>
 										<?php echo date("M j, g:i A", strtotime($reminder_date_val)); ?></span>
 								<?php endif; ?>
 								<span style="margin-left: 10px; color: #888;">Page <?php echo $current_page; ?> of
@@ -214,10 +216,12 @@ if (isset($_SESSION['flash'])) {
 						<!-- Right: Status Icons Only (Clean) -->
 						<div style="display: flex; gap: 10px; align-items: center;">
 							<?php if ($is_pinned_val): ?>
-								<span title="Pinned" style="font-size: 20px;">📌</span>
+								<span title="Pinned" style="font-size: 18px; color: #555;"><i
+										class="fa-solid fa-thumbtack"></i></span>
 							<?php endif; ?>
 							<?php if ($is_archived_val): ?>
-								<span title="Archived" style="font-size: 20px; color: #888;">📁</span>
+								<span title="Archived" style="font-size: 18px; color: #888;"><i
+										class="fa-solid fa-box-archive"></i></span>
 							<?php endif; ?>
 						</div>
 					</div>
@@ -232,18 +236,18 @@ if (isset($_SESSION['flash'])) {
 							<div class="pagination-bar">
 								<?php if ($current_page > 1): ?>
 									<a href="?id=<?php echo $nid; ?>&page=<?php echo $current_page - 1; ?>&mode=view"
-										class="page-btn">&laquo; Prev</a>
+										class="page-btn"><i class="fa-solid fa-chevron-left"></i> Prev</a>
 								<?php else: ?>
-									<span class="page-btn disabled">&laquo; Prev</span>
+									<span class="page-btn disabled"><i class="fa-solid fa-chevron-left"></i> Prev</span>
 								<?php endif; ?>
 
 								<span class="page-indicator">Page <?php echo $current_page; ?></span>
 
 								<?php if ($current_page < $total_pages): ?>
 									<a href="?id=<?php echo $nid; ?>&page=<?php echo $current_page + 1; ?>&mode=view"
-										class="page-btn">Next &raquo;</a>
+										class="page-btn">Next <i class="fa-solid fa-chevron-right"></i></a>
 								<?php else: ?>
-									<span class="page-btn disabled">Next &raquo;</span>
+									<span class="page-btn disabled">Next <i class="fa-solid fa-chevron-right"></i></span>
 								<?php endif; ?>
 							</div>
 						<?php endif; ?>
@@ -284,10 +288,16 @@ if (isset($_SESSION['flash'])) {
 							?>
 						</select>
 
-						<!-- PIN CHECKBOX REMOVED FROM EDIT MODE BODY AS REQUESTED -->
+						<!-- PIN CHECKBOX RESTORED -->
+						<label class="pin-label">
+							<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
+								echo "checked"; ?>
+							<?php echo $is_archived_val ? 'disabled' : ''; ?>>
+							<i class="fa-solid fa-thumbtack" style="font-size: 12px;"></i> Pin
+						</label>
 
 						<div style="margin-left: auto; display: flex; align-items: center; gap: 5px;">
-							<label>⏰</label>
+							<label><i class="fa-regular fa-clock"></i></label>
 							<input type="datetime-local" name="reminder_date"
 								value="<?php echo $reminder_date_val ? date('Y-m-d\TH:i', strtotime($reminder_date_val)) : ''; ?>"
 								style="font-size: 13px;">
@@ -303,13 +313,16 @@ if (isset($_SESSION['flash'])) {
 					<!-- Formatting Toolbar -->
 					<div
 						style="background: #eee; padding: 5px; border: 1px solid #ccc; border-bottom: none; display: flex; gap: 5px;">
-						<button type="button" onclick="formatText('b')" style="font-weight: bold; width: 30px;">B</button>
-						<button type="button" onclick="formatText('i')" style="font-style: italic; width: 30px;">I</button>
-						<button type="button" onclick="formatText('u')"
-							style="text-decoration: underline; width: 30px;">U</button>
+						<button type="button" onclick="formatText('b')" style="font-weight: bold; width: 30px;"><i
+								class="fa-solid fa-bold"></i></button>
+						<button type="button" onclick="formatText('i')" style="font-style: italic; width: 30px;"><i
+								class="fa-solid fa-italic"></i></button>
+						<button type="button" onclick="formatText('u')" style="text-decoration: underline; width: 30px;"><i
+								class="fa-solid fa-underline"></i></button>
 						<span style="border-left: 1px solid #ccc; margin: 0 5px;"></span>
-						<button type="button" onclick="formatText('h3')" style="font-weight: bold; width: 30px;">H</button>
-						<button type="button" onclick="formatText('li')" style="width: 30px;">•</button>
+						<button type="button" onclick="formatText('h3')" style="font-weight: bold; width: 30px;">H3</button>
+						<button type="button" onclick="formatText('li')" style="width: 30px;"><i
+								class="fa-solid fa-list-ul"></i></button>
 					</div>
 
 					<input type="hidden" name="note_id" value="<?php echo htmlspecialchars($nid); ?>">
@@ -327,19 +340,22 @@ if (isset($_SESSION['flash'])) {
 						<div class="pagination-bar" style="background: #f0f0f0;">
 							<?php if ($current_page > 1): ?>
 								<a href="?id=<?php echo $nid; ?>&page=<?php echo $current_page - 1; ?>&mode=edit"
-									onclick="return confirmNavigation()" class="page-btn">&laquo; Prev</a>
+									onclick="return confirmNavigation()" class="page-btn"><i class="fa-solid fa-chevron-left"></i>
+									Prev</a>
 							<?php endif; ?>
 
 							<span class="page-indicator">Page <?php echo $current_page; ?> of <?php echo $total_pages; ?></span>
 
 							<?php if ($current_page < $total_pages): ?>
 								<a href="?id=<?php echo $nid; ?>&page=<?php echo $current_page + 1; ?>&mode=edit"
-									onclick="return confirmNavigation()" class="page-btn">Next &raquo;</a>
+									onclick="return confirmNavigation()" class="page-btn">Next <i
+										class="fa-solid fa-chevron-right"></i></a>
 							<?php endif; ?>
 
 							<!-- Add Page -->
 							<a href="?id=<?php echo $nid; ?>&page=<?php echo $total_pages + 1; ?>&mode=edit"
-								onclick="return confirmNavigation()" class="page-btn add-page-btn">+ New Page</a>
+								onclick="return confirmNavigation()" class="page-btn add-page-btn"><i
+									class="fa-solid fa-plus"></i> New Page</a>
 						</div>
 					<?php endif; ?>
 
@@ -351,11 +367,11 @@ if (isset($_SESSION['flash'])) {
 					<!-- SAVE / EDIT Actions -->
 					<?php if (!$is_archived_val && !$is_view_mode): ?>
 						<button type="submit" name="save_exit" class="fab-btn fab-save" title="Save & Exit">
-							💾
+							<i class="fa-solid fa-floppy-disk"></i>
 							<span class="fab-label">Save & Exit</span>
 						</button>
 						<button type="submit" name="save_note" class="fab-btn fab-secondary" title="Save">
-							Ok
+							<i class="fa-solid fa-check"></i>
 							<span class="fab-label">Save</span>
 						</button>
 					<?php endif; ?>
@@ -364,13 +380,13 @@ if (isset($_SESSION['flash'])) {
 					<?php if ($is_view_mode && !$is_archived_val): ?>
 						<a href="notepad.php?id=<?php echo $nid; ?>&mode=edit&page=<?php echo $current_page; ?>"
 							class="fab-btn fab-primary" title="Edit Note">
-							✏️
+							<i class="fa-solid fa-pen"></i>
 							<span class="fab-label">Edit</span>
 						</a>
 					<?php elseif (!$is_view_mode && $nid != ""): ?>
 						<a href="notepad.php?id=<?php echo $nid; ?>&mode=view&page=<?php echo $current_page; ?>"
 							class="fab-btn fab-secondary" onclick="return confirmNavigation()" title="View Mode">
-							👁️
+							<i class="fa-solid fa-eye"></i>
 							<span class="fab-label">View</span>
 						</a>
 					<?php endif; ?>
@@ -381,37 +397,33 @@ if (isset($_SESSION['flash'])) {
 							<!-- DELETE PERMANENT -->
 							<button type="button" onclick="confirmDeletePermanent()" class="fab-btn"
 								style="background: #ffebee; color: #c62828;">
-								🗑️
+								<i class="fa-solid fa-trash-can"></i>
 								<span class="fab-label">Delete Forever</span>
 							</button>
 							<!-- UNARCHIVE -->
 							<button type="button" onclick="confirmUnarchive()" class="fab-btn"
 								style="background: #e1f5fe; color: #0277bd;">
-								📂
+								<i class="fa-solid fa-box-open"></i>
 								<span class="fab-label">Unarchive</span>
 							</button>
 						<?php elseif (!$is_view_mode): ?>
 							<!-- Archive (Edit Mode) -->
 							<button type="button" onclick="confirmArchive()" class="fab-btn"
 								style="background: #ffebee; color: #c62828;">
-								📦
+								<i class="fa-solid fa-box-archive"></i>
 								<span class="fab-label">Archive</span>
 							</button>
 						<?php else: ?>
 							<!-- Archive (View Mode) -->
 							<button type="button" onclick="confirmArchive()" class="fab-btn"
 								style="background: #ffebee; color: #c62828;">
-								📦
+								<i class="fa-solid fa-box-archive"></i>
 								<span class="fab-label">Archive</span>
 							</button>
 						<?php endif; ?>
 					<?php endif; ?>
 
-					<!-- Back to List -->
-					<a href="index.php" class="fab-btn fab-secondary" title="Back to List">
-						🏠
-						<span class="fab-label">Home</span>
-					</a>
+					<!-- Removed Home Button as requested -->
 				</div>
 			</form>
 		</div>
