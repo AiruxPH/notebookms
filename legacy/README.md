@@ -31,6 +31,7 @@ CSIT601 preliminary exam requirement
 ### Dedicated cateogry page
 ### Reminder feature, nice-to-have, low priority
 ### Re-do the database design, trim unnecesary tables and columns
+### Admin and admin panel, user will have a "privilege" column denoting their admin access
 
 ## Editors
 **Verne Mhel N. Calledo**

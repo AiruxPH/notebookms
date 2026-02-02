@@ -1,117 +1,285 @@
 <?php
-include 'includes/db.php';
-
-if (isset($_SESSION['passnote']) && !is_null($_SESSION['passnote'])) {
-	$_SESSION['passnote'] = null;
-}
-
-?><!DOCTYPE html>
-
+include 'includes/data_access.php';
+// session_start() is already in db.php (which is in data_access.php)sh message check (optional if we want to show messages on index too)
+session_start();
+?>
+<!DOCTYPE html>
 <html>
 
 <head>
-	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
+	<title>My Notes - Notebook</title>
 </head>
 
-<header>
-	<br />
-	<h1> <a href="index.php"> Notebook-BAR </a> </h1>
-	<nav>
-		<a href="about.html"> About </a>
-		<a href="index.php"> Notes </a>
-		<a href="contact.html"> Contact Us </a>
-	</nav>
-	<br />
-</header>
-
 <body>
-	<div id="bwrap">
-		<br>
-		<!-- Template
-		<figure>
-		<a href="notepad.html">
-			<h2> This is a Title </h2>
-			<h5> Placeholder Category </h5>
-			<p> This is a sample block of text that amounts to two hundred fifty five (255)characters long. Given how the text fields in HTML are limited to only 255 characters, instead of trying to find a way around it Ive decided to implement it instead as a feature. </p>
-			<table class="tbldetails">
-				<colgroup>
-					<col span="1" style="width: 40%;">
-					<col span="1" style="width: 60%;">
-				</colgroup>
-				<tr>
-					<td>
-						Date Created
-					</td>
-					<td>
-						2024-02-20 2220
-					</td>
-				</tr>
-				<tr>
-					<td>
-						Last Modified
-					</td>
-					<td>
-						2024-02-20 2220
-					</td>
-				</tr>
-			</table>
-		</a>
-		</figure>
-		-->
 
-		<figure>
-			<a href="notepad.php">
-				<h2 clas="new_note"> Add New Note </h2>
-				<b style="font-size: 120px; text-align: center; overflow:  hidden; vertical-align: center;"> + </b>
-			</a>
-		</figure>
+	<header>
+		<div class="header-inner">
+			<h1><a href="dashboard.php">Notebook-BAR</a></h1>
+			<nav>
+				<a href="dashboard.php">Dashboard</a>
+				<a href="index.php">Notes</a>
+				<a href="categories.php">Categories</a>
+				<?php if (is_logged_in()): ?>
+					<a href="logout.php" style="color: #c62828;">Logout</a>
+				<?php else: ?>
+					<a href="login.php" style="color: #2e7d32;">Login</a>
+				<?php endif; ?>
+				<a href="about.php">About</a>
+				<a href="contact.php">Contact Us</a>
+			</nav>
+		</div>
+	</header>
 
-		<?php
-		$sql = "SELECT title, date_created, date_last, category, color FROM notes";
-		$result = mysqli_query($conn, $sql);
-		$notesql = "SELECT text FROM pages WHERE owner LIKE ? AND page LIKE 1";
+	<div class="container">
+		<!-- Toast Container -->
+		<div id="toast-overlay" class="toast-overlay">
+			<div id="toast-message" class="toast-message"></div>
+		</div>
 
-		$stmt = $conn->prepare($notesql);
-		$stmt->bind_param("s", $dtitle);
+		<!-- Search & Filter Bar -->
+		<!-- ... code omitted ... -->
 
-		/*
-		$notesql = "SELECT text FROM pages WHERE owner LIKE $result[title] AND page LIKE 0";
-		$noteres = mysqli_query($conn, $sql);*/
+		<!-- (Moving to END of file for script replacement) -->
+		<script>
+			// Toast Logic (Same as notepad.php)
+			const toastOverlay = document.getElementById('toast-overlay');
+			const toastMessage = document.getElementById('toast-message');
 
-		while ($row = mysqli_fetch_assoc($result)) {
-			$dtitle = $row['title'];
-			$stmt->execute();
+			function showToast(msg, type) {
+				toastMessage.textContent = msg;
+				toastMessage.className = "toast-message " + (type === 'error' ? 'toast-error' : 'toast-success');
+				// Force reflow
+				void toastMessage.offsetWidth;
 
-			$dcat = $row['category'];
-			$ddatc = $row['date_created'];
-			$ddatl = $row['date_last'];
+				toastOverlay.style.display = 'flex';
+				requestAnimationFrame(() => {
+					toastMessage.classList.add('show');
+				});
 
-			$stmt->bind_result($dtxt);
-			$stmt->fetch();
+				// Auto hide after 3 seconds
+				setTimeout(() => {
+					toastMessage.classList.remove('show');
+					setTimeout(() => {
+						toastOverlay.style.display = 'none';
+					}, 300); // Wait for fade out
+				}, 3000);
+			}
 
-			/* don't work either :(
-			//$noteres = $stmt->mysqli_fetch();;
-			//$noterow = mysqli_fetch_assoc($noteres);
-			*/
+			// Check for PHP Flash Message
+			<?php
+			if (isset($_SESSION['flash'])) {
+				$msg = $_SESSION['flash']['message'];
+				$msg_type = $_SESSION['flash']['type'];
+				unset($_SESSION['flash']); // Clear it so it doesn't show again
+				echo "showToast('" . addslashes($msg) . "', '$msg_type');";
+			}
+			?>
+		</script>
 
-			/* apparently needs some sort of extra lib or smthn installed
-			$noteres = $stmt->get_result();;
-			$noterow = mysqli_fetch_assoc($noteres);
-			*/
+</body>
+<div
+	style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center; background: #fff; padding: 10px; border: 1px solid #ccc; flex-wrap: wrap;">
 
-			/* doesn't work :/
-			$notesql = "SELECT text FROM pages WHERE owner LIKE" . $dtitle . " AND page LIKE '1'";
-			$noteres = mysqli_query($conn, $notesql);
-			$noterow = mysqli_fetch_assoc($noteres);
-			*/
 
-			//$dtxt = $noteres;
-		
+	<form method="get" style="display: flex; gap: 10px; flex-grow: 1;">
+		<input type="text" name="q" placeholder="Search notes..."
+			value="<?php echo htmlspecialchars($_GET['q'] ?? ''); ?>"
+			style="padding: 8px; font-family: inherit; font-size: 14px; flex-grow: 1; border: 1px solid #ccc;">
 
-			echo "<figure><a href='notepad.php?t=" . $dtitle . "'><h2>" . $dtitle . "</h2><h5>" . $dcat . "</h5><p>" . $dtxt . "</p>	<table class='tbldetails'><colgroup><col span='1' class='dtc1'><col span='1' class='dtc2'></colgroup><tr><td>Date Created</td><td>" . $ddatc . "</td></tr><tr><td>Last Modified</td><td>" . $ddatl . "</td></tr></table></a></figure>";
-		}
-		?>
+		<select name="cat" style="padding: 8px; font-family: inherit; font-size: 14px; border: 1px solid #ccc;">
+			<option value="">All Categories</option>
+			<?php
+			$all_cats = get_categories();
+			$curr_cat = $_GET['cat'] ?? '';
+
+			// Separate groups
+			$defaults = [];
+			$custom = [];
+			foreach ($all_cats as $c) {
+				// Determine if custom: if user_id is set and > 0, or if it isn't in our hardcoded defaults list
+				// Since get_categories returns array with user_id context (from DB), we can use that.
+				// However, for Guests, we might need to rely on names if user_id isn't explicitly set in the merged array for session items.
+				// Let's assume standard defaults for check if user_id check is ambiguous
+				$default_names = ['General', 'Personal', 'Work', 'Study', 'Ideas'];
+
+				if (in_array($c['name'], $default_names)) {
+					$defaults[] = $c;
+				} else {
+					$custom[] = $c;
+				}
+			}
+
+			if (!empty($defaults)) {
+				echo "<optgroup label='Defaults'>";
+				foreach ($defaults as $c) {
+					$cname = htmlspecialchars($c['name']);
+					$cid = $c['id'];
+					$sel = ($curr_cat == $cid) ? "selected" : "";
+					echo "<option value='$cid' $sel>$cname</option>";
+				}
+				echo "</optgroup>";
+			}
+
+			if (!empty($custom)) {
+				echo "<optgroup label='My Categories'>";
+				foreach ($custom as $c) {
+					$cname = htmlspecialchars($c['name']);
+					$cid = $c['id'];
+					$sel = ($curr_cat == $cid) ? "selected" : "";
+					echo "<option value='$cid' $sel>$cname</option>";
+				}
+				echo "</optgroup>";
+			}
+			?>
+		</select>
+
+		<button type="submit" class="btn">Filter</button>
+		<?php if (isset($_GET['q']) || isset($_GET['cat'])): ?>
+			<a href="index.php" class="btn btn-secondary"
+				style="font-weight: normal; font-size: 12px; padding: 10px;">Clear</a>
+		<?php endif; ?>
+	</form>
+
+	<div style="border-left: 1px solid #ccc; padding-left: 10px; margin-left: auto;">
+		<?php if (isset($_GET['archived']) && $_GET['archived'] == 1): ?>
+			<a href="index.php" style="color: green; font-weight: bold; font-size: 14px;">&laquo; View Active
+				Notes</a>
+		<?php else: ?>
+			<a href="index.php?archived=1" style="color: #999; font-size: 14px;">View Archived Notes &raquo;</a>
+		<?php endif; ?>
 	</div>
+</div>
+
+<div class="note-grid">
+	<!-- Add New Note Card (Hidden if searching, filtering category, OR viewing archives) -->
+	<?php if (!isset($_GET['archived']) || $_GET['archived'] != 1): ?>
+		<a href="notepad.php" class="note-card note-add-card">
+			<div style="text-align: center;">
+				<div style="font-size: 3rem; font-weight: bold;">+</div>
+				<div>Add New Note</div>
+			</div>
+		</a>
+	<?php endif; ?>
+
+	<?php
+	// Filters are handled by get_notes() via $filters array
+	
+
+	// Filter setup
+	$is_archived_view = isset($_GET['archived']) && $_GET['archived'] == 1;
+	$search_query = $_GET['q'] ?? '';
+	$cat_filter = $_GET['cat'] ?? '';
+
+	$filters = ['archived' => $is_archived_view];
+	if ($search_query)
+		$filters['search'] = $search_query;
+	if ($cat_filter)
+		$filters['category'] = $cat_filter;
+
+	// Fetch Categories for Colors
+	$all_cats = get_categories();
+	$cat_colors = [];
+	foreach ($all_cats as $c) {
+		$cat_colors[$c['name']] = $c['color'];
+	}
+
+	// Fetch Notes (DB or Session)
+	$notes = get_notes($filters);
+
+	// Display
+	if (count($notes) > 0) {
+		foreach ($notes as $row) {
+			$nid = $row['id'];
+			$title = htmlspecialchars($row['title']);
+			$category = htmlspecialchars($row['category']);
+			$date_last = date("M j, H:i", strtotime($row['date_last']));
+			$pin_icon = ($row['is_pinned'] == 1) ? "<span style='float: right; font-size: 1.2rem;'>📌</span>" : "";
+			$date_created = date("M j, Y", strtotime($row['date_created']));
+
+			// Determine Color
+			$bg_color = isset($cat_colors[$category]) ? $cat_colors[$category] : '#ffffff';
+
+			// Preview Text
+			$raw_text = $row['text'] ?? '';
+			// Visual Layout Update for Verticality
+			$raw_text = str_replace(['
+</div>',
+				'</p>',
+				'<h1>',
+				'<h2>',
+				'<h3>',
+				'<h4>',
+				'</h5>',
+				'<h6>'
+			], '<br>', $raw_text);
+			$raw_text = str_replace('<li>', '<br>&bull; ', $raw_text);
+			$clean_text = strip_tags($raw_text, '<b><i><u><strong><em><br>');
+			$dtxt = $clean_text;
+			if (empty(trim(strip_tags($dtxt))))
+				$dtxt = "<em>No content...</em>";
+
+			echo "<a href='notepad.php?id=$nid' class='note-card'>";
+			echo "<div class='category_streak' style='background-color: $bg_color;'><br></div>";
+			echo "<div class='card_wrap'>";
+			echo "<div class='note-title'>$pin_icon" . $title . "</div>";
+			echo "<div class='note-meta'>$category &bull; $date_last</div>";
+			echo "<div class='note-preview'>$dtxt</div>";
+			echo "<div class='note-footer'>";
+			echo "<span>Created: $date_created</span>";
+			echo "</div>";
+			echo "</div>";
+			echo "</a>";
+		}
+	} else {
+		// Empty State Message
+		$empty_msg = "No notes found.";
+		if ($is_archived_view) {
+			$empty_msg = "No archived notes found.";
+		} else if ($search_query) {
+			$empty_msg = "No notes found matching your search.";
+		}
+
+		echo "<div
+												style='grid-column: 1 / -1; width: 100%; text-align: center; color: #777; padding: 40px; margin-top: 20px;'>
+												<div style='font-size: 40px; margin-bottom: 10px; opacity: 0.5;'>📭
+												</div>
+												<div style='font-size: 18px;'>$empty_msg</div>
+											</div>";
+	}
+	?>
+</div>
+</div>
+
+</div>
+
+<script>
+	// Popup Logic (Same as notepad.php)
+	const popupOverlay = document.getElementById('popup-overlay');
+	const popupMessage = document.getElementById('popup-message');
+
+	function showPopup(msg, type) {
+		popupMessage.textContent = msg;
+		popupMessage.className = "popup-message " + (type === 'error' ? 'flash-error' : 'flash-success');
+		popupMessage.style.color = (type === 'error') ? '#c62828' : '#2e7d32';
+		popupOverlay.style.display = 'flex';
+	}
+
+	function closePopup() {
+		popupOverlay.style.display = 'none';
+	}
+
+	// Check for PHP Flash Message
+	<?php
+	if (isset($_SESSION['flash'])) {
+		$msg = $_SESSION['flash']['message'];
+		$msg_type = $_SESSION['flash']['type'];
+		unset($_SESSION['flash']); // Clear it so it doesn't show again
+		echo "showPopup('" . addslashes($msg) . "', '$msg_type');";
+	}
+	?>
+</script>
+
 </body>
 
 </html>
