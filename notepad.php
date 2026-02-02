@@ -177,7 +177,8 @@ if (isset($_SESSION['flash'])) {
 			<form method="post" id="note-form">
 				<input type="hidden" name="action_type" id="action_type" value="save">
 				<input type="hidden" name="note_id" value="<?php echo htmlspecialchars($nid); ?>">
-				<input type="hidden" name="is_archived" id="is_archived_input" value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
+				<input type="hidden" name="is_archived" id="is_archived_input"
+					value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
 				<input type="hidden" name="page_number" value="<?php echo $current_page; ?>">
 				<input type="hidden" name="page" id="page_content" value="<?php echo htmlspecialchars($content); ?>">
 
@@ -255,8 +256,8 @@ if (isset($_SESSION['flash'])) {
 
 						<!-- View Mode Pagination (Client-Side) -->
 						<?php if ($nid != ""): ?>
-							<div class="pagination-bar"
-								style="background: #f0f0f0; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px;">
+							<div class="pagination-bar" id="view-pagination-bar"
+								style="background: #f0f0f0; display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>; align-items: center; justify-content: center; gap: 8px; margin-top: 20px;">
 
 								<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first-v"
 									title="First Page">
@@ -373,36 +374,39 @@ if (isset($_SESSION['flash'])) {
 						<div class="pagination-bar"
 							style="background: #f0f0f0; display: flex; align-items: center; justify-content: center; gap: 8px;">
 
-							<!-- First -->
-							<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first" title="First Page">
-								<i class="fa-solid fa-backward-step"></i>
-							</button>
+							<div id="pagination-controls"
+								style="display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>; align-items: center; gap: 8px;">
+								<!-- First -->
+								<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first" title="First Page">
+									<i class="fa-solid fa-backward-step"></i>
+								</button>
 
-							<!-- Prev -->
-							<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn" id="btn-prev"
-								title="Previous Page">
-								<i class="fa-solid fa-chevron-left"></i> <span class="btn-text">Prev</span>
-							</button>
+								<!-- Prev -->
+								<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn" id="btn-prev"
+									title="Previous Page">
+									<i class="fa-solid fa-chevron-left"></i> <span class="btn-text">Prev</span>
+								</button>
 
-							<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
-								Page
-								<input type="number" id="jump-page-input" value="<?php echo $current_page; ?>" min="1"
-									style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;"
-									onchange="goToPage(parseInt(this.value))">
-								of <span id="total-pages-display"><?php echo $total_pages; ?></span>
-							</span>
+								<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
+									Page
+									<input type="number" id="jump-page-input" value="<?php echo $current_page; ?>" min="1"
+										style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;"
+										onchange="goToPage(parseInt(this.value))">
+									of <span id="total-pages-display"><?php echo $total_pages; ?></span>
+								</span>
 
-							<!-- Next -->
-							<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn" id="btn-next"
-								title="Next Page">
-								<span class="btn-text">Next</span> <i class="fa-solid fa-chevron-right"></i>
-							</button>
+								<!-- Next -->
+								<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn" id="btn-next"
+									title="Next Page">
+									<span class="btn-text">Next</span> <i class="fa-solid fa-chevron-right"></i>
+								</button>
 
-							<!-- Last -->
-							<button type="button" onclick="goToPage(window.totalPages)" class="page-btn" id="btn-last"
-								title="Last Page">
-								<i class="fa-solid fa-forward-step"></i>
-							</button>
+								<!-- Last -->
+								<button type="button" onclick="goToPage(window.totalPages)" class="page-btn" id="btn-last"
+									title="Last Page">
+									<i class="fa-solid fa-forward-step"></i>
+								</button>
+							</div>
 
 							<!-- Add Page -->
 							<button type="button" onclick="addNewPage()" class="page-btn add-page-btn" title="Add New Page">
@@ -570,6 +574,13 @@ if (isset($_SESSION['flash'])) {
 		}
 
 		function updateUI() {
+			// Toggle visibility based on totalPages
+			const viewBar = document.getElementById('view-pagination-bar');
+			const editControls = document.getElementById('pagination-controls');
+
+			if (viewBar) viewBar.style.display = (totalPages > 1) ? 'flex' : 'none';
+			if (editControls) editControls.style.display = (totalPages > 1) ? 'flex' : 'none';
+
 			// Edit Mode UI
 			const jumpInput = document.getElementById('jump-page-input');
 			const totalDisplay = document.getElementById('total-pages-display');
