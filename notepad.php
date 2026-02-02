@@ -127,75 +127,121 @@ if (isset($_SESSION['flash'])) {
 			<form method="post">
 				<input type="hidden" name="action_type" id="action_type" value="save">
 				<!-- Meta Section -->
+				<!-- Mode Logic -->
+				<?php
+				$mode = 'edit'; // Default for new notes
+				if ($nid != "") {
+					// Existing note defaults to view unless mode=edit is set
+					$mode = (isset($_GET['mode']) && $_GET['mode'] == 'edit') ? 'edit' : 'view';
+				}
+				// Force view mode if archived (override edit request)
+				if ($is_archived_val)
+					$mode = 'view';
+
+				$is_view_mode = ($mode == 'view');
+				?>
+
+				<!-- Meta Section -->
 				<div class="editor-metadata-bar">
-					<select name="category" class="cat-select" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
-						<?php
-						$all_cats = get_categories();
-
-						$defaults = [];
-						$custom = [];
-						$default_names = ['General', 'Personal', 'Work', 'Study', 'Ideas'];
-
-						foreach ($all_cats as $c) {
-							if (in_array($c['name'], $default_names)) {
-								$defaults[] = $c;
-							} else {
-								$custom[] = $c;
+					<?php if ($is_view_mode): ?>
+						<!-- View Mode: Static Display for Meta -->
+						<div class="meta-view-item" style="display: flex; align-items: center; gap: 10px; font-size: 14px;">
+							<span style="font-weight: bold; color: #555;">Category:</span>
+							<?php
+							// Get Category Name
+							$cat_name = "General";
+							foreach (get_categories() as $c) {
+								if ($c['id'] == $ncat) {
+									$cat_name = $c['name'];
+									break;
+								}
 							}
-						}
+							echo htmlspecialchars($cat_name);
+							?>
+						</div>
 
-						if (!empty($defaults)) {
-							echo "<optgroup label='Defaults'>";
-							foreach ($defaults as $c) {
-								// VALUE should be ID now
-								$cname = htmlspecialchars($c['name']);
-								$cid = $c['id'];
-								$sel = ($ncat == $cid) ? "selected" : "";
-								echo "<option value='$cid' $sel>$cname</option>";
+						<?php if ($is_pinned_val): ?>
+							<span style="font-size: 14px; margin-left: 15px;">📌 Pinned</span>
+						<?php endif; ?>
+
+						<?php if ($reminder_date_val): ?>
+							<span style="font-size: 14px; margin-left: 15px; color: #c62828;">⏰
+								<?php echo date("M j, g:i A", strtotime($reminder_date_val)); ?></span>
+						<?php endif; ?>
+
+					<?php else: ?>
+						<!-- Edit Mode: Inputs -->
+						<select name="category" class="cat-select" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
+							<?php
+							$all_cats = get_categories();
+							$defaults = [];
+							$custom = [];
+							$default_names = ['General', 'Personal', 'Work', 'Study', 'Ideas'];
+
+							foreach ($all_cats as $c) {
+								if (in_array($c['name'], $default_names)) {
+									$defaults[] = $c;
+								} else {
+									$custom[] = $c;
+								}
 							}
-							echo "</optgroup>";
-						}
 
-						if (!empty($custom)) {
-							echo "<optgroup label='My Categories'>";
-							foreach ($custom as $c) {
-								$cname = htmlspecialchars($c['name']);
-								$cid = $c['id'];
-								$sel = ($ncat == $cid) ? "selected" : "";
-								echo "<option value='$cid' $sel>$cname</option>";
+							if (!empty($defaults)) {
+								echo "<optgroup label='Defaults'>";
+								foreach ($defaults as $c) {
+									$cname = htmlspecialchars($c['name']);
+									$cid = $c['id'];
+									$sel = ($ncat == $cid) ? "selected" : "";
+									echo "<option value='$cid' $sel>$cname</option>";
+								}
+								echo "</optgroup>";
 							}
-							echo "</optgroup>";
-						}
-						?>
-					</select>
 
-					<label class="pin-label">
-						<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
-							echo "checked"; ?>
-							<?php echo $is_archived_val ? 'disabled' : ''; ?>>
-						Pin Note
-					</label>
+							if (!empty($custom)) {
+								echo "<optgroup label='My Categories'>";
+								foreach ($custom as $c) {
+									$cname = htmlspecialchars($c['name']);
+									$cid = $c['id'];
+									$sel = ($ncat == $cid) ? "selected" : "";
+									echo "<option value='$cid' $sel>$cname</option>";
+								}
+								echo "</optgroup>";
+							}
+							?>
+						</select>
 
-					<!-- Archive button moved to toolbar -->
+						<label class="pin-label">
+							<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
+								echo "checked"; ?>
+								<?php echo $is_archived_val ? 'disabled' : ''; ?>>
+							Pin Note
+						</label>
+
+						<div style="display: flex; align-items: center; gap: 5px; margin-left: auto;">
+							<label style="font-size: 13px; font-weight: bold; color: #555;">⏰</label>
+							<input type="datetime-local" name="reminder_date"
+								value="<?php echo $reminder_date_val ? date('Y-m-d\TH:i', strtotime($reminder_date_val)) : ''; ?>"
+								style="padding: 5px; border: 1px solid #ccc; font-family: Arial, sans-serif; font-size: 13px;"
+								<?php echo $is_archived_val ? 'disabled' : ''; ?>>
+						</div>
+					<?php endif; ?>
+
 					<input type="hidden" name="is_archived" id="is_archived_input"
 						value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
-
-					<!-- Reminder Input -->
-					<div style="display: flex; align-items: center; gap: 5px; margin-left: auto;">
-						<label style="font-size: 13px; font-weight: bold; color: #555;">⏰</label>
-						<input type="datetime-local" name="reminder_date"
-							value="<?php echo $reminder_date_val ? date('Y-m-d\TH:i', strtotime($reminder_date_val)) : ''; ?>"
-							style="padding: 5px; border: 1px solid #ccc; font-family: Arial, sans-serif; font-size: 13px;"
-							<?php echo $is_archived_val ? 'disabled' : ''; ?>>
-					</div>
 				</div>
 
 				<div class="title-row">
 					<div class="title-container">
-						<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
-							style="width: 100%; resize: none; overflow: hidden; min-height: 32px; height: auto;"
-							oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
-						<span id="title-char-counter" class="title-char-counter">0/100</span>
+						<?php if ($is_view_mode): ?>
+							<h2
+								style="margin: 0; padding: 10px; font-size: 24px; color: #333; border-bottom: 1px solid transparent;">
+								<?php echo htmlspecialchars($ntitle); ?></h2>
+						<?php else: ?>
+							<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
+								style="width: 100%; resize: none; overflow: hidden; min-height: 32px; height: auto;"
+								oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
+							<span id="title-char-counter" class="title-char-counter">0/100</span>
+						<?php endif; ?>
 					</div>
 				</div>
 
@@ -210,20 +256,22 @@ if (isset($_SESSION['flash'])) {
 					<?php endif; ?>
 				</div>
 
-				<!-- Formatting Toolbar -->
-				<div
-					style="background: #eee; padding: 5px; border: 1px solid #ccc; border-bottom: none; display: flex; gap: 5px;">
-					<button type="button" onclick="formatText('b')" style="font-weight: bold; width: 30px;"
-						title="Bold">B</button>
-					<button type="button" onclick="formatText('i')" style="font-style: italic; width: 30px;"
-						title="Italic">I</button>
-					<button type="button" onclick="formatText('u')" style="text-decoration: underline; width: 30px;"
-						title="Underline">U</button>
-					<span style="border-left: 1px solid #ccc; margin: 0 5px;"></span>
-					<button type="button" onclick="formatText('h3')" style="font-weight: bold; width: 30px;"
-						title="Heading">H</button>
-					<button type="button" onclick="formatText('li')" style="width: 30px;" title="List Item">•</button>
-				</div>
+				<!-- Formatting Toolbar (Hidden in View Mode) -->
+				<?php if (!$is_view_mode): ?>
+					<div
+						style="background: #eee; padding: 5px; border: 1px solid #ccc; border-bottom: none; display: flex; gap: 5px;">
+						<button type="button" onclick="formatText('b')" style="font-weight: bold; width: 30px;"
+							title="Bold">B</button>
+						<button type="button" onclick="formatText('i')" style="font-style: italic; width: 30px;"
+							title="Italic">I</button>
+						<button type="button" onclick="formatText('u')" style="text-decoration: underline; width: 30px;"
+							title="Underline">U</button>
+						<span style="border-left: 1px solid #ccc; margin: 0 5px;"></span>
+						<button type="button" onclick="formatText('h3')" style="font-weight: bold; width: 30px;"
+							title="Heading">H</button>
+						<button type="button" onclick="formatText('li')" style="width: 30px;" title="List Item">•</button>
+					</div>
+				<?php endif; ?>
 
 				<input type="hidden" name="note_id" value="<?php echo htmlspecialchars($nid); ?>">
 
@@ -231,29 +279,39 @@ if (isset($_SESSION['flash'])) {
 				<!-- Hidden input to store actual value for POST -->
 				<input type="hidden" name="page" id="page_content" value="<?php echo htmlspecialchars($content); ?>">
 
-				<div class="editor-div" id="editor" <?php echo $is_archived_val ? 'contenteditable="false"' : 'contenteditable="true"'; ?>>
+				<div class="editor-div" id="editor" <?php echo ($is_view_mode || $is_archived_val) ? 'contenteditable="false" style="background: #fafafa; cursor: default;"' : 'contenteditable="true"'; ?>>
 					<?php echo $content; ?>
 				</div>
 
 
 				<!-- Toolbar -->
 				<div class="toolbar">
-					<a href="index.php" class="btn btn-secondary">Back to List</a>
+					<div style="flex: 1; display: flex; gap: 10px;">
+						<a href="index.php" class="btn btn-secondary">Back to List</a>
 
+						<?php if ($is_view_mode && !$is_archived_val): ?>
+							<!-- Edit Button -->
+							<a href="notepad.php?id=<?php echo $nid; ?>&mode=edit" class="btn btn-primary"
+								style="background: #2196f3; border-color: #1976d2;">✏️ Edit Note</a>
+						<?php endif; ?>
+					</div>
+
+					<!-- Right Side Actions -->
 					<?php if ($nid != ""): ?>
 						<?php if (isset($is_archived_val) && $is_archived_val): ?>
 							<button type="button" onclick="confirmUnarchive()" class="btn"
 								style="background: #e1f5fe; border-color: #039be5; color: #0277bd;">Unarchive Note</button>
-						<?php else: ?>
+						<?php elseif (!$is_view_mode): ?>
 							<button type="button" onclick="confirmArchive()" class="btn"
 								style="background: #ffebee; border-color: #ef5350; color: #c62828;">Archive Note</button>
 						<?php endif; ?>
 					<?php endif; ?>
 
-					<?php if (!$is_archived_val): ?>
+					<?php if (!$is_archived_val && !$is_view_mode): ?>
 						<button type="submit" name="save_note" class="btn btn-primary"
-							style="margin-left: auto; margin-right: 10px;">Save</button>
-						<button type="submit" name="save_exit" class="btn btn-primary">Save & Exit</button>
+							style="margin-left: 10px;">Save</button>
+						<button type="submit" name="save_exit" class="btn btn-primary" style="margin-left: 10px;">Save &
+							Exit</button>
 					<?php endif; ?>
 				</div>
 			</form>
