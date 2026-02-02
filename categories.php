@@ -46,18 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action_cat'])) {
 
 $categories = get_categories();
 
-// Predefined Light Palette
-$light_palette = [
-    '#fff9c4' => 'Yellow',
-    '#e8f5e9' => 'Green',
-    '#e3f2fd' => 'Blue',
-    '#fce4ec' => 'Pink',
-    '#f3e5f5' => 'Purple',
-    '#fff3e0' => 'Orange',
-    '#f5f5f5' => 'Gray',
-    '#e0f2f1' => 'Teal',
-    '#efebe9' => 'Brown'
-];
+// Restricted Light Color Picker Implementation
+// Locked Lightness (90%) and Saturation (65%)
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -68,48 +58,49 @@ $light_palette = [
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
     <title>Manage Categories - Notebook</title>
     <style>
-        .color-palette {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
-            gap: 8px;
+        .hue-picker-container {
             margin-top: 10px;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
 
-        .color-swatch {
-            width: 35px;
-            height: 35px;
-            border-radius: 4px;
-            border: 2px solid #ccc;
+        .hue-slider {
+            width: 100%;
+            height: 12px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+            border-radius: 6px;
+            outline: none;
+        }
+
+        .hue-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #333;
             cursor: pointer;
-            transition: all 0.2s;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-preview-box {
             display: flex;
             align-items: center;
-            justify-content: center;
-            position: relative;
+            gap: 15px;
+            margin-bottom: 10px;
         }
 
-        .color-swatch:hover {
-            transform: scale(1.1);
-            border-color: #333;
-        }
-
-        .color-swatch input {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-            height: 0;
-            width: 0;
-        }
-
-        .color-swatch.selected {
-            border-color: #333;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .color-swatch.selected::after {
-            content: '✓';
-            color: #333;
-            font-weight: bold;
+        .preview-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid #333;
+            background: #fff9c4;
+            flex-shrink: 0;
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
         }
 
         .flicker-red {
@@ -224,14 +215,17 @@ $light_palette = [
                                     style="width: 100%; padding: 10px; border: 1px solid #ccc; font-family: inherit;">
                             </div>
                             <div style="margin-bottom: 15px;">
-                                <label style="display: block; font-weight: bold;">Select Color:</label>
-                                <div class="color-palette" id="add-palette">
-                                    <?php foreach ($light_palette as $hex => $name): ?>
-                                        <label class="color-swatch <?php echo ($hex == '#fff9c4') ? 'selected' : ''; ?>"
-                                            style="background: <?php echo $hex; ?>;" title="<?php echo $name; ?>">
-                                            <input type="radio" name="cat_color" value="<?php echo $hex; ?>" <?php echo ($hex == '#fff9c4') ? 'checked' : ''; ?>>
-                                        </label>
-                                    <?php endforeach; ?>
+                                <label style="display: block; font-weight: bold;">Select Color (Lightness
+                                    Restricted):</label>
+                                <div class="hue-picker-container">
+                                    <div class="color-preview-box">
+                                        <div id="add-preview" class="preview-circle"></div>
+                                        <div style="font-size: 12px; font-weight: bold; color: #666;"
+                                            id="add-hex-label">#fff9c4</div>
+                                    </div>
+                                    <input type="range" class="hue-slider" id="add-hue-slider" min="0" max="360"
+                                        value="58">
+                                    <input type="hidden" name="cat_color" id="add-cat-color" value="#fff9c4">
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%;">Create</button>
@@ -300,13 +294,19 @@ $light_palette = [
                                                     onclick="toggleEdit('<?php echo $cid; ?>')">Cancel</button>
                                             </div>
 
-                                            <div class="color-palette">
-                                                <?php foreach ($light_palette as $hex => $name): ?>
-                                                    <label class="color-swatch <?php echo ($hex == $ccolor) ? 'selected' : ''; ?>"
-                                                        style="background: <?php echo $hex; ?>;" title="<?php echo $name; ?>">
-                                                        <input type="radio" name="cat_color" value="<?php echo $hex; ?>" <?php echo ($hex == $ccolor) ? 'checked' : ''; ?>>
-                                                    </label>
-                                                <?php endforeach; ?>
+                                            <div class="hue-picker-container">
+                                                <label style="display: block; font-size: 12px; margin-bottom: 4px;">Pick Light
+                                                    Color:</label>
+                                                <div class="color-preview-box">
+                                                    <div id="preview-<?php echo $cid; ?>" class="preview-circle"
+                                                        style="background: <?php echo $ccolor; ?>;"></div>
+                                                    <div style="font-size: 12px; font-weight: bold; color: #666;"
+                                                        id="hex-label-<?php echo $cid; ?>"><?php echo $ccolor; ?></div>
+                                                </div>
+                                                <input type="range" class="hue-slider edit-hue-slider"
+                                                    data-target="<?php echo $cid; ?>" min="0" max="360" value="0">
+                                                <input type="hidden" name="cat_color" id="cat-color-<?php echo $cid; ?>"
+                                                    value="<?php echo $ccolor; ?>">
                                             </div>
                                         </form>
                                     </div>
@@ -333,13 +333,53 @@ $light_palette = [
             }
         }
 
-        // Color Swatch Selection
-        document.querySelectorAll('.color-palette').forEach(palette => {
-            palette.addEventListener('change', (e) => {
-                if (e.target.type === 'radio') {
-                    palette.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-                    e.target.closest('.color-swatch').classList.add('selected');
-                }
+        // HSL to HEX Conversion Utility
+        function hslToHex(h, s, l) {
+            l /= 100;
+            const a = s * Math.min(l, 1 - l) / 100;
+            const f = n => {
+                const k = (n + h / 30) % 12;
+                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * color).toString(16).padStart(2, '0');
+            };
+            return `#${f(0)}${f(8)}${f(4)}`;
+        }
+
+        // Initialize Slider -> Color Logic
+        function updateColorPicker(hueSlider, previewBox, hexLabel, hiddenInput) {
+            const h = hueSlider.value;
+            const s = 65; // Moderate Saturation
+            const l = 90; // High Lightness for PASTEL/LIGHT feel
+            const hex = hslToHex(h, s, l);
+
+            previewBox.style.backgroundColor = hex;
+            hexLabel.textContent = hex.toUpperCase();
+            hiddenInput.value = hex;
+        }
+
+        // Add Category Picker
+        const addHue = document.getElementById('add-hue-slider');
+        if (addHue) {
+            addHue.addEventListener('input', () => {
+                updateColorPicker(
+                    addHue,
+                    document.getElementById('add-preview'),
+                    document.getElementById('add-hex-label'),
+                    document.getElementById('add-cat-color')
+                );
+            });
+        }
+
+        // Edit Category Pickers
+        document.querySelectorAll('.edit-hue-slider').forEach(slider => {
+            const id = slider.getAttribute('data-target');
+            slider.addEventListener('input', () => {
+                updateColorPicker(
+                    slider,
+                    document.getElementById('preview-' + id),
+                    document.getElementById('hex-label-' + id),
+                    document.getElementById('cat-color-' + id)
+                );
             });
         });
 
