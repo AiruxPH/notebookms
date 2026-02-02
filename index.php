@@ -1,6 +1,11 @@
-<?php
 include 'includes/data_access.php';
 session_start();
+
+// Access Control: Redirect Admin to Admin Dashboard
+if (is_admin()) {
+header("Location: admin/dashboard.php");
+exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,6 +14,7 @@ session_start();
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
+	<link rel="icon" href="favicon.png" type="image/png">
 	<title>My Notes - Notebook</title>
 </head>
 

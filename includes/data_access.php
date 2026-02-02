@@ -543,23 +543,78 @@ function update_category($id, $name, $color)
 /**
  * Get All Users (Admin)
  */
-function get_all_users()
+/**
+ * Get All Users (Admin) - Enhanced
+ */
+function get_all_users($search = '', $role = '', $status = '', $sort = 'id', $order = 'ASC', $page = 1, $limit = 10)
 {
     global $conn;
     if (!is_admin())
-        return [];
+        return ['users' => [], 'total' => 0];
 
+    // Defaults / Sanitization
+    $page = max(1, intval($page));
+    $limit = max(1, intval($limit));
+    $offset = ($page - 1) * $limit;
+    $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
+
+    // Allowed Sort Columns
+    $allowed_sorts = ['id', 'username', 'role', 'date_created', 'is_active'];
+    if (!in_array($sort, $allowed_sorts))
+        $sort = 'id';
+
+    // Base Header
     $sql = "SELECT u.id, u.username, u.role, u.is_active, u.date_created, 
             (SELECT COUNT(*) FROM notes n WHERE n.user_id = u.id) as note_count 
-            FROM users u 
-            ORDER BY u.role ASC, u.id ASC";
+            FROM users u WHERE 1=1";
+
+    // Filters
+    if (!empty($search)) {
+        $q = mysqli_real_escape_string($conn, $search);
+        $sql .= " AND u.username LIKE '%$q%'";
+    }
+    if ($role !== '') {
+        $r = mysqli_real_escape_string($conn, $role);
+        $sql .= " AND u.role = '$r'";
+    }
+    if ($status !== '') {
+        $s = intval($status);
+        $sql .= " AND u.is_active = $s";
+    }
+
+    // Count Total (before limit)
+    $count_sql = "SELECT COUNT(*) as total FROM (" . $sql . ") as sub"; // Wrap simple approach or regex replace
+    // Better: Regex replace SELECT ... FROM with SELECT COUNT(*) FROM
+    // But since subquery for note_count is there, simpler to just count rows of result or optimized query
+    // Let's use a separate count query for performance
+    $count_sql_main = "SELECT COUNT(*) as total FROM users u WHERE 1=1";
+    if (!empty($search)) {
+        $q = mysqli_real_escape_string($conn, $search);
+        $count_sql_main .= " AND u.username LIKE '%$q%'";
+    }
+    if ($role !== '') {
+        $r = mysqli_real_escape_string($conn, $role);
+        $count_sql_main .= " AND u.role = '$r'";
+    }
+    if ($status !== '') {
+        $s = intval($status);
+        $count_sql_main .= " AND u.is_active = $s";
+    }
+
+    $count_res = mysqli_query($conn, $count_sql_main);
+    $total_row = mysqli_fetch_assoc($count_res);
+    $total = $total_row['total'];
+
+    // Add Order and Limit
+    $sql .= " ORDER BY u.$sort $order, u.id ASC LIMIT $limit OFFSET $offset";
 
     $result = mysqli_query($conn, $sql);
     $users = [];
     while ($row = mysqli_fetch_assoc($result)) {
         $users[] = $row;
     }
-    return $users;
+
+    return ['users' => $users, 'total' => $total];
 }
 
 /**

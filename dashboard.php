@@ -3,6 +3,14 @@ include 'includes/data_access.php';
 // session_start(); is handled in db/data_access
 // session_start(); is handled in db/data_access
 
+// Access Control: Redirect Admin to Admin Dashboard
+if (is_admin()) {
+    header("Location: admin/dashboard.php");
+    exit();
+}
+
+// Handle Security Word Setup
+
 // Handle Security Word Setup
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['set_security_word_action'])) {
     $word = $_POST['security_word'];
