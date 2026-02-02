@@ -43,7 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			'is_pinned' => isset($_POST['is_pinned']) ? 1 : 0,
 			'is_archived' => $_POST['is_archived'] ?? 0,
 			'reminder_date' => !empty($_POST['reminder_date']) ? str_replace('T', ' ', $_POST['reminder_date']) : null,
-			'page_number' => $_POST['page_number'] ?? 1
+			'page_number' => $_POST['page_number'] ?? 1,
+			'pages_json' => $_POST['pages_json'] ?? null
 		];
 
 
@@ -99,24 +100,31 @@ if (isset($_GET['id'])) {
 
 		$total_pages = get_note_page_count($nid);
 
-		// Fetch Content
-		$content = get_note_page($nid, $current_page);
+		// Fetch ALL Pages for Client-Side Switching
+		$all_pages = get_all_note_pages($nid);
+		// Inject into JS
+		$json_pages = json_encode($all_pages);
 
-		// Fallback for Page 1 if empty (Preview works, so $note['text'] should be reliable)
-		if (empty($content) && $current_page == 1 && !empty($note['text'])) {
-			$content = $note['text'];
-		}
+		// Content for initial load (Page 1 usually, or requested page)
+		$content = isset($all_pages[$current_page]) ? $all_pages[$current_page] : "";
 	} else {
 		header("Location: index.php");
 		exit();
 	}
 }
+?>
+<script>
+	// Inject Pages from PHP
+	window.initialPages = <?php echo isset($json_pages) ? $json_pages : '{}'; ?>;
+	window.currentPage = <?php echo $current_page; ?>;
+	window.totalPages = <?php echo $total_pages; ?>;
+</script>
 
 // Check for Flash Message
 if (isset($_SESSION['flash'])) {
-	$msg = $_SESSION['flash']['message'];
-	$msg_type = $_SESSION['flash']['type'];
-	unset($_SESSION['flash']);
+$msg = $_SESSION['flash']['message'];
+$msg_type = $_SESSION['flash']['type'];
+unset($_SESSION['flash']);
 }
 ?>
 <!DOCTYPE html>
@@ -327,27 +335,51 @@ if (isset($_SESSION['flash'])) {
 						<?php echo $content; ?>
 					</div>
 
-					<!-- Edit Mode Pagination -->
+					<!-- Edit Mode Pagination (Client-Side) -->
 					<?php if ($nid != ""): ?>
-						<div class="pagination-bar" style="background: #f0f0f0;">
-							<?php if ($current_page > 1): ?>
-								<a href="?id=<?php echo $nid; ?>&page=<?php echo $current_page - 1; ?>&mode=edit"
-									onclick="return confirmNavigation()" class="page-btn"><i class="fa-solid fa-chevron-left"></i>
-									Prev</a>
-							<?php endif; ?>
+						<div class="pagination-bar"
+							style="background: #f0f0f0; display: flex; align-items: center; justify-content: center; gap: 8px;">
 
-							<span class="page-indicator">Page <?php echo $current_page; ?> of <?php echo $total_pages; ?></span>
+							<!-- First -->
+							<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first" title="First Page">
+								<i class="fa-solid fa-backward-step"></i>
+							</button>
 
-							<?php if ($current_page < $total_pages): ?>
-								<a href="?id=<?php echo $nid; ?>&page=<?php echo $current_page + 1; ?>&mode=edit"
-									onclick="return confirmNavigation()" class="page-btn">Next <i
-										class="fa-solid fa-chevron-right"></i></a>
-							<?php endif; ?>
+							<!-- Prev -->
+							<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn" id="btn-prev"
+								title="Previous Page">
+								<i class="fa-solid fa-chevron-left"></i>
+							</button>
+
+							<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
+								Page
+								<input type="number" id="jump-page-input" value="<?php echo $current_page; ?>" min="1"
+									style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;"
+									onchange="goToPage(parseInt(this.value))">
+								of <span id="total-pages-display"><?php echo $total_pages; ?></span>
+							</span>
+
+							<!-- Next -->
+							<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn" id="btn-next"
+								title="Next Page">
+								<i class="fa-solid fa-chevron-right"></i>
+							</button>
+
+							<!-- Last -->
+							<button type="button" onclick="goToPage(window.totalPages)" class="page-btn" id="btn-last"
+								title="Last Page">
+								<i class="fa-solid fa-forward-step"></i>
+							</button>
 
 							<!-- Add Page -->
-							<a href="?id=<?php echo $nid; ?>&page=<?php echo $total_pages + 1; ?>&mode=edit"
-								onclick="return confirmNavigation()" class="page-btn add-page-btn"><i
-									class="fa-solid fa-plus"></i> New Page</a>
+							<button type="button" onclick="addNewPage()" class="page-btn add-page-btn" title="Add New Page">
+								<i class="fa-solid fa-plus"></i>
+							</button>
+						</div>
+
+						<!-- Char Counter -->
+						<div style="text-align: right; font-size: 11px; color: #777; padding-right: 10px; margin-top: 2px;">
+							<span id="char-count">0</span> / 1800 chars
 						</div>
 					<?php endif; ?>
 
@@ -422,17 +454,188 @@ if (isset($_SESSION['flash'])) {
 	</div>
 
 	<script>
-		// Common JS
-		const editor = document.getElementById('editor');
-		const hiddenInput = document.getElementById('page_content');
-		const form = document.getElementById('note-form');
+		// ===============================
+		// STATE MANAGEMENT
+		// ===============================
+		// Note: window.initialPages, window.currentPage, window.totalPages injected by PHP
+		let allPages = window.initialPages || {};
+		let currentPage = window.currentPage || 1;
+		let totalPages = window.totalPages || 1;
 
+		const editor = document.getElementById('editor');
+		const form = document.getElementById('note-form');
+		const hiddenInput = document.getElementById('page_content'); // Stores CURRENT page text (legacy/fallback)
+		// Hidden input for BULK save
+		const bulkInput = document.createElement('input');
+		bulkInput.type = 'hidden';
+		bulkInput.name = 'pages_json';
+		form.appendChild(bulkInput);
+
+		const MAX_CHARS = 1800;
+
+		// ===============================
+		// INITIALIZATION
+		// ===============================
 		if (editor) {
-			form.addEventListener('submit', function () {
+			// Restore current page state if exists
+			if (allPages[currentPage] !== undefined) {
+				editor.innerHTML = allPages[currentPage];
+			} else {
+				// If new page or empty
+				allPages[currentPage] = editor.innerHTML;
+			}
+			updateCharCount();
+
+			// Events
+			editor.addEventListener('input', handleInput);
+			editor.addEventListener('keydown', handleKeyDown);
+			// Sync on blur too just in case
+			editor.addEventListener('blur', syncCurrentPage);
+		}
+
+		// ===============================
+		// CORE LOGIC
+		// ===============================
+
+		function syncCurrentPage() {
+			if (!editor) return;
+			// Update the state
+			allPages[currentPage] = editor.innerHTML;
+			// Also update legacy hidden input for current page context
+			if (hiddenInput) hiddenInput.value = editor.innerHTML;
+		}
+
+		function goToPage(pageNum) {
+			// 1. Sync current page before leaving
+			syncCurrentPage();
+
+			// Validate
+			if (pageNum < 1 || pageNum > totalPages) {
+				// If it's a new page request (handled by addNewPage, but safeguard here)
+				return;
+			}
+
+			// 2. Switch State
+			currentPage = pageNum;
+
+			// 3. Render New Content
+			// Ensure entry exists
+			if (allPages[currentPage] === undefined) {
+				allPages[currentPage] = "";
+			}
+			editor.innerHTML = allPages[currentPage];
+
+			// 4. Update UI
+			updateUI();
+		}
+
+		function addNewPage() {
+			syncCurrentPage();
+			totalPages++;
+			currentPage = totalPages;
+			allPages[currentPage] = ""; // Init empty
+			editor.innerHTML = "";
+			updateUI();
+		}
+
+		function updateUI() {
+			// Update Inputs
+			const jumpInput = document.getElementById('jump-page-input');
+			const totalDisplay = document.getElementById('total-pages-display');
+			if (jumpInput) jumpInput.value = currentPage;
+			if (totalDisplay) totalDisplay.innerText = totalPages;
+
+			// Update Header (optional, for "(Page: X)")
+			// If there's a header element showing page, we could update it, but it's PHP rendered.
+			// For now, the input box is sufficient.
+
+			updateCharCount();
+		}
+
+		// ===============================
+		// CONSTRAINTS & FORMATTING
+		// ===============================
+
+		function handleInput(e) {
+			syncCurrentPage();
+			updateCharCount();
+
+			// 1800 Character Limit Enforcement
+			const text = editor.innerText || "";
+			if (text.length > MAX_CHARS) {
+				// Prevent further input
+				// Note: 'input' event is after change. To fully block, we need 'keydown', 
+				// but checking length on input allows handling paste/formatting.
+
+				// Truncate (simple visual feedback logic to avoid complex cursor management issues)
+				// Ideally, we warn user.
+
+				// For simplified "no word limit" but "1800 chars per page", user asked limit.
+				// We will start by alerting/showing red.
+				// Reverting content is tricky with HTML.
+				// Let's rely on the red warning for now, enforcing strict block is UX heavy.
+			}
+		}
+
+		function updateCharCount() {
+			if (!editor) return;
+			const text = editor.innerText || "";
+			const countSpan = document.getElementById('char-count');
+			if (countSpan) {
+				countSpan.innerText = text.length;
+				if (text.length > MAX_CHARS) {
+					countSpan.style.color = 'red';
+					countSpan.style.fontWeight = 'bold';
+				} else {
+					countSpan.style.color = '#777';
+					countSpan.style.fontWeight = 'normal';
+				}
+			}
+		}
+
+		function handleKeyDown(e) {
+			// TAB SUPPORT
+			if (e.key === 'Tab') {
+				e.preventDefault();
+				document.execCommand('insertText', false, '    '); // 4 spaces
+			}
+
+			// STRICT CHAR LIMIT (Block typing if over)
+			const text = editor.innerText || "";
+			// Allow: Backspace, Delete, Arrows, Ctrl+A/C/V
+			const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'];
+			if (text.length >= MAX_CHARS && !allowed.includes(e.key) && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
+				e.preventDefault();
+				// Flash visual warning
+				const countSpan = document.getElementById('char-count');
+				if (countSpan) echoAni(countSpan);
+			}
+		}
+
+		function echoAni(el) {
+			el.style.transform = "scale(1.2)";
+			setTimeout(() => el.style.transform = "scale(1)", 200);
+		}
+
+		// ===============================
+		// SAVING & FORMS
+		// ===============================
+
+		if (form) {
+			form.addEventListener('submit', function (e) {
+				syncCurrentPage(); // Ensure latest edits are captured
+
+				// SERIALIZE ALL PAGES
+				bulkInput.value = JSON.stringify(allPages);
+
+				// Update legacy hidden input too
 				hiddenInput.value = editor.innerHTML;
+
+				// Also update archive/action fields if needed (handled by onclicks usually)
 			});
 		}
 
+		// Helper Utils
 		function formatText(command) {
 			if (!editor) return;
 			editor.focus();
@@ -448,73 +651,34 @@ if (isset($_SESSION['flash'])) {
 			if (confirm("Archive this note?")) {
 				document.getElementById('is_archived_input').value = 1;
 				document.getElementById('action_type').value = 'archive_redirect';
-				if (editor) hiddenInput.value = editor.innerHTML;
-				form.submit();
+				form.submit(); // submit handler will do the syncing
 			}
 		}
 
 		function confirmUnarchive() {
 			if (confirm("Unarchive this note?")) {
-				// We can use the main form to handle this to ensure data is saved
 				document.getElementById('is_archived_input').value = 0;
 				document.getElementById('action_type').value = 'archive_redirect';
-
-				// Sync content if editor exists
-				if (editor) hiddenInput.value = editor.innerHTML;
-
-				// Enable disabled fields for submission
 				const disabled = form.querySelectorAll('[disabled]');
 				disabled.forEach(el => el.disabled = false);
-
 				form.submit();
 			}
 		}
 
+		// Renamed to avoid using the old confirmNavigation
 		function confirmNavigation() {
 			return true;
 		}
 
-		function updateStats() {
-			if (!editor) return;
-
-			// SYNC CONTENT ON EVERY UPDATE (Fixes missing body issue)
-			if (hiddenInput) hiddenInput.value = editor.innerHTML;
-
-			const text = editor.innerText || "";
-			const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-			const wordCountTop = document.getElementById('word-count-top');
-			const bodyCharCount = document.getElementById('body-char-count');
-			const titleInput = document.querySelector('textarea[name="new_title"]');
-			const charCountTitle = document.getElementById('title-char-counter');
-
-			if (wordCountTop) wordCountTop.textContent = words.length;
-			if (bodyCharCount) bodyCharCount.textContent = text.length;
-
-			if (titleInput && charCountTitle) {
-				charCountTitle.textContent = titleInput.value.length + "/100";
-			}
-		}
-
+		// Title Resizer
 		const titleInput = document.querySelector('textarea[name="new_title"]');
 		if (titleInput) {
 			titleInput.addEventListener('input', function () {
 				this.style.height = '';
 				this.style.height = this.scrollHeight + 'px';
-				updateStats();
 			});
-			// Initial height
 			titleInput.style.height = titleInput.scrollHeight + 'px';
-
-			titleInput.addEventListener('keydown', function (e) {
-				if (e.key === 'Enter') e.preventDefault();
-			});
-		}
-
-		if (editor) {
-			editor.addEventListener('input', updateStats);
-			editor.addEventListener('blur', updateStats);
-			// Initial sync and stats update
-			updateStats();
+			titleInput.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
 		}
 
 		// Toast Logic
@@ -525,7 +689,6 @@ if (isset($_SESSION['flash'])) {
 			if (!toastMessage) return;
 			toastMessage.textContent = msg;
 			toastMessage.className = "toast-message " + (type === 'error' ? 'toast-error' : 'toast-success');
-			// Force reflow
 			void toastMessage.offsetWidth;
 			toastOverlay.style.display = 'flex';
 			requestAnimationFrame(() => {

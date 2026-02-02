@@ -206,8 +206,17 @@ function save_note($data)
             $stmt->bind_param("siiisi", $title, $cat_id, $is_pinned, $is_archived, $reminder_date, $id);
             $stmt->execute();
 
-            // Save Page Content
-            save_note_page($id, $page_number, $text);
+            // Save Pages (Bulk or Single)
+            if (isset($data['pages_json']) && is_string($data['pages_json'])) {
+                $pages_array = json_decode($data['pages_json'], true);
+                if (is_array($pages_array)) {
+                    foreach ($pages_array as $p_num => $p_text) {
+                        save_note_page($id, intval($p_num), $p_text);
+                    }
+                }
+            } else {
+                save_note_page($id, $page_number, $text);
+            }
 
             return $id;
         } else {
@@ -217,8 +226,17 @@ function save_note($data)
             $stmt->execute();
             $new_id = $stmt->insert_id;
 
-            // Save Page Content
-            save_note_page($new_id, 1, $text);
+            // Save Pages (Bulk or Single)
+            if (isset($data['pages_json']) && is_string($data['pages_json'])) {
+                $pages_array = json_decode($data['pages_json'], true);
+                if (is_array($pages_array)) {
+                    foreach ($pages_array as $p_num => $p_text) {
+                        save_note_page($new_id, intval($p_num), $p_text);
+                    }
+                }
+            } else {
+                save_note_page($new_id, 1, $text);
+            }
 
             return $new_id;
         }
@@ -246,18 +264,23 @@ function save_note($data)
             }
         }
 
-        // Update This Page
-        $existing_pages[$page_number] = $text;
+        // Update Pages (Bulk or Single)
+        if (isset($data['pages_json']) && is_string($data['pages_json'])) {
+            $pages_array = json_decode($data['pages_json'], true);
+            if (is_array($pages_array)) {
+                foreach ($pages_array as $p_num => $p_text) {
+                    $existing_pages[intval($p_num)] = $p_text;
+                }
+            }
+        } else {
+            $existing_pages[$page_number] = $text;
+        }
 
         // Update Text (Page 1) for compatibility
-        if ($page_number == 1) {
+        if (isset($existing_pages[1])) {
+            $existing_text = $existing_pages[1];
+        } else if (!empty($text) && $page_number == 1) {
             $existing_text = $text;
-        } else {
-            // If we are saving page 2, make sure page 1 text is preserved in 'text' field
-            // If $existing_text is empty but we have pages[1], use that
-            if (empty($existing_text) && isset($existing_pages[1])) {
-                $existing_text = $existing_pages[1];
-            }
         }
 
         $note_obj = [
@@ -890,5 +913,40 @@ function has_security_word_set($user_id)
         return $row['security_word_set'] == 1;
     }
     return false;
+}
+
+/**
+ * Get ALL pages for a specific note (for JSON payload)
+ */
+function get_all_note_pages($note_id)
+{
+    global $conn;
+    $nid = intval($note_id);
+    $pages = [];
+
+    if (is_logged_in()) {
+        $result = mysqli_query($conn, "SELECT page_number, text FROM pages WHERE note_id=$nid ORDER BY page_number ASC");
+        while ($row = mysqli_fetch_assoc($result)) {
+            $pages[intval($row['page_number'])] = $row['text'];
+        }
+    } else {
+        // Guest
+        if (isset($_SESSION['guest_notes'][$note_id])) {
+            $n = $_SESSION['guest_notes'][$note_id];
+            $pages = isset($n['pages']) ? $n['pages'] : [];
+
+            // Backup text field check
+            if (empty($pages) && !empty($n['text'])) {
+                $pages[1] = $n['text'];
+            }
+        }
+    }
+
+    // Ensure Page 1 exists
+    if (empty($pages)) {
+        $pages[1] = "";
+    }
+
+    return $pages;
 }
 ?>
