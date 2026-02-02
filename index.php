@@ -213,12 +213,11 @@ if (is_admin()) {
 
 
 							echo "<span>Created: $date_created</span><br>";
-							echo "<span>Updated: $date_last</span>";
 
 							$p_cnt = isset($row['page_count']) ? $row['page_count'] : 1;
-							if ($p_cnt > 1) {
-								echo "<span style='float: right; font-size: 11px; color: #888;'>$p_cnt Pages</span>";
-							}
+							$page_info = ($p_cnt > 1) ? " <span style='color: #ccc; margin: 0 5px;'>|</span> $p_cnt Pages" : "";
+
+							echo "<span>Updated: $date_last$page_info</span>";
 							echo "</div>";
 							echo "</div>";
 							echo "</a>";
