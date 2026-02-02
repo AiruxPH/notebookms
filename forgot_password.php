@@ -19,69 +19,80 @@ if (isset($_SESSION['reset_verified']) && $_SESSION['reset_verified'] === true) 
 
 // Handle Form Posts
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    try {
+        // STEP 1: VERIFY USERNAME
+        if (isset($_POST['verify_username'])) {
+            $username = mysqli_real_escape_string($conn, $_POST['username']);
+            $check = mysqli_query($conn, "SELECT id, security_word_set FROM users WHERE username='$username'");
 
-    // STEP 1: VERIFY USERNAME
-    if (isset($_POST['verify_username'])) {
-        $username = mysqli_real_escape_string($conn, $_POST['username']);
-        $check = mysqli_query($conn, "SELECT id, security_word_set FROM users WHERE username='$username'");
-
-        if (!$check) {
-            // DEBUG: Show SQL Error
-            $error = "SQL Error: " . mysqli_error($conn);
-        } elseif ($row = mysqli_fetch_assoc($check)) {
-            if ($row['security_word_set'] == 0) {
-                $error = "This account does not have a security word set. Please contact admin.";
+            if (!$check) {
+                throw new Exception("SQL Error: " . mysqli_error($conn));
+            } elseif ($row = mysqli_fetch_assoc($check)) {
+                if ($row['security_word_set'] == 0) {
+                    $error = "This account does not have a security word set. Please contact admin.";
+                } else {
+                    $_SESSION['reset_param_username'] = $username;
+                    $step = 2;
+                }
             } else {
-                $_SESSION['reset_param_username'] = $username;
-                $step = 2;
-            }
-        } else {
-            $error = "Username not found.";
-        }
-    }
-
-    // STEP 2: VERIFY SECURITY WORD
-    if (isset($_POST['verify_word'])) {
-        $word = $_POST['security_word'];
-        $username = $_SESSION['reset_param_username'];
-
-        if (check_security_word($username, $word)) {
-            $_SESSION['reset_verified'] = true;
-            $step = 3;
-        } else {
-            $error = "Incorrect security word.";
-            $step = 2; // Stay here
-        }
-    }
-
-    // STEP 3: RESET PASSWORD
-    if (isset($_POST['reset_password'])) {
-        $p1 = $_POST['new_password'];
-        $p2 = $_POST['confirm_password'];
-        $username = $_SESSION['reset_param_username'];
-
-        if ($p1 !== $p2) {
-            $error = "Passwords do not match.";
-            $step = 3;
-        } else {
-            if (update_password($username, $p1)) {
-                // Done! Clean up session
-                unset($_SESSION['reset_param_username']);
-                unset($_SESSION['reset_verified']);
-
-                $_SESSION['flash'] = ['message' => 'Password changed successfully! Please login.', 'type' => 'success'];
-                header("Location: login.php");
-                exit();
-            } else {
-                $error = "Error updating password.";
+                $error = "Username not found.";
             }
         }
-    }
 
-    // BACK
-    if (isset($_POST['back_step_1'])) {
-        unset($_SESSION['reset_param_username']);
-        $step = 1;
+        // STEP 2: VERIFY SECURITY WORD
+        if (isset($_POST['verify_word'])) {
+            $word = $_POST['security_word'];
+            $username = isset($_SESSION['reset_param_username']) ? $_SESSION['reset_param_username'] : '';
+
+            if (empty($username)) {
+                $step = 1;
+                $error = "Session expired. Please start again.";
+            } else {
+                if (check_security_word($username, $word)) {
+                    $_SESSION['reset_verified'] = true;
+                    $step = 3;
+                } else {
+                    $error = "Incorrect security word.";
+                    $step = 2; // Stay here
+                }
+            }
+        }
+
+        // STEP 3: RESET PASSWORD
+        if (isset($_POST['reset_password'])) {
+            $p1 = $_POST['new_password'];
+            $p2 = $_POST['confirm_password'];
+            $username = isset($_SESSION['reset_param_username']) ? $_SESSION['reset_param_username'] : '';
+
+            if (empty($username)) {
+                $step = 1;
+                $error = "Session expired.";
+            } elseif ($p1 !== $p2) {
+                $error = "Passwords do not match.";
+                $step = 3;
+            } else {
+                if (update_password($username, $p1)) {
+                    // Done! Clean up session
+                    unset($_SESSION['reset_param_username']);
+                    unset($_SESSION['reset_verified']);
+
+                    $_SESSION['flash'] = ['message' => 'Password changed successfully! Please login.', 'type' => 'success'];
+                    header("Location: login.php");
+                    exit();
+                } else {
+                    throw new Exception("Error updating password: " . mysqli_error($conn));
+                }
+            }
+        }
+
+        // BACK
+        if (isset($_POST['back_step_1'])) {
+            unset($_SESSION['reset_param_username']);
+            $step = 1;
+        }
+    } catch (Throwable $e) {
+        $error = "System Error: " . $e->getMessage();
+        // Log it if possible, here we just show it to user for debug
     }
 }
 
