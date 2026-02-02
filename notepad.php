@@ -59,22 +59,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$current_page = $save_data['page_number'];
 
 			// Redirect logic
-			if (isset($_POST['save_exit'])) {
-				$_SESSION['flash'] = ['message' => "Note saved.", 'type' => 'success'];
-				header("Location: index.php");
-				exit();
-			}
-			if (isset($_POST['action_type']) && $_POST['action_type'] == 'archive_redirect') {
-				$action_msg = $save_data['is_archived'] ? "Note Archived" : "Note Unarchived";
-				$_SESSION['flash'] = ['message' => $action_msg, 'type' => 'success'];
-				header("Location: index.php");
-				exit();
-			}
+			// if (isset($_POST['save_exit'])) {
+			// 	$_SESSION['flash'] = ['message' => "Note saved.", 'type' => 'success'];
+			// 	header("Location: index.php");
+			// 	exit();
+			// }
 
-			// PRG: Redirect to self to show saved state and avoid resubmission
-			$_SESSION['flash'] = ['message' => "Note saved successfully!", 'type' => 'success'];
-			header("Location: notepad.php?id=$nid&page=$current_page&mode=edit");
-			exit();
+			// DEBUG MODE: NO REDIRECT
+			// if (isset($_POST['action_type']) && $_POST['action_type'] == 'archive_redirect') {
+			// 	// ...
+			// }
+
+			// PRG DISABLED FOR DEBUGGING
+			// $_SESSION['flash'] = ['message' => "Note saved successfully!", 'type' => 'success'];
+			// header("Location: notepad.php?id=$nid&page=$current_page&mode=edit");
+			// exit();
+
+			$msg = "DEBUG MODE: Saved ID=$saved_id. Posted Page=" . ($_POST['page_number'] ?? 'MISSING');
+			$msg_type = "success";
 
 		} else {
 			$msg = "Error saving note.";
@@ -85,6 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // 2. Handle GET (Load Note)
 if (isset($_GET['id'])) {
+	// ...
+
 	$nid = $_GET['id'];
 	$current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 
@@ -320,7 +324,10 @@ if (isset($_SESSION['flash'])) {
 					<input type="hidden" name="page" id="page_content" value="<?php echo htmlspecialchars($content); ?>">
 					<input type="hidden" name="is_archived" id="is_archived_input"
 						value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
-					<input type="hidden" name="page_number" value="<?php echo $current_page; ?>">
+
+					<div style="background:red; color:white; padding:5px; font-weight:bold;">
+						DEBUG PAGE: <input type="text" name="page_number" value="<?php echo $current_page; ?>">
+					</div>
 
 					<div class="editor-div" id="editor" contenteditable="true">
 						<?php echo $content; ?>
@@ -537,7 +544,7 @@ if (isset($_SESSION['flash'])) {
 		}
 
 		<?php if ($msg): ?>
-					showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
+			showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
 		<?php endif; ?>
 	</script>
 </body>
