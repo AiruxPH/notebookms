@@ -185,6 +185,8 @@ $categories = get_categories();
                 <?php else: ?>
                     <a href="login.php" style="color: #2e7d32;">Login</a>
                 <?php endif; ?>
+                <a href="about.php">About</a>
+                <a href="contact.php">Contact Us</a>
             </nav>
         </div>
     </header>
@@ -212,7 +214,7 @@ $categories = get_categories();
                                     50):</label>
                                 <input type="text" name="cat_name" class="cat-name-input" required maxlength="50"
                                     placeholder="e.g. Health"
-                                    style="width: 100%; padding: 10px; border: 1px solid #ccc; font-family: inherit;">
+                                    style="width: 100%; padding: 10px; border: 1px solid #ccc; font-family: inherit; box-sizing: border-box;">
                             </div>
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; font-weight: bold;">Select Color (Lightness
@@ -286,7 +288,7 @@ $categories = get_categories();
                                                         Name:</label>
                                                     <input type="text" name="cat_name" class="cat-name-input"
                                                         value="<?php echo $cname; ?>" required maxlength="50"
-                                                        style="width: 100%; padding: 8px; border: 1px solid #ccc;">
+                                                        style="width: 100%; padding: 8px; border: 1px solid #ccc; box-sizing: border-box;">
                                                 </div>
                                                 <button type="submit" class="btn btn-primary"
                                                     style="padding: 8px 15px;">Save</button>
