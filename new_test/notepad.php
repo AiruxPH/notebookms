@@ -39,6 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST['save_note']) || isset
 			exit();
 		}
 		if (isset($_POST['action_type']) && $_POST['action_type'] == 'archive_redirect') {
+			$action_msg = $save_data['is_archived'] ? "Note Archived" : "Note Unarchived";
+			$_SESSION['flash'] = ['message' => $action_msg, 'type' => 'success'];
 			header("Location: index.php");
 			exit();
 		}
