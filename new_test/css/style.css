@@ -379,3 +379,10 @@ a.note-add-card:hover {
 	color: #555;
 	cursor: not-allowed;
 }
+
+/* Verne's stuff */
+.category_streak	{
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
