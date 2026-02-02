@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
+    <link rel="icon" href="favicon.png" type="image/png">
     <title>Login - Notebook</title>
     <style>
         .auth-container {
