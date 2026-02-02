@@ -44,8 +44,8 @@ include 'includes/data_access.php';
             <div class="announcement-header">
                 <h2 style="margin: 0;">📢 Updates & Announcements</h2>
                 <button onclick="toggleAnnouncement()"
-                    style="background: none; border: none; font-size: 20px; cursor: pointer; color: #555;"
-                    title="Minimize">_</button>
+                    style="background: #fff; border: 1px solid #ccc; font-size: 13px; font-weight: bold; cursor: pointer; color: #333; padding: 4px 10px; border-radius: 4px; box-shadow: 1px 1px 0 rgba(0,0,0,0.1);"
+                    title="Minimize">Hide</button>
             </div>
             <p>Welcome to <strong>Notebook-BAR v1.1 Refined</strong>! Latest improvements:</p>
             <ul style="padding-left: 20px; line-height: 1.6;">
@@ -180,7 +180,7 @@ include 'includes/data_access.php';
         const announcementMin = document.getElementById('dev-announcement-minimized');
 
         // Initialize state
-        const isMinimized = localStorage.getItem('announcementMinimized') === 'true';
+        let isMinimized = localStorage.getItem('announcementMinimized') === 'true';
 
         function updateAnnouncementState() {
             if (isMinimized) {
