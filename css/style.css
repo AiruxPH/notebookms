@@ -140,6 +140,7 @@ a.note-add-card:hover {
 	/* CSS Line Clamp */
 	display: -webkit-box;
 	-webkit-line-clamp: 10;
+	line-clamp: 10;
 	/* Increased to show more text */
 	-webkit-box-orient: vertical;
 	overflow: hidden;
@@ -382,12 +383,15 @@ a.note-add-card:hover {
 }
 
 /* Verne's stuff */
-.category_streak	{
+.category_streak {
 	width: 100%;
 	margin: 0;
 	padding: 0;
 }
 
-.card_wrap	{
+.card_wrap {
 	padding: 15px;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
 }

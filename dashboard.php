@@ -130,10 +130,13 @@ include 'includes/data_access.php';
                                     $dtxt = "<em>No content...</em>";
 
                                 echo "<a href='notepad.php?id=$nid' class='note-card' style='background-color: $bg_color;'>";
+                                echo "<div class='card_wrap'>";
                                 echo "<div class='note-title'>$dtitle</div>";
-                                echo "<div class='note-meta'>$dcat</div>";
                                 echo "<div class='note-preview'>$dtxt</div>";
-                                echo "<div class='note-footer'>Updated: $ddate $ddatl</div>";
+                                echo "<div class='note-footer'>";
+                                echo "<div style='font-weight: bold; margin-bottom: 5px;'>$dcat</div>";
+                                echo "Updated: $ddate $ddatl</div>";
+                                echo "</div>";
                                 echo "</a>";
                             }
                         } else {
