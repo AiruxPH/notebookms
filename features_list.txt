@@ -1,29 +1,69 @@
-Notebook-BAR v1.2 - Feature List
+Notebook-BAR v1.2 - Detailed Feature List
 
-Core Features:
-1. User Authentication: Secure Login, Registration, and Logout.
-2. Guest Mode: Allow users to use the notebook without an account (data saved in session).
-3. Security Word: Recovery mechanism for forgotten passwords.
-4. Relational Database Storage: Securely store notes, categories, and users in MySQL.
+I. Core Security & Authentication
+1. Secure User Accounts
+   - Encrypted password storage (password_hash/verify).
+   - Session-based persistence.
+   - Admin-only access to Backend Management.
+2. Guest Access Mode (Session-Based)
+   - Use the notebook without an account.
+   - Persistence during the active session.
+   - Automatic data migration to DB upon registration/login.
+3. Password Recovery System
+   - Security Word setup (pet names, secret keys).
+   - Identity verification before password reset.
+4. Database Integrity
+   - Relational MySQL structure for Users, Notes, and Categories.
+   - SQL constraint enforcement for data consistency.
 
-Note Management:
-5. Multi-Page Notes: Organize long notes into multiple pages.
-6. Instant Pagination: Fast, client-side page flipping without reloads.
-7. Bulk Saving: Save all pages of a note at once with a single click.
-8. Categorization: Create custom categories with personalized colors.
-9. Pinning: Keep important notes at the top of the dashboard.
-10. Archiving: Clean up your workspace without deleting notes.
-11. Reminders: Set datetime alerts for specific notes.
+II. Note & Workspace Management
+5. Multi-Page Architecture
+   - Split long-form content into manageable pages.
+   - JSON-driven client-side data handling.
+6. Instant Client-Side Pagination
+   - Dynamic page switching via JavaScript (No reloads required).
+   - "Jump to Page" numerical input.
+   - Navigation shortcuts: First, Previous, Next, Last page buttons.
+7. Advanced Organization
+   - Note Pinning: Toggle important notes to the top of the grid.
+   - Auto-Save Pinning: Instant status update when toggled in View Mode.
+   - Archiving: Temporary removal from dashboard without deletion.
+   - Persistent Trash System: Manage archived notes separately.
+8. Color-Coded Categorization
+   - Custom Category creation and deletion.
+   - Unified color-dot tagging for visual identification.
+   - Filter by Category chips on the main dashboard.
 
-Editor Enhancements:
-12. 1800 Character Limit: Enforced per page for optimal readability.
-13. Live Stats: Real-time word and character counts as you type.
-14. Tab Support: Use the Tab key for 4-space indentation.
-15. Rich Text Lite: Standard formatting (Bold, Italic, Underline, H3, Lists).
-16. Auto-Resizing Title: The title input expands as you type.
+III. Professional Editor Suite
+9. Performance-Driven Saving
+   - "Save All" Mechanism: Bulk-persist all note pages with one transaction.
+   - "Save & Exit" redirect flow vs. "Save" (stay on page) distinction.
+10. Constraint Enforcement
+    - 1,800 Character Limit per Page: Hard-blocked on typing when exceeded.
+    - Visual Warnings: Live char count turns bold-red when limit is breached.
+    - Micro-animations: Counter bounce effect when hitting the limit.
+11. Live Technical Stats
+    - Real-time Word Counter (updated as you type).
+    - Character Counter (body & title).
+    - Dynamic "Last Updated" timestamp display.
+12. Developer-Friendly Typing
+    - Tab Key Support: Inserts 4-space indentation instead of switching focus.
+    - Rich Text Lite: Standard Formatting (Bold, Italic, Underline).
+    - Semantic Headers: H3 integration for document structure.
+    - Bullet Point Support: Unordered list toggles.
+13. Smart Input Layout
+    - Auto-Resizing Title: Textarea grows vertically based on content length.
+    - Title Char Limit: Hidden 100-character cap with live counter.
 
-UI/UX:
-17. Responsive Design: Optimized for Desktop, Tablet, and Mobile.
-18. Dashboard: Central hub for search, quick category filtering, and pinned notes.
-19. Announcements: Stay updated with the latest developer news.
-20. Floating Action Buttons (FABs): Quick access to Save, Edit, and Archive actions.
+IV. UI/UX & Responsive Design
+14. Mobile Optimized Interface
+    - Responsive Hamburger Menu: Clean CSS "Checkbox Hack" for JS-free menu toggling.
+    - Floating Action Buttons (FABs): Sticky navigation for primary actions (Save, Edit, Archive).
+    - Flexible Note Grid: Masonry-style layout that adapts to screen width.
+15. Enhanced Visual Feedback
+    - Flash Toast Messages: Smooth sliding notifications for successes and errors.
+    - Collapsible Widgets: Minimizeable Developer Announcements.
+    - Typewriter Aesthetic: Classic 'Courier New' typography for a focus-oriented feel.
+16. Integrated Reminders
+    - DateTime Local Input: Set specific deadlines/reminders per note.
+    - Dashboard Badge: ⏰ Visual indicators for notes with active reminders.
