@@ -6,6 +6,8 @@ include 'includes/data_access.php';
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
     <title>Dashboard - Notebook</title>
 </head>
@@ -52,20 +54,24 @@ include 'includes/data_access.php';
         <div class="dashboard-grid-layout">
             <!-- Sidebar: Controls & Quick Cats -->
             <div class="dashboard-sidebar">
-                <div style="background: #fff; padding: 20px; border: 1px solid #ccc; box-shadow: 2px 2px 0 rgba(0,0,0,0.05); margin-bottom: 20px;">
+                <div
+                    style="background: #fff; padding: 20px; border: 1px solid #ccc; box-shadow: 2px 2px 0 rgba(0,0,0,0.05); margin-bottom: 20px;">
                     <h3 style="margin-top: 0; margin-bottom: 15px;">Actions</h3>
                     <div style="display: flex; flex-direction: column; gap: 12px;">
-                        <a href="notepad.php" class="btn btn-primary" style="text-decoration: none; text-align: center;">+ New Note</a>
+                        <a href="notepad.php" class="btn btn-primary"
+                            style="text-decoration: none; text-align: center;">+ New Note</a>
                         <div style="display: flex; gap: 8px;">
                             <a href="categories.php" class="btn btn-secondary"
                                 style="border: 1px solid #ccc; flex: 1; text-decoration: none; text-align: center; font-size: 13px; padding: 10px 5px;">Categories</a>
                             <a href="index.php" class="btn btn-secondary"
-                                style="text-decoration: none; text-align: center; flex: 1; border: 1px solid #ccc; font-size: 13px; padding: 10px 5px;">All Notes</a>
+                                style="text-decoration: none; text-align: center; flex: 1; border: 1px solid #ccc; font-size: 13px; padding: 10px 5px;">All
+                                Notes</a>
                         </div>
                     </div>
                 </div>
 
-                <div style="background: #fdfdad; padding: 20px; border: 1px solid #d1d190; box-shadow: 2px 2px 0 rgba(0,0,0,0.05);">
+                <div
+                    style="background: #fdfdad; padding: 20px; border: 1px solid #d1d190; box-shadow: 2px 2px 0 rgba(0,0,0,0.05);">
                     <h3 style="margin-top: 0; margin-bottom: 15px;">Quick Categories</h3>
                     <div class="category-list" style="max-height: 250px; overflow-y: auto;">
                         <?php
