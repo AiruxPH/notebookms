@@ -14,22 +14,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password']; // Plain text as requested
 
     // Check user
-    $sql = "SELECT id, username, password FROM users WHERE username = '$username'";
-    $result = mysqli_query($conn, $sql);
-
     if ($row = mysqli_fetch_assoc($result)) {
         // Verify Password (Plain text comparison)
         if ($password === $row['password']) {
-            $_SESSION['user_id'] = $row['id'];
-            $_SESSION['username'] = $row['username'];
+            if ($row['is_active'] == 0) {
+                $error = "Account is deactivated. Please contact admin.";
+            } else {
+                $_SESSION['user_id'] = $row['id'];
+                $_SESSION['username'] = $row['username'];
+                $_SESSION['role'] = $row['role']; // Store role
 
-            // --- MIGRATION: GUEST TO USER ---
-            // If user had guest notes before logging in, move them now
-            migrate_guest_data_to_db($_SESSION['user_id']);
-            // --------------------------------
+                // --- MIGRATION: GUEST TO USER ---
+                // Only if normal user (Admins probably don't have guest notes but safe to call)
+                migrate_guest_data_to_db($_SESSION['user_id']);
+                // --------------------------------
 
-            header("Location: dashboard.php");
-            exit();
+                if ($row['role'] === 'admin') {
+                    header("Location: admin/dashboard.php");
+                } else {
+                    header("Location: dashboard.php");
+                }
+                exit();
+            }
         } else {
             $error = "Invalid password.";
         }

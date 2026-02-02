@@ -22,6 +22,14 @@ function get_current_user_id()
 }
 
 /**
+ * Check if current user is admin
+ */
+function is_admin()
+{
+    return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+}
+
+/**
  * Get all notes for current user (or guest session)
  * @param array $filters ['category' => '...', 'search' => '...', 'archived' => 0/1]
  */
@@ -502,5 +510,48 @@ function update_category($id, $name, $color)
         }
         return false;
     }
+}
+
+/**
+ * Get All Users (Admin)
+ */
+function get_all_users()
+{
+    global $conn;
+    if (!is_admin())
+        return [];
+
+    $sql = "SELECT u.id, u.username, u.role, u.is_active, u.date_created, 
+            (SELECT COUNT(*) FROM notes n WHERE n.user_id = u.id) as note_count 
+            FROM users u 
+            ORDER BY u.role ASC, u.id ASC";
+
+    $result = mysqli_query($conn, $sql);
+    $users = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $users[] = $row;
+    }
+    return $users;
+}
+
+/**
+ * Toggle User Status (Admin)
+ */
+function toggle_user_status($user_id, $current_status)
+{
+    global $conn;
+    if (!is_admin())
+        return false;
+
+    $uid = intval($user_id);
+    // Prevent self-deactivation if ID matches current session
+    if ($uid == get_current_user_id())
+        return false;
+
+    // Invert status
+    $new_status = ($current_status == 1) ? 0 : 1;
+
+    $sql = "UPDATE users SET is_active = $new_status WHERE id = $uid";
+    return mysqli_query($conn, $sql);
 }
 ?>
