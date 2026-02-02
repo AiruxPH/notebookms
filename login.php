@@ -14,6 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password']; // Plain text as requested
 
     // Check user
+    $sql = "SELECT * FROM users WHERE username='$username'";
+    $result = mysqli_query($conn, $sql);
+
     if ($row = mysqli_fetch_assoc($result)) {
         // Verify Password (Plain text comparison)
         if ($password === $row['password']) {
