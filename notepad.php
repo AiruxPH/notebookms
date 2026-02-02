@@ -292,7 +292,7 @@ if (isset($_SESSION['flash'])) {
 						<label class="pin-label">
 							<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
 								echo "checked"; ?>
-							<?php echo $is_archived_val ? 'disabled' : ''; ?>>
+								<?php echo $is_archived_val ? 'disabled' : ''; ?>>
 							<i class="fa-solid fa-thumbtack" style="font-size: 12px;"></i> Pin
 						</label>
 
@@ -463,25 +463,31 @@ if (isset($_SESSION['flash'])) {
 
 		function confirmUnarchive() {
 			if (confirm("Unarchive this note?")) {
-				const formUn = document.createElement('form');
-				formUn.method = 'POST';
-				formUn.innerHTML = `<input type="hidden" name="note_id" value="<?php echo $nid; ?>">
-									<input type="hidden" name="action_type" value="archive_redirect">
-									<input type="hidden" name="is_archived" value="0">
-									<input type="hidden" name="save_note" value="1">`; // Trigger generic save/update status
-				document.body.appendChild(formUn);
-				formUn.submit();
+				// We can use the main form to handle this to ensure data is saved
+				document.getElementById('is_archived_input').value = 0;
+				document.getElementById('action_type').value = 'archive_redirect';
+
+				// Sync content if editor exists
+				if (editor) hiddenInput.value = editor.innerHTML;
+
+				// Enable disabled fields for submission
+				const disabled = form.querySelectorAll('[disabled]');
+				disabled.forEach(el => el.disabled = false);
+
+				form.submit();
 			}
 		}
 
 		function confirmNavigation() {
-			// Simple check: In a real app we'd track dirty state.
 			return true;
-			// return confirm("Unsaved changes on this page will be lost. Continue?");
 		}
 
 		function updateStats() {
 			if (!editor) return;
+
+			// SYNC CONTENT ON EVERY UPDATE (Fixes missing body issue)
+			if (hiddenInput) hiddenInput.value = editor.innerHTML;
+
 			const text = editor.innerText || "";
 			const words = text.trim().split(/\s+/).filter(word => word.length > 0);
 			const wordCountTop = document.getElementById('word-count-top');
@@ -515,6 +521,7 @@ if (isset($_SESSION['flash'])) {
 		if (editor) {
 			editor.addEventListener('input', updateStats);
 			editor.addEventListener('blur', updateStats);
+			// Initial sync and stats update
 			updateStats();
 		}
 
