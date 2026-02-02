@@ -70,7 +70,9 @@ header nav a:hover {
 
 /* Hamburger Menu (Mobile) */
 .menu-toggle {
-	display: none;
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
 }
 
 .hamburger {
@@ -80,6 +82,7 @@ header nav a:hover {
 	gap: 4px;
 	padding: 10px;
 	z-index: 1001;
+	flex-shrink: 0;
 }
 
 .hamburger span {
@@ -91,7 +94,9 @@ header nav a:hover {
 	transition: 0.3s;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 850px) {
+
+	/* Increased breakpoint for safety */
 	.hamburger {
 		display: flex;
 	}
@@ -102,30 +107,37 @@ header nav a:hover {
 
 	header nav {
 		display: none;
+		/* Default hidden on mobile */
 		flex-direction: column;
 		position: absolute;
 		top: 100%;
-		right: 20px;
+		right: 15px;
 		background-color: var(--header-bg);
-		border: 1px solid #aaa;
+		border: 1px solid #999;
 		padding: 10px;
-		z-index: 1000;
-		box-shadow: var(--shadow);
+		z-index: 1002;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 		width: 200px;
+		min-width: 150px;
 	}
 
 	header nav a {
-		margin: 5px 0;
+		margin: 5px 0 !important;
 		margin-left: 0 !important;
 		display: block;
 		text-align: center;
 		width: 100%;
 		box-sizing: border-box;
+		background: var(--nav-bg) !important;
 	}
 
-	/* Checkbox Hack Logic */
+	header nav a:hover {
+		background: #fff !important;
+	}
+
+	/* Checkbox Hack Logic - Use !important to be sure */
 	.menu-toggle:checked~nav {
-		display: flex;
+		display: flex !important;
 	}
 
 	.menu-toggle:checked~.hamburger span:nth-child(1) {
