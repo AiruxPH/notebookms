@@ -111,7 +111,8 @@ include 'includes/data_access.php';
                                 $nid = $row['id'];
                                 $dtitle = htmlspecialchars($row['title']);
                                 $dcat = htmlspecialchars($row['category']);
-                                $ddatl = date("M j, H:i", strtotime($row['date_last']));
+                                $ddatl = date("g:i A", strtotime($row['date_last']));
+                                $ddate = date("M j, Y", strtotime($row['date_last']));
 
                                 // Determine Color
                                 $bg_color = isset($cat_colors[$dcat]) ? $cat_colors[$dcat] : '#ffffff';
@@ -130,8 +131,9 @@ include 'includes/data_access.php';
 
                                 echo "<a href='notepad.php?id=$nid' class='note-card' style='background-color: $bg_color;'>";
                                 echo "<div class='note-title'>$dtitle</div>";
-                                echo "<div class='note-meta'>$dcat &bull; $ddatl</div>";
+                                echo "<div class='note-meta'>$dcat</div>";
                                 echo "<div class='note-preview'>$dtxt</div>";
+                                echo "<div class='note-footer'>Updated: $ddate $ddatl</div>";
                                 echo "</a>";
                             }
                         } else {

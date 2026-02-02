@@ -193,9 +193,9 @@ session_start();
 			$nid = $row['id'];
 			$title = htmlspecialchars($row['title']);
 			$category = htmlspecialchars($row['category']);
-			$date_last = date("M j, H:i", strtotime($row['date_last']));
+			$date_last = date("M j, g:i A", strtotime($row['date_last']));
 			$pin_icon = ($row['is_pinned'] == 1) ? "<span style='float: right; font-size: 1.2rem;'>📌</span>" : "";
-			$date_created = date("M j, Y", strtotime($row['date_created']));
+			$date_created = date("M j, Y, g:i A", strtotime($row['date_created']));
 
 			// Determine Color
 			$bg_color = isset($cat_colors[$category]) ? $cat_colors[$category] : '#ffffff';
@@ -223,10 +223,11 @@ session_start();
 			echo "<div class='category_streak' style='background-color: $bg_color;'><br></div>";
 			echo "<div class='card_wrap'>";
 			echo "<div class='note-title'>$pin_icon" . $title . "</div>";
-			echo "<div class='note-meta'>$category &bull; $date_last</div>";
+			echo "<div class='note-meta'>$category</div>";
 			echo "<div class='note-preview'>$dtxt</div>";
 			echo "<div class='note-footer'>";
-			echo "<span>Created: $date_created</span>";
+			echo "<span>Created: $date_created</span><br>";
+			echo "<span>Updated: $date_last</span>";
 			echo "</div>";
 			echo "</div>";
 			echo "</a>";
