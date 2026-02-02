@@ -582,4 +582,71 @@ function toggle_user_status($user_id, $current_status)
     $sql = "UPDATE users SET is_active = $new_status WHERE id = $uid";
     return mysqli_query($conn, $sql);
 }
+
+/**
+ * Set Security Word
+ */
+function set_security_word($user_id, $word)
+{
+    global $conn;
+    $uid = intval($user_id);
+    $word = trim($word);
+
+    // Store as plain text (or hashed if desired, but user request implies simple matching)
+    // We will store case-insensitive match (e.f. lowercase) or just as is? 
+    // Plan says "case-insensitive for better UX", so we can store it as is but compare lower.
+
+    $word_esc = mysqli_real_escape_string($conn, $word);
+    $sql = "UPDATE users SET security_word = '$word_esc', security_word_set = 1 WHERE id = $uid";
+    return mysqli_query($conn, $sql);
+}
+
+/**
+ * Check Security Word (Forgot Password)
+ */
+function check_security_word($username, $word)
+{
+    global $conn;
+    $username = mysqli_real_escape_string($conn, $username);
+    $word = trim($word);
+
+    $sql = "SELECT security_word FROM users WHERE username = '$username'";
+    $result = mysqli_query($conn, $sql);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        // Case-insensitive comparison
+        if (strtolower(trim($row['security_word'])) === strtolower($word)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Update Password
+ */
+function update_password($username, $new_password)
+{
+    global $conn;
+    $username = mysqli_real_escape_string($conn, $username);
+    // Plain text as requested
+    $password = mysqli_real_escape_string($conn, $new_password);
+
+    $sql = "UPDATE users SET password = '$password' WHERE username = '$username'";
+    return mysqli_query($conn, $sql);
+}
+
+/**
+ * Check if user has security word set (for Dashboard)
+ */
+function has_security_word_set($user_id)
+{
+    global $conn;
+    $uid = intval($user_id);
+    $result = mysqli_query($conn, "SELECT security_word_set FROM users WHERE id=$uid");
+    if ($row = mysqli_fetch_assoc($result)) {
+        return $row['security_word_set'] == 1;
+    }
+    return false;
+}
 ?>

@@ -1,6 +1,35 @@
 <?php
 include 'includes/data_access.php';
 // session_start(); is handled in db/data_access
+// session_start(); is handled in db/data_access
+
+// Handle Security Word Setup
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['set_security_word_action'])) {
+    $word = $_POST['security_word'];
+    $uid = get_current_user_id();
+
+    // Simple verification: Only updates if not set or just force update? 
+    // Usually only if not set, or we can allow overwrite. 
+    // For now, allow overwrite.
+    if (!empty($word)) {
+        if (set_security_word($uid, $word)) {
+            $_SESSION['flash'] = ['message' => 'Security Word saved successfully!', 'type' => 'success'];
+        } else {
+            $_SESSION['flash'] = ['message' => 'Error saving Security Word.', 'type' => 'error'];
+        }
+    } else {
+        $_SESSION['flash'] = ['message' => 'Security Word cannot be empty.', 'type' => 'error'];
+    }
+
+    header("Location: dashboard.php");
+    exit();
+}
+
+// Check Security Word Status
+$security_word_missing = false;
+if (is_logged_in() && !has_security_word_set(get_current_user_id())) {
+    $security_word_missing = true;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,6 +67,22 @@ include 'includes/data_access.php';
         <div id="toast-overlay" class="toast-overlay">
             <div id="toast-message" class="toast-message"></div>
         </div>
+
+        <?php if ($security_word_missing): ?>
+            <div class="dashboard-section"
+                style="border-left: 5px solid #ffa000; background: #fff8e1; padding: 15px; margin-bottom: 20px;">
+                <h3 style="margin-top: 0; color: #f57f17; font-size: 16px;">⚠️ Action Required: Set Security Word</h3>
+                <p style="font-size: 14px; margin-bottom: 10px;">
+                    You haven't set a Security Word yet. This is required to recover your password if you forget it.
+                </p>
+                <form method="post" style="display: flex; gap: 10px; max-width: 400px;">
+                    <input type="text" name="security_word" placeholder="Enter a secret word (e.g., pet name)" required
+                        style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    <button type="submit" name="set_security_word_action" class="btn btn-primary"
+                        style="padding: 8px 15px;">Save</button>
+                </form>
+            </div>
+        <?php endif; ?>
 
         <!-- Welcome / Announcements Section -->
         <!-- Welcome / Announcements Section -->

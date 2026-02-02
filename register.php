@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = $_POST['password']; // Plain text as requested
     $confirm = $_POST['confirm_password'];
+    $security_word = isset($_POST['security_word']) ? trim($_POST['security_word']) : '';
 
     if ($password !== $confirm) {
         $error = "Passwords do not match.";
@@ -29,6 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($stmt->execute()) {
                 $_SESSION['user_id'] = $stmt->insert_id;
                 $_SESSION['username'] = $username;
+
+                // Set Security Word if provided
+                if (!empty($security_word)) {
+                    set_security_word($_SESSION['user_id'], $security_word);
+                }
 
                 // --- MIGRATION: GUEST TO USER ---
                 // Move session notes to this new user ID
@@ -107,6 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="password" name="password" class="auth-input" placeholder="Password" required>
                 <input type="password" name="confirm_password" class="auth-input" placeholder="Confirm Password"
                     required>
+                <input type="text" name="security_word" class="auth-input"
+                    placeholder="Security Word (for password recovery)">
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
             </form>
 

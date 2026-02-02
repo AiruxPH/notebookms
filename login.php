@@ -105,6 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <form method="post">
                 <input type="text" name="username" class="auth-input" placeholder="Username" required>
                 <input type="password" name="password" class="auth-input" placeholder="Password" required>
+                <div style="text-align: right; margin-bottom: 15px;">
+                    <a href="forgot_password.php" style="color: #666; font-size: 13px;">Forgot Password?</a>
+                </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
             </form>
 
