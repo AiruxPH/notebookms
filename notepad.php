@@ -51,12 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 		if ($saved_id) {
 			$nid = $saved_id;
-			$msg = "Note saved successfully!";
-			$msg_type = "success";
-			$current_page = $save_data['page_number']; // Stay on same page
+			$current_page = $save_data['page_number'];
 
 			// Redirect logic
 			if (isset($_POST['save_exit'])) {
+				$_SESSION['flash'] = ['message' => "Note saved.", 'type' => 'success'];
 				header("Location: index.php");
 				exit();
 			}
@@ -67,20 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 				exit();
 			}
 
-			// Refresh Data to ensure consistency
-			// We redirect to self to avoid form resubmission and reload fresh data
-			// header("Location: notepad.php?id=$nid&page=$current_page&mode=edit");
-			// exit; 
-			// User requested "stay here" mostly so let's just populate variables
-
-			$ntitle = $save_data['title'];
-			$ncat = $save_data['category'];
-			$content = $save_data['text'];
-			$is_pinned_val = $save_data['is_pinned'];
-			$is_archived_val = $save_data['is_archived'];
-			$reminder_date_val = $save_data['reminder_date'];
-
-			$total_pages = get_note_page_count($nid); // Update total pages logic
+			// PRG: Redirect to self to show saved state and avoid resubmission
+			$_SESSION['flash'] = ['message' => "Note saved successfully!", 'type' => 'success'];
+			header("Location: notepad.php?id=$nid&page=$current_page&mode=edit");
+			exit();
 
 		} else {
 			$msg = "Error saving note.";
@@ -89,12 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	}
 }
 
-// 2. Handle GET (Load Note) - OR Fallback from POST
-// If $nid is set from POST, we already have some data, but let's re-fetch if empty to be safe or sync
-if (isset($_GET['id']) || ($nid != "" && $_SERVER['REQUEST_METHOD'] == 'POST')) {
-	if (isset($_GET['id']))
-		$nid = $_GET['id'];
-	$current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : $current_page;
+// 2. Handle GET (Load Note)
+if (isset($_GET['id'])) {
+	$nid = $_GET['id'];
+	$current_page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 
 	$note = get_note($nid);
 	if ($note) {
@@ -103,18 +90,16 @@ if (isset($_GET['id']) || ($nid != "" && $_SERVER['REQUEST_METHOD'] == 'POST')) 
 		$is_pinned_val = $note['is_pinned'];
 		$is_archived_val = $note['is_archived'];
 		$reminder_date_val = $note['reminder_date'];
-		$date_last_display = date("M j, Y, g:i A", strtotime($note['date_last']));
 
-		// Page Logic
 		$total_pages = get_note_page_count($nid);
-		if ($current_page > $total_pages && $total_pages > 0) {
-			// If requested page doesn't exist (e.g. creating new page logic handled by edit mode)
-			// For view mode, clamp?
-			// For Edit mode, if we want to create page, we allow it if = total+1
-		}
 
+		// Fetch Content
 		$content = get_note_page($nid, $current_page);
 
+		// Fallback for Page 1 if empty (Preview works, so $note['text'] should be reliable)
+		if (empty($content) && $current_page == 1 && !empty($note['text'])) {
+			$content = $note['text'];
+		}
 	} else {
 		header("Location: index.php");
 		exit();
