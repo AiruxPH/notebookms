@@ -254,27 +254,7 @@ function save_note($data)
     }
 }
 
-/**
- * Helper: Save Page (Upsert)
- */
-function save_note_page($note_id, $page_number, $text)
-{
-    global $conn;
-    $nid = intval($note_id);
-    $p = intval($page_number);
 
-    // Check availability
-    $check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id=$nid AND page_number=$p");
-    if (mysqli_num_rows($check) > 0) {
-        $stmt = $conn->prepare("UPDATE pages SET text=? WHERE note_id=? AND page_number=?");
-        $stmt->bind_param("sii", $text, $nid, $p);
-        return $stmt->execute();
-    } else {
-        $stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, ?, ?)");
-        $stmt->bind_param("iis", $nid, $p, $text);
-        return $stmt->execute();
-    }
-}
 
 /**
  * Delete a note
@@ -517,6 +497,61 @@ function delete_category($id)
 }
 
 /**
+ * Helper: Save Page (Upsert)
+ */
+function save_note_page($note_id, $page_number, $text)
+{
+    global $conn;
+    $nid = intval($note_id);
+    $p = intval($page_number);
+
+    if (is_logged_in()) {
+        // Check availability
+        $check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id=$nid AND page_number=$p");
+        if (mysqli_num_rows($check) > 0) {
+            $stmt = $conn->prepare("UPDATE pages SET text=? WHERE note_id=? AND page_number=?");
+            $stmt->bind_param("sii", $text, $nid, $p);
+            return $stmt->execute();
+        } else {
+            $stmt = $conn->prepare("INSERT INTO pages (note_id, page_number, text) VALUES (?, ?, ?)");
+            $stmt->bind_param("iis", $nid, $p, $text);
+            return $stmt->execute();
+        }
+    } else {
+        // Guest
+        if (!isset($_SESSION['guest_notes'])) {
+            $_SESSION['guest_notes'] = [];
+        }
+
+        // Guest notes use string IDs, so $note_id is already the correct key
+        if (isset($_SESSION['guest_notes'][$note_id])) {
+            $note = &$_SESSION['guest_notes'][$note_id];
+
+            // Initialize 'pages' if it doesn't exist or is empty
+            if (!isset($note['pages']) || !is_array($note['pages'])) {
+                $note['pages'] = [];
+                // If 'text' exists, migrate it to page 1
+                if (isset($note['text']) && !empty($note['text'])) {
+                    $note['pages'][1] = $note['text'];
+                }
+            }
+
+            // Update the specific page
+            $note['pages'][$p] = $text;
+
+            // Keep 'text' field in sync with page 1 for backward compatibility
+            if ($p == 1) {
+                $note['text'] = $text;
+            }
+
+            $note['date_last'] = date('Y-m-d H:i:s');
+            return true;
+        }
+        return false; // Note not found
+    }
+}
+
+/**
  * Permanently Delete Note (Archived Only)
  */
 function delete_note_permanently($note_id)
@@ -538,9 +573,10 @@ function delete_note_permanently($note_id)
         return mysqli_query($conn, "DELETE FROM notes WHERE id = $nid");
     } else {
         // Guest
-        if (isset($_SESSION['guest_notes'][$nid])) {
-            if (isset($_SESSION['guest_notes'][$nid]['is_archived']) && $_SESSION['guest_notes'][$nid]['is_archived'] == 1) {
-                unset($_SESSION['guest_notes'][$nid]);
+        if (isset($_SESSION['guest_notes'][$note_id])) { // Use string ID
+            // Check archived status
+            if (isset($_SESSION['guest_notes'][$note_id]['is_archived']) && $_SESSION['guest_notes'][$note_id]['is_archived'] == 1) {
+                unset($_SESSION['guest_notes'][$note_id]);
                 return true;
             }
         }
@@ -560,10 +596,13 @@ function get_note_page_count($note_id)
         $row = mysqli_fetch_assoc($res);
         return $row['max_p'] ? intval($row['max_p']) : 1;
     } else {
-        // Guest: simple multi-page via array implementation?
-        // Current guest impl only supports 'text' key. 
-        // We will stick to 1 page for guest for now or migrate 'text' to 'pages' array?
-        // Let's stick to 1 page for Guest to avoid complexity unless requested.
+        // Guest
+        if (isset($_SESSION['guest_notes'][$note_id])) { // Use original ID (string)
+            $pages = $_SESSION['guest_notes'][$note_id]['pages'] ?? [];
+            if (empty($pages))
+                return 1;
+            return max(array_keys($pages));
+        }
         return 1;
     }
 }
@@ -585,8 +624,13 @@ function get_note_page($note_id, $page_num)
         return ""; // Empty if page doesn't exist yet (or error)
     } else {
         // Guest
-        if (isset($_SESSION['guest_notes'][$nid])) {
-            return $p == 1 ? $_SESSION['guest_notes'][$nid]['text'] : "";
+        if (isset($_SESSION['guest_notes'][$note_id])) { // Use original ID
+            $pages = $_SESSION['guest_notes'][$note_id]['pages'] ?? [];
+            if (isset($pages[$p]))
+                return $pages[$p];
+            // Fallback to text if page 1
+            if ($p == 1)
+                return $_SESSION['guest_notes'][$note_id]['text'] ?? "";
         }
         return "";
     }
