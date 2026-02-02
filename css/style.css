@@ -1,4 +1,8 @@
 /* Notebook-BAR Classic Styles v2 */
+* {
+	box-sizing: border-box;
+}
+
 :root {
 	--bg-color: #fdfdad;
 	/* Slightly warmer yellow */
@@ -94,9 +98,7 @@ header nav a:hover {
 	transition: 0.3s;
 }
 
-@media (max-width: 850px) {
-
-	/* Increased breakpoint for safety */
+@media (max-width: 768px) {
 	.hamburger {
 		display: flex;
 	}
@@ -106,8 +108,8 @@ header nav a:hover {
 	}
 
 	header nav {
-		display: none;
-		/* Default hidden on mobile */
+		display: none !important;
+		/* Force hide by default on mobile */
 		flex-direction: column;
 		position: absolute;
 		top: 100%;
@@ -135,7 +137,7 @@ header nav a:hover {
 		background: #fff !important;
 	}
 
-	/* Checkbox Hack Logic - Use !important to be sure */
+	/* Checkbox Hack Logic - This overrides the display: none !important */
 	.menu-toggle:checked~nav {
 		display: flex !important;
 	}
@@ -150,6 +152,20 @@ header nav a:hover {
 
 	.menu-toggle:checked~.hamburger span:nth-child(3) {
 		transform: translateY(-7px) rotate(-45deg);
+	}
+}
+
+@media (max-width: 480px) {
+	.container {
+		padding: 0 10px;
+	}
+
+	.container>div {
+		padding: 20px !important;
+	}
+
+	.card_wrap {
+		padding: 15px;
 	}
 }
 
