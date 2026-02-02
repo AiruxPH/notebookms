@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 02, 2026 at 05:09 PM
+-- Generation Time: Feb 02, 2026 at 05:20 PM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -77,20 +77,21 @@ CREATE TABLE `notes` (
   `date_last` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `is_pinned` tinyint(1) DEFAULT 0,
   `is_archived` tinyint(1) DEFAULT 0,
-  `category_id` int(11) DEFAULT 1
+  `category_id` int(11) DEFAULT 1,
+  `reminder_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
 -- Dumping data for table `notes`
 --
 
-INSERT INTO `notes` (`id`, `user_id`, `title`, `color`, `date_created`, `date_last`, `is_pinned`, `is_archived`, `category_id`) VALUES
-(1, 1, 'this is the title', 0, '2026-02-01 10:05:02', '2026-02-01 15:49:26', 0, 0, 1),
-(2, 1, 'Yes', 0, '2026-02-01 10:20:25', '2026-02-01 15:49:26', 0, 0, 1),
-(3, 1, 'CSIT6 PRELIM', 0, '2026-02-01 11:18:14', '2026-02-01 15:49:26', 1, 0, 4),
-(4, 1, 'Green', 0, '2026-02-01 15:18:13', '2026-02-01 15:49:26', 1, 1, 6),
-(5, 2, 'Testing', 0, '2026-02-02 01:45:53', '2026-02-02 02:03:09', 0, 0, 2),
-(6, 2, 'Archer', 0, '2026-02-02 02:13:50', '2026-02-02 02:13:53', 0, 0, 1);
+INSERT INTO `notes` (`id`, `user_id`, `title`, `color`, `date_created`, `date_last`, `is_pinned`, `is_archived`, `category_id`, `reminder_date`) VALUES
+(1, 1, 'this is the title', 0, '2026-02-01 10:05:02', '2026-02-01 15:49:26', 0, 0, 1, NULL),
+(2, 1, 'Yes', 0, '2026-02-01 10:20:25', '2026-02-01 15:49:26', 0, 0, 1, NULL),
+(3, 1, 'CSIT6 PRELIM', 0, '2026-02-01 11:18:14', '2026-02-01 15:49:26', 1, 0, 4, NULL),
+(4, 1, 'Green', 0, '2026-02-01 15:18:13', '2026-02-01 15:49:26', 1, 1, 6, NULL),
+(5, 2, 'Testing', 0, '2026-02-02 01:45:53', '2026-02-02 02:03:09', 0, 0, 2, NULL),
+(6, 2, 'Archer', 0, '2026-02-02 02:13:50', '2026-02-02 02:13:53', 0, 0, 1, NULL);
 
 -- --------------------------------------------------------
 
