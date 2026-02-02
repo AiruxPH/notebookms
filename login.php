@@ -102,6 +102,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             <?php endif; ?>
 
+            <?php if (isset($_SESSION['flash'])): ?>
+                <div
+                    style="color: green; margin-bottom: 15px; font-weight: bold; background: #e8f5e9; padding: 10px; border: 1px solid #c8e6c9;">
+                    <?php
+                    echo $_SESSION['flash']['message'];
+                    unset($_SESSION['flash']);
+                    ?>
+                </div>
+            <?php endif; ?>
+
             <form method="post">
                 <input type="text" name="username" class="auth-input" placeholder="Username" required>
                 <input type="password" name="password" class="auth-input" placeholder="Password" required>

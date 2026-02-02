@@ -186,7 +186,7 @@ if (isset($_GET['reset'])) {
                 <form method="post">
                     <p style="margin-bottom: 15px;">
                         Enter your <strong>Security Word</strong> for <strong>
-                            <?php echo htmlspecialchars($reset_username); ?>
+                            <?php echo htmlspecialchars(isset($reset_username) ? $reset_username : $_SESSION['reset_param_username']); ?>
                         </strong>.
                     </p>
                     <input type="text" name="security_word" class="auth-input" placeholder="Security Word" required
