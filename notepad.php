@@ -256,6 +256,12 @@ if (isset($_SESSION['flash'])) {
 					<!-- EDIT MODE (Classic Editor) -->
 				<?php else: ?>
 
+					<div class="title-row">
+						<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
+							style="width: 100%; resize: none; overflow: hidden; min-height: 32px;"
+							oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
+					</div>
+
 					<div class="editor-metadata-bar">
 						<select name="category" class="cat-select" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
 							<?php
@@ -304,12 +310,6 @@ if (isset($_SESSION['flash'])) {
 						</div>
 					</div>
 
-					<div class="title-row">
-						<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
-							style="width: 100%; resize: none; overflow: hidden; min-height: 32px;"
-							oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
-					</div>
-
 					<!-- Formatting Toolbar -->
 					<div
 						style="background: #eee; padding: 5px; border: 1px solid #ccc; border-bottom: none; display: flex; gap: 5px;">
@@ -349,7 +349,7 @@ if (isset($_SESSION['flash'])) {
 							<!-- Prev -->
 							<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn" id="btn-prev"
 								title="Previous Page">
-								<i class="fa-solid fa-chevron-left"></i>
+								<i class="fa-solid fa-chevron-left"></i> Prev
 							</button>
 
 							<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
@@ -363,7 +363,7 @@ if (isset($_SESSION['flash'])) {
 							<!-- Next -->
 							<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn" id="btn-next"
 								title="Next Page">
-								<i class="fa-solid fa-chevron-right"></i>
+								Next <i class="fa-solid fa-chevron-right"></i>
 							</button>
 
 							<!-- Last -->
