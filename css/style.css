@@ -36,7 +36,7 @@ header {
 }
 
 .header-inner {
-	max-width: 900px;
+	max-width: 1200px;
 	margin: 0 auto;
 	padding: 0 20px;
 	display: flex;
@@ -70,7 +70,7 @@ header nav a:hover {
 
 /* Layout */
 .container {
-	max-width: 900px;
+	max-width: 1200px;
 	margin: 0 auto;
 	padding: 0 20px;
 }
@@ -264,12 +264,12 @@ a.note-add-card:hover {
 .btn {
 	font-family: Arial, sans-serif;
 	font-weight: bold;
-	padding: 10px 20px;
+	padding: 12px 24px;
 	cursor: pointer;
 	border: 1px solid #333;
 	background: #fff;
 	text-transform: uppercase;
-	font-size: 14px;
+	font-size: 15px;
 	box-shadow: 2px 2px 0 #333;
 	transition: all 0.1s;
 }
@@ -398,6 +398,10 @@ a.note-add-card:hover {
 
 	header nav a {
 		margin-left: 0;
+		padding: 10px 15px;
+		font-size: 14px;
+		width: 100%;
+		text-align: center;
 	}
 
 	.note-grid {
