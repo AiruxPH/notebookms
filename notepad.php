@@ -98,6 +98,7 @@ if (isset($_GET['id'])) {
 		$is_archived_val = $note['is_archived'];
 		$reminder_date_val = $note['reminder_date'];
 		$date_last = $note['date_last'];
+		$date_created = $note['date_created'];
 
 		$total_pages = get_note_page_count($nid);
 
@@ -185,16 +186,15 @@ if (isset($_SESSION['flash'])) {
 					<div class="editor-metadata-bar"
 						style="justify-content: space-between; border-bottom: 2px solid #ddd; padding-bottom: 15px;">
 
-						<!-- Left: Title & Category -->
+						<!-- Left: Title & Category/Dates -->
 						<div>
 							<h1
 								style="margin: 0; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">
 								<?php echo htmlspecialchars($ntitle); ?>
 							</h1>
-							<div style="font-size: 13px; color: #666; margin-top: 5px;">
+							<div style="font-size: 13px; color: #666; margin-top: 5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
 								<span style="background: #eee; padding: 2px 6px; border-radius: 4px;">
 									<?php
-									// Get Category Name
 									$cat_name = "General";
 									foreach (get_categories() as $c) {
 										if ($c['id'] == $ncat) {
@@ -205,21 +205,28 @@ if (isset($_SESSION['flash'])) {
 									echo htmlspecialchars($cat_name);
 									?>
 								</span>
+                                
+                                <span style="color: #888;" title="Created Date">
+                                    <i class="fa-solid fa-calendar-plus"></i> <?php echo date("M j, Y", strtotime($date_created)); ?>
+                                </span>
+
+                                <span style="color: #888;" title="Last Updated">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> <?php echo date("M j, g:i A", strtotime($date_last)); ?>
+                                </span>
+
 								<?php if ($reminder_date_val): ?>
-									<span style="color: #c62828; margin-left: 10px;"><i class="fa-regular fa-clock"></i>
+									<span style="color: #c62828;"><i class="fa-regular fa-clock"></i>
 										<?php echo date("M j, g:i A", strtotime($reminder_date_val)); ?></span>
 								<?php endif; ?>
-								<span style="margin-left: 10px; color: #888;">Page <?php echo $current_page; ?> of
-									<?php echo $total_pages; ?></span>
 							</div>
 						</div>
 
-						<!-- Right: Status Icons Only (Clean) -->
-						<div style="display: flex; gap: 10px; align-items: center;">
-							<?php if ($is_pinned_val): ?>
-								<span title="Pinned" style="font-size: 18px; color: #555;"><i
-										class="fa-solid fa-thumbtack"></i></span>
-							<?php endif; ?>
+						<!-- Right: Pin & Archive Icons -->
+						<div style="display: flex; gap: 15px; align-items: center;">
+                            <label class="pin-label" style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 14px; color: #555;">
+                                <input type="checkbox" id="view-pin-checkbox" onchange="togglePin(this.checked)" <?php echo $is_pinned_val ? 'checked' : ''; ?>>
+                                <i class="fa-solid fa-thumbtack"></i> Pin
+                            </label>
 							<?php if ($is_archived_val): ?>
 								<span title="Archived" style="font-size: 18px; color: #888;"><i
 										class="fa-solid fa-box-archive"></i></span>
@@ -232,24 +239,37 @@ if (isset($_SESSION['flash'])) {
 							<?php echo $content; ?>
 						</div>
 
-						<!-- Pagination -->
-						<?php if ($total_pages > 1): ?>
-							<div class="pagination-bar">
-								<?php if ($current_page > 1): ?>
-									<a href="?id=<?php echo $nid; ?>&page=<?php echo $current_page - 1; ?>&mode=view"
-										class="page-btn"><i class="fa-solid fa-chevron-left"></i> Prev</a>
-								<?php else: ?>
-									<span class="page-btn disabled"><i class="fa-solid fa-chevron-left"></i> Prev</span>
-								<?php endif; ?>
+						<!-- View Mode Pagination (Client-Side) -->
+						<?php if ($nid != ""): ?>
+							<div class="pagination-bar"
+								style="background: #f0f0f0; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px;">
 
-								<span class="page-indicator">Page <?php echo $current_page; ?></span>
+								<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first-v" title="First Page">
+									<i class="fa-solid fa-backward-step"></i>
+								</button>
 
-								<?php if ($current_page < $total_pages): ?>
-									<a href="?id=<?php echo $nid; ?>&page=<?php echo $current_page + 1; ?>&mode=view"
-										class="page-btn">Next <i class="fa-solid fa-chevron-right"></i></a>
-								<?php else: ?>
-									<span class="page-btn disabled">Next <i class="fa-solid fa-chevron-right"></i></span>
-								<?php endif; ?>
+								<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn" id="btn-prev-v"
+									title="Previous Page">
+									<i class="fa-solid fa-chevron-left"></i> Prev
+								</button>
+
+								<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
+									Page
+									<input type="number" id="jump-page-input-v" value="<?php echo $current_page; ?>" min="1"
+										style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;"
+										onchange="goToPage(parseInt(this.value))">
+									of <span id="total-pages-display-v"><?php echo $total_pages; ?></span>
+								</span>
+
+								<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn" id="btn-next-v"
+									title="Next Page">
+									Next <i class="fa-solid fa-chevron-right"></i>
+								</button>
+
+								<button type="button" onclick="goToPage(window.totalPages)" class="page-btn" id="btn-last-v"
+									title="Last Page">
+									<i class="fa-solid fa-forward-step"></i>
+								</button>
 							</div>
 						<?php endif; ?>
 					</div>
@@ -260,14 +280,17 @@ if (isset($_SESSION['flash'])) {
 						<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
 							style="width: 100%; resize: none; overflow: hidden; min-height: 32px;"
 							oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
-                        <span id="title-char-counter" style="position: absolute; right: 5px; bottom: 5px; font-size: 11px; color: #aaa; pointer-events: none;">0/100</span>
+						<span id="title-char-counter"
+							style="position: absolute; right: 5px; bottom: 5px; font-size: 11px; color: #aaa; pointer-events: none;">0/100</span>
 					</div>
-                    
-                    <div style="font-size: 11px; color: #888; margin-bottom: 10px; padding-left: 2px; font-family: sans-serif;">
-                        <span id="word-count-top">0</span> words <span style="margin: 0 4px; color: #ccc;">|</span> 
-                        <span id="body-char-count">0</span> / 1800 characters <span style="margin: 0 4px; color: #ccc;">|</span> 
-                        Updated: <?php echo date("M j, g:i A", strtotime($date_last)); ?>
-                    </div>
+
+					<div
+						style="font-size: 11px; color: #888; margin-bottom: 10px; padding-left: 2px; font-family: sans-serif;">
+						<span id="word-count-top">0</span> words <span style="margin: 0 4px; color: #ccc;">|</span>
+						<span id="body-char-count">0</span> / 1800 characters <span
+							style="margin: 0 4px; color: #ccc;">|</span>
+						Updated: <?php echo date("M j, g:i A", strtotime($date_last)); ?>
+					</div>
 
 					<div class="editor-metadata-bar">
 						<select name="category" class="cat-select" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
@@ -300,14 +323,6 @@ if (isset($_SESSION['flash'])) {
 							}
 							?>
 						</select>
-
-						<!-- PIN CHECKBOX RESTORED -->
-						<label class="pin-label">
-							<input type="checkbox" name="is_pinned" value="1" <?php if ($is_pinned_val)
-								echo "checked"; ?>
-								<?php echo $is_archived_val ? 'disabled' : ''; ?>>
-							<i class="fa-solid fa-thumbtack" style="font-size: 12px;"></i> Pin
-						</label>
 
 						<div style="margin-left: auto; display: flex; align-items: center; gap: 5px;">
 							<label><i class="fa-regular fa-clock"></i></label>
@@ -385,77 +400,72 @@ if (isset($_SESSION['flash'])) {
 							</button>
 						</div>
 
-						</div>
-					<?php endif; ?>
-
-				<?php endif; ?>
-
-				<!-- Floating Action Buttons (FAB) -->
-				<div class="fab-container">
-
-					<!-- SAVE / EDIT Actions -->
-					<?php if (!$is_archived_val && !$is_view_mode): ?>
-						<button type="submit" name="save_exit" class="fab-btn fab-save" title="Save & Exit">
-							<i class="fa-solid fa-floppy-disk"></i>
-							<span class="fab-label">Save & Exit</span>
-						</button>
-						<button type="submit" name="save_note" class="fab-btn fab-secondary" title="Save">
-							<i class="fa-solid fa-check"></i>
-							<span class="fab-label">Save</span>
-						</button>
-					<?php endif; ?>
-
-					<!-- EDIT Toggle -->
-					<?php if ($is_view_mode && !$is_archived_val): ?>
-						<a href="notepad.php?id=<?php echo $nid; ?>&mode=edit&page=<?php echo $current_page; ?>"
-							class="fab-btn fab-primary" title="Edit Note">
-							<i class="fa-solid fa-pen"></i>
-							<span class="fab-label">Edit</span>
-						</a>
-					<?php elseif (!$is_view_mode && $nid != ""): ?>
-						<a href="notepad.php?id=<?php echo $nid; ?>&mode=view&page=<?php echo $current_page; ?>"
-							class="fab-btn fab-secondary" onclick="return confirmNavigation()" title="View Mode">
-							<i class="fa-solid fa-eye"></i>
-							<span class="fab-label">View</span>
-						</a>
-					<?php endif; ?>
-
-					<!-- Archive / Delete Actions -->
-					<?php if ($nid != ""): ?>
-						<?php if (isset($is_archived_val) && $is_archived_val): ?>
-							<!-- DELETE PERMANENT -->
-							<button type="button" onclick="confirmDeletePermanent()" class="fab-btn"
-								style="background: #ffebee; color: #c62828;">
-								<i class="fa-solid fa-trash-can"></i>
-								<span class="fab-label">Delete Forever</span>
-							</button>
-							<!-- UNARCHIVE -->
-							<button type="button" onclick="confirmUnarchive()" class="fab-btn"
-								style="background: #e1f5fe; color: #0277bd;">
-								<i class="fa-solid fa-box-open"></i>
-								<span class="fab-label">Unarchive</span>
-							</button>
-						<?php elseif (!$is_view_mode): ?>
-							<!-- Archive (Edit Mode) -->
-							<button type="button" onclick="confirmArchive()" class="fab-btn"
-								style="background: #ffebee; color: #c62828;">
-								<i class="fa-solid fa-box-archive"></i>
-								<span class="fab-label">Archive</span>
-							</button>
-						<?php else: ?>
-							<!-- Archive (View Mode) -->
-							<button type="button" onclick="confirmArchive()" class="fab-btn"
-								style="background: #ffebee; color: #c62828;">
-								<i class="fa-solid fa-box-archive"></i>
-								<span class="fab-label">Archive</span>
-							</button>
-						<?php endif; ?>
-					<?php endif; ?>
-
-					<!-- Removed Home Button as requested -->
 				</div>
-			</form>
+			<?php endif; ?>
+
+		<?php endif; ?>
+
+		<!-- Floating Action Buttons (FAB) -->
+		<div class="fab-container">
+
+			<!-- SAVE / EDIT Actions -->
+			<?php if (!$is_archived_val && !$is_view_mode): ?>
+				<button type="submit" name="save_exit" class="fab-btn fab-save" title="Save & Exit">
+					<i class="fa-solid fa-floppy-disk"></i>
+					<span class="fab-label">Save & Exit</span>
+				</button>
+				<button type="submit" name="save_note" class="fab-btn fab-secondary" title="Save">
+					<i class="fa-solid fa-check"></i>
+					<span class="fab-label">Save</span>
+				</button>
+			<?php endif; ?>
+
+			<!-- EDIT Toggle -->
+			<?php if ($is_view_mode && !$is_archived_val): ?>
+				<a href="notepad.php?id=<?php echo $nid; ?>&mode=edit&page=<?php echo $current_page; ?>"
+					class="fab-btn fab-primary" title="Edit Note">
+					<i class="fa-solid fa-pen"></i>
+					<span class="fab-label">Edit</span>
+				</a>
+			<?php elseif (!$is_view_mode && $nid != ""): ?>
+				<a href="notepad.php?id=<?php echo $nid; ?>&mode=view&page=<?php echo $current_page; ?>"
+					class="fab-btn fab-secondary" onclick="return confirmNavigation()" title="View Mode">
+					<i class="fa-solid fa-eye"></i>
+					<span class="fab-label">View</span>
+				</a>
+			<?php endif; ?>
+
+			<!-- Archive / Delete Actions -->
+			<?php if ($nid != ""): ?>
+				<?php if (isset($is_archived_val) && $is_archived_val): ?>
+					<!-- DELETE PERMANENT -->
+					<button type="button" onclick="confirmDeletePermanent()" class="fab-btn"
+						style="background: #ffebee; color: #c62828;">
+						<i class="fa-solid fa-trash-can"></i>
+						<span class="fab-label">Delete Forever</span>
+					</button>
+					<!-- UNARCHIVE -->
+					<button type="button" onclick="confirmUnarchive()" class="fab-btn"
+						style="background: #e1f5fe; color: #0277bd;">
+						<i class="fa-solid fa-box-open"></i>
+						<span class="fab-label">Unarchive</span>
+					</button>
+				<?php elseif (!$is_view_mode): ?>
+					<!-- Archive REMOVED from Edit Mode -->
+				<?php else: ?>
+					<!-- Archive (View Mode) -->
+					<button type="button" onclick="confirmArchive()" class="fab-btn"
+						style="background: #ffebee; color: #c62828;">
+						<i class="fa-solid fa-box-archive"></i>
+						<span class="fab-label">Archive</span>
+					</button>
+				<?php endif; ?>
+			<?php endif; ?>
+
+			<!-- Removed Home Button as requested -->
 		</div>
+		</form>
+	</div>
 	</div>
 
 	<script>
@@ -497,91 +507,80 @@ if (isset($_SESSION['flash'])) {
 			// Sync on blur too just in case
 			editor.addEventListener('blur', syncCurrentPage);
 		}
+        const viewContent = document.getElementById('view-content');
 
 		// ===============================
 		// CORE LOGIC
 		// ===============================
+        
+        function syncCurrentPage() {
+            // Edit Mode Sync
+            if (editor) {
+                allPages[currentPage] = editor.innerHTML;
+                if(hiddenInput) hiddenInput.value = editor.innerHTML;
+            }
+        }
 
-		function syncCurrentPage() {
-			if (!editor) return;
-			// Update the state
-			allPages[currentPage] = editor.innerHTML;
-			// Also update legacy hidden input for current page context
-			if (hiddenInput) hiddenInput.value = editor.innerHTML;
-		}
+        function goToPage(pageNum) {
+            // 1. Sync current page before leaving (if editing)
+            syncCurrentPage();
+            
+            // Validate
+            if (pageNum < 1 || pageNum > totalPages) return;
 
-		function goToPage(pageNum) {
-			// 1. Sync current page before leaving
-			syncCurrentPage();
+            // 2. Switch State
+            currentPage = pageNum;
+            
+            // 3. Render New Content
+            if (allPages[currentPage] === undefined) {
+                allPages[currentPage] = "";
+            }
+            
+            if (editor) {
+                editor.innerHTML = allPages[currentPage];
+            } else if (viewContent) {
+                viewContent.innerHTML = allPages[currentPage];
+            }
 
-			// Validate
-			if (pageNum < 1 || pageNum > totalPages) {
-				// If it's a new page request (handled by addNewPage, but safeguard here)
-				return;
-			}
+            // 4. Update UI
+            updateUI();
+        }
 
-			// 2. Switch State
-			currentPage = pageNum;
+        function addNewPage() {
+            if (!editor) return; // Only in edit mode
+            syncCurrentPage();
+            totalPages++;
+            currentPage = totalPages;
+            allPages[currentPage] = ""; // Init empty
+            editor.innerHTML = "";
+            updateUI();
+        }
 
-			// 3. Render New Content
-			// Ensure entry exists
-			if (allPages[currentPage] === undefined) {
-				allPages[currentPage] = "";
-			}
-			editor.innerHTML = allPages[currentPage];
+        function updateUI() {
+            // Edit Mode UI
+            const jumpInput = document.getElementById('jump-page-input');
+            const totalDisplay = document.getElementById('total-pages-display');
+            if (jumpInput) jumpInput.value = currentPage;
+            if (totalDisplay) totalDisplay.innerText = totalPages;
+            
+            // View Mode UI
+            const jumpInputV = document.getElementById('jump-page-input-v');
+            const totalDisplayV = document.getElementById('total-pages-display-v');
+            if (jumpInputV) jumpInputV.value = currentPage;
+            if (totalDisplayV) totalDisplayV.innerText = totalPages;
 
-			// 4. Update UI
-			updateUI();
-		}
+            updateCharCount();
+        }
 
-		function addNewPage() {
-			syncCurrentPage();
-			totalPages++;
-			currentPage = totalPages;
-			allPages[currentPage] = ""; // Init empty
-			editor.innerHTML = "";
-			updateUI();
-		}
-
-		function updateUI() {
-			// Update Inputs
-			const jumpInput = document.getElementById('jump-page-input');
-			const totalDisplay = document.getElementById('total-pages-display');
-			if (jumpInput) jumpInput.value = currentPage;
-			if (totalDisplay) totalDisplay.innerText = totalPages;
-
-			// Update Header (optional, for "(Page: X)")
-			// If there's a header element showing page, we could update it, but it's PHP rendered.
-			// For now, the input box is sufficient.
-
-			updateCharCount();
-		}
-
-		// ===============================
+        // ===============================
 		// CONSTRAINTS & FORMATTING
 		// ===============================
-
-		function handleInput(e) {
-			syncCurrentPage();
-			updateCharCount();
-
-			// 1800 Character Limit Enforcement
-			const text = editor.innerText || "";
-			if (text.length > MAX_CHARS) {
-				// Prevent further input
-				// Note: 'input' event is after change. To fully block, we need 'keydown', 
-				// but checking length on input allows handling paste/formatting.
-
-				// Truncate (simple visual feedback logic to avoid complex cursor management issues)
-				// Ideally, we warn user.
-
-				// For simplified "no word limit" but "1800 chars per page", user asked limit.
-				// We will start by alerting/showing red.
-				// Reverting content is tricky with HTML.
-				// Let's rely on the red warning for now, enforcing strict block is UX heavy.
-			}
-		}
-
+        
+        function handleInput(e) {
+            syncCurrentPage();
+            updateCharCount();
+        }
+        
         function updateCharCount() {
             if (!editor) return;
             // 1. Body Count
@@ -598,7 +597,7 @@ if (isset($_SESSION['flash'])) {
                     bodyCharCount.style.color = 'red';
                     bodyCharCount.style.fontWeight = 'bold';
                 } else {
-                    bodyCharCount.style.color = '#777'; // default color
+                    bodyCharCount.style.color = '#777';
                     bodyCharCount.style.fontWeight = 'normal';
                 }
             }
@@ -611,31 +610,50 @@ if (isset($_SESSION['flash'])) {
             }
         }
 
-		function handleKeyDown(e) {
-			// TAB SUPPORT
-			if (e.key === 'Tab') {
-				e.preventDefault();
-				document.execCommand('insertText', false, '    '); // 4 spaces
-			}
+        function handleKeyDown(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                document.execCommand('insertText', false, '    ');
+            }
+            const text = editor.innerText || "";
+            const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'];
+            if (text.length >= MAX_CHARS && !allowed.includes(e.key) && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
+                 e.preventDefault();
+            }
+        }
 
-			// STRICT CHAR LIMIT (Block typing if over)
-			const text = editor.innerText || "";
-			// Allow: Backspace, Delete, Arrows, Ctrl+A/C/V
-			const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'];
-			if (text.length >= MAX_CHARS && !allowed.includes(e.key) && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
-				e.preventDefault();
-				// Flash visual warning
-				const countSpan = document.getElementById('char-count');
-				if (countSpan) echoAni(countSpan);
-			}
-		}
+        function togglePin(isPinned) {
+            // Update hidden input if it exists (not strictly needed since we submit immediately)
+            // But we need to make sure the form is ready.
+            const pinInput = document.querySelector('input[name="is_pinned"]');
+            
+            // If we are in view mode, we might not have the pin checkbox in the main form.
+            // Let's create an ad-hoc submission or use the existing fabric logic.
+            
+            // The main form handles save. We want an instant save for pin.
+            if (form) {
+                // Ensure the is_pinned checkbox in the FORM matches the View Mode checkbox
+                // Actually, the view mode checkbox isn't inside the form (or is it? No, it's outside in my current replace).
+                // Let's check the form structure.
+                
+                // If it's outside the form, we can just submit a special action.
+                document.getElementById('action_type').value = 'save_redirect'; // Stay on page
+                
+                // Create or update a hidden input in the form
+                let hiddenPin = form.querySelector('input[name="is_pinned"][type="hidden"]');
+                if(!hiddenPin) {
+                    hiddenPin = document.createElement('input');
+                    hiddenPin.type = 'hidden';
+                    hiddenPin.name = 'is_pinned';
+                    form.appendChild(hiddenPin);
+                }
+                hiddenPin.value = isPinned ? "1" : "0";
+                
+                form.submit();
+            }
+        }
 
-		function echoAni(el) {
-			el.style.transform = "scale(1.2)";
-			setTimeout(() => el.style.transform = "scale(1)", 200);
-		}
-
-		// ===============================
+        // ===============================
 		// SAVING & FORMS
 		// ===============================
 
