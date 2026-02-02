@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -68,23 +68,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 
 <body>
-    <div class="auth-container">
-        <h2>Login</h2>
-        <?php if ($error): ?>
-            <div style="color: red; margin-bottom: 10px;">
-                <?php echo $error; ?>
-            </div>
-        <?php endif; ?>
+    <header>
+        <div class="header-inner">
+            <h1><a href="dashboard.php">Notebook-BAR</a></h1>
+            <nav>
+                <a href="dashboard.php">Dashboard</a>
+                <a href="index.php">Notes</a>
+                <a href="categories.php">Categories</a>
+                <?php if (is_logged_in()): ?>
+                    <a href="logout.php" style="color: #c62828;">Logout</a>
+                <?php else: ?>
+                    <a href="login.php" style="color: #2e7d32; border-color: #2e7d32;">Login</a>
+                <?php endif; ?>
+                <a href="about.php">About</a>
+                <a href="contact.php">Contact Us</a>
+            </nav>
+        </div>
+    </header>
 
-        <form method="post">
-            <input type="text" name="username" class="auth-input" placeholder="Username" required>
-            <input type="password" name="password" class="auth-input" placeholder="Password" required>
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
-        </form>
+    <div class="container">
+        <div class="auth-container">
+            <h2>Login</h2>
+            <?php if ($error): ?>
+                <div style="color: red; margin-bottom: 10px;">
+                    <?php echo $error; ?>
+                </div>
+            <?php endif; ?>
 
-        <p style="margin-top: 15px; font-size: 14px;">
-            No account? <a href="register.php" style="color: blue; text-decoration: underline;">Register here</a>
-        </p>
+            <form method="post">
+                <input type="text" name="username" class="auth-input" placeholder="Username" required>
+                <input type="password" name="password" class="auth-input" placeholder="Password" required>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+
+            <p style="margin-top: 15px; font-size: 14px;">
+                No account? <a href="register.php" style="color: blue; text-decoration: underline;">Register here</a>
+            </p>
+        </div>
     </div>
 </body>
 

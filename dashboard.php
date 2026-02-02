@@ -3,7 +3,7 @@ include 'includes/data_access.php';
 // session_start(); is handled in db/data_access
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">

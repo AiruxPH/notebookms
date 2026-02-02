@@ -1,10 +1,9 @@
 <?php
 include 'includes/data_access.php';
-// session_start() is already in db.php (which is in data_access.php)sh message check (optional if we want to show messages on index too)
 session_start();
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 	<meta charset="UTF-8">

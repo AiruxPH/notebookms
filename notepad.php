@@ -83,7 +83,7 @@ if (isset($_SESSION['flash'])) {
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 	<meta charset="UTF-8">
@@ -101,7 +101,7 @@ if (isset($_SESSION['flash'])) {
 				<a href="dashboard.php">Dashboard</a>
 				<a href="index.php">Notes</a>
 				<a href="categories.php">Categories</a>
-				<?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0): ?>
+				<?php if (is_logged_in()): ?>
 					<a href="logout.php" style="color: #c62828;">Logout</a>
 				<?php else: ?>
 					<a href="login.php" style="color: #2e7d32;">Login</a>
