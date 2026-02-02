@@ -47,7 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 		];
 
 		// DEBUG LOGGING
-		file_put_contents('debug_log.txt', date('Y-m-d H:i:s') . " - Saving Note: ID=" . $save_data['id'] . ", Page=" . $save_data['page_number'] . ", POST_PAGE=" . ($_POST['page_number'] ?? 'NULL') . "\n", FILE_APPEND);
+		// DEBUG LOGGING (Absolute Path)
+		$log_file = 'C:/Users/ASUS/Documents/notebookms/notebookms/debug_log.txt';
+		file_put_contents($log_file, date('Y-m-d H:i:s') . " - Saving Note: ID=" . $save_data['id'] . ", Page=" . $save_data['page_number'] . ", POST_PAGE=" . ($_POST['page_number'] ?? 'NULL') . "\n", FILE_APPEND);
 
 		// SAVE
 		$saved_id = save_note($save_data);
@@ -132,7 +134,8 @@ if (isset($_SESSION['flash'])) {
 
 	<header>
 		<div class="header-inner">
-			<h1><a href="dashboard.php">Notebook-BAR</a></h1>
+			<h1><a href="dashboard.php">Notebook-BAR</a> <small style="font-size: 12px; color: #555;">(Page:
+					<?php echo $current_page; ?>)</small></h1>
 			<nav>
 				<a href="dashboard.php">Dashboard</a>
 				<a href="index.php">Notes</a>
@@ -534,7 +537,7 @@ if (isset($_SESSION['flash'])) {
 		}
 
 		<?php if ($msg): ?>
-				showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
+					showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
 		<?php endif; ?>
 	</script>
 </body>
