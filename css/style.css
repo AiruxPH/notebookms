@@ -159,13 +159,33 @@ header nav a:hover {
 	.container {
 		padding: 0 10px;
 	}
-
-	.container>div {
+	.container > div {
 		padding: 20px !important;
 	}
-
 	.card_wrap {
 		padding: 15px;
+	}
+	/* Fix Pagination Overflow */
+	.pagination-bar {
+		gap: 5px;
+		padding: 10px 5px;
+		flex-wrap: wrap;
+	}
+	.pagination-bar .btn-text {
+		display: none;
+	}
+	.pagination-bar .page-btn {
+		padding: 8px 10px;
+		min-width: 40px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	.page-indicator {
+		font-size: 12px;
+	}
+	#jump-page-input, #jump-page-input-v {
+		width: 40px !important;
 	}
 }
 

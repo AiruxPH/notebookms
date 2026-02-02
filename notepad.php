@@ -176,6 +176,10 @@ if (isset($_SESSION['flash'])) {
 		<div class="editor-layout">
 			<form method="post" id="note-form">
 				<input type="hidden" name="action_type" id="action_type" value="save">
+				<input type="hidden" name="note_id" value="<?php echo htmlspecialchars($nid); ?>">
+				<input type="hidden" name="is_archived" id="is_archived_input" value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
+				<input type="hidden" name="page_number" value="<?php echo $current_page; ?>">
+				<input type="hidden" name="page" id="page_content" value="<?php echo htmlspecialchars($content); ?>">
 
 				<?php
 				$mode = 'edit';
@@ -261,7 +265,7 @@ if (isset($_SESSION['flash'])) {
 
 								<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn"
 									id="btn-prev-v" title="Previous Page">
-									<i class="fa-solid fa-chevron-left"></i> Prev
+									<i class="fa-solid fa-chevron-left"></i> <span class="btn-text">Prev</span>
 								</button>
 
 								<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
@@ -274,7 +278,7 @@ if (isset($_SESSION['flash'])) {
 
 								<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn"
 									id="btn-next-v" title="Next Page">
-									Next <i class="fa-solid fa-chevron-right"></i>
+									<span class="btn-text">Next</span> <i class="fa-solid fa-chevron-right"></i>
 								</button>
 
 								<button type="button" onclick="goToPage(window.totalPages)" class="page-btn" id="btn-last-v"
@@ -358,12 +362,7 @@ if (isset($_SESSION['flash'])) {
 								class="fa-solid fa-list-ul"></i></button>
 					</div>
 
-					<input type="hidden" name="note_id" value="<?php echo htmlspecialchars($nid); ?>">
-					<input type="hidden" name="page" id="page_content" value="<?php echo htmlspecialchars($content); ?>">
-					<input type="hidden" name="is_archived" id="is_archived_input"
-						value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
 
-					<input type="hidden" name="page_number" value="<?php echo $current_page; ?>">
 
 					<div class="editor-div" id="editor" contenteditable="true">
 						<?php echo $content; ?>
@@ -382,7 +381,7 @@ if (isset($_SESSION['flash'])) {
 							<!-- Prev -->
 							<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn" id="btn-prev"
 								title="Previous Page">
-								<i class="fa-solid fa-chevron-left"></i> Prev
+								<i class="fa-solid fa-chevron-left"></i> <span class="btn-text">Prev</span>
 							</button>
 
 							<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
@@ -396,7 +395,7 @@ if (isset($_SESSION['flash'])) {
 							<!-- Next -->
 							<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn" id="btn-next"
 								title="Next Page">
-								Next <i class="fa-solid fa-chevron-right"></i>
+								<span class="btn-text">Next</span> <i class="fa-solid fa-chevron-right"></i>
 							</button>
 
 							<!-- Last -->

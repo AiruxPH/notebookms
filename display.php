@@ -118,6 +118,9 @@ if (isset($_SESSION['flash'])) {
 		<div class="editor-layout">
 			<form method="post">
 				<input type="hidden" name="action_type" id="action_type" value="save">
+				<input type="hidden" name="note_id" value="<?php echo htmlspecialchars($nid); ?>">
+				<input type="hidden" name="is_archived" id="is_archived_input"
+					value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
 				<!-- Meta Section -->
 				<div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
 					<select name="category" class="title-input"
@@ -170,8 +173,6 @@ if (isset($_SESSION['flash'])) {
 					</label>
 
 					<!-- Archive button moved to toolbar -->
-					<input type="hidden" name="is_archived" id="is_archived_input"
-						value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
 
 					<input type="text" name="new_title" class="title-input" placeholder="Note Title" required
 						value="<?php echo htmlspecialchars($ntitle); ?>" style="flex-grow: 1;" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
