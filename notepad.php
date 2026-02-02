@@ -67,6 +67,7 @@ if (isset($_GET['id'])) {
 		$content = $note['text'];
 		$is_pinned_val = $note['is_pinned'];
 		$is_archived_val = $note['is_archived'];
+		$date_last_display = date("M j, Y, g:i A", strtotime($note['date_last']));
 	} else {
 		// Note not found or not owned
 		header("Location: index.php");
@@ -173,8 +174,20 @@ if (isset($_SESSION['flash'])) {
 					<input type="hidden" name="is_archived" id="is_archived_input"
 						value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
 
-					<input type="text" name="new_title" class="title-input" placeholder="Note Title" required
-						value="<?php echo htmlspecialchars($ntitle); ?>" style="flex-grow: 1;" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
+					<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
+						style="flex-grow: 1; resize: none; overflow: hidden; min-height: 40px; height: auto;"
+						oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
+				</div>
+
+				<!-- Stats Bar Below Title -->
+				<div class="editor-stats-bar">
+					<span id="word-count-top">0</span> words |
+					<span id="char-count-top">0</span> / 100 characters in title |
+					<?php if ($date_last_display): ?>
+						Last Modified: <?php echo $date_last_display; ?>
+					<?php else: ?>
+						New Note
+					<?php endif; ?>
 				</div>
 
 				<!-- Formatting Toolbar -->
@@ -202,10 +215,6 @@ if (isset($_SESSION['flash'])) {
 					<?php echo $content; ?>
 				</div>
 
-				<!-- Stats Bar -->
-				<div style="font-size: 12px; color: #777; margin-top: 5px; text-align: right;">
-					<span id="word-count">0</span> Words | <span id="char-count">0</span> Characters
-				</div>
 
 				<!-- Toolbar -->
 				<div class="toolbar">
@@ -233,9 +242,15 @@ if (isset($_SESSION['flash'])) {
 	<script>
 		const editor = document.getElementById('editor');
 		const hiddenInput = document.getElementById('page_content');
-		const wordCount = document.getElementById('word-count');
-		const charCount = document.getElementById('char-count');
+		const wordCountTop = document.getElementById('word-count-top');
+		const charCountTop = document.getElementById('char-count-top');
+		const titleInput = document.querySelector('textarea[name="new_title"]');
 		const form = document.querySelector('form');
+
+		// Initial Auto-grow for title
+		if (titleInput) {
+			titleInput.style.height = titleInput.scrollHeight + 'px';
+		}
 
 		// Toolbar Action
 		function formatText(command) {
@@ -285,12 +300,20 @@ if (isset($_SESSION['flash'])) {
 		function updateStats() {
 			if (!editor) return;
 			const text = editor.innerText || ""; // innerText gives plain text
-			charCount.textContent = text.length;
 			const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-			wordCount.textContent = words.length;
+
+			if (wordCountTop) wordCountTop.textContent = words.length;
+
+			if (titleInput) {
+				if (charCountTop) charCountTop.textContent = titleInput.value.length;
+			}
 
 			// Sync to hidden input on every change (or at least on submit)
 			hiddenInput.value = editor.innerHTML;
+		}
+
+		if (titleInput) {
+			titleInput.addEventListener('input', updateStats);
 		}
 
 		if (editor) {
