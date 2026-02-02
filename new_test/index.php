@@ -218,8 +218,8 @@ session_start();
 			if (empty(trim(strip_tags($dtxt))))
 				$dtxt = "<em>No content...</em>";
 
-			echo "<a href='notepad.php?id=$nid' class='note-card'
-												style='background-color: $bg_color;'>";
+			echo "<a href='notepad.php?id=$nid' class='note-card'>";
+			echo "<div class="category_streak" style='background-color: $bg_color;'><br></div>";
 			echo "<div class='note-title'>$pin_icon" . $title . "</div>";
 			echo "<div class='note-meta'>$category &bull; $date_last</div>";
 			echo "<div class='note-preview'>$dtxt</div>";
