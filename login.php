@@ -81,6 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <header>
         <div class="header-inner">
             <h1><a href="dashboard.php">Notebook-BAR</a></h1>
+            <input type="checkbox" id="menu-toggle" class="menu-toggle">
+            <label for="menu-toggle" class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
             <nav>
                 <a href="dashboard.php">Dashboard</a>
                 <a href="index.php">Notes</a>

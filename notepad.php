@@ -147,6 +147,12 @@ if (isset($_SESSION['flash'])) {
 	<header>
 		<div class="header-inner">
 			<h1><a href="dashboard.php">Notebook-BAR</a></h1>
+			<input type="checkbox" id="menu-toggle" class="menu-toggle">
+			<label for="menu-toggle" class="hamburger">
+				<span></span>
+				<span></span>
+				<span></span>
+			</label>
 			<nav>
 				<a href="dashboard.php">Dashboard</a>
 				<a href="index.php">Notes</a>
@@ -552,17 +558,17 @@ if (isset($_SESSION['flash'])) {
 			updateUI();
 		}
 
-		        function addNewPage() {
-            if (!editor) return; // Only in edit mode
-            syncCurrentPage();
-            totalPages++;
-            window.totalPages = totalPages;
-            currentPage = totalPages;
-            window.currentPage = totalPages;
-            allPages[currentPage] = ""; // Init empty
-            editor.innerHTML = "";
-            updateUI();
-        }
+		function addNewPage() {
+			if (!editor) return; // Only in edit mode
+			syncCurrentPage();
+			totalPages++;
+			window.totalPages = totalPages;
+			currentPage = totalPages;
+			window.currentPage = totalPages;
+			allPages[currentPage] = ""; // Init empty
+			editor.innerHTML = "";
+			updateUI();
+		}
 
 		function updateUI() {
 			// Edit Mode UI

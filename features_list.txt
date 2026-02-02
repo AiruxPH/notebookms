@@ -1,0 +1,29 @@
+Notebook-BAR v1.2 - Feature List
+
+Core Features:
+1. User Authentication: Secure Login, Registration, and Logout.
+2. Guest Mode: Allow users to use the notebook without an account (data saved in session).
+3. Security Word: Recovery mechanism for forgotten passwords.
+4. Relational Database Storage: Securely store notes, categories, and users in MySQL.
+
+Note Management:
+5. Multi-Page Notes: Organize long notes into multiple pages.
+6. Instant Pagination: Fast, client-side page flipping without reloads.
+7. Bulk Saving: Save all pages of a note at once with a single click.
+8. Categorization: Create custom categories with personalized colors.
+9. Pinning: Keep important notes at the top of the dashboard.
+10. Archiving: Clean up your workspace without deleting notes.
+11. Reminders: Set datetime alerts for specific notes.
+
+Editor Enhancements:
+12. 1800 Character Limit: Enforced per page for optimal readability.
+13. Live Stats: Real-time word and character counts as you type.
+14. Tab Support: Use the Tab key for 4-space indentation.
+15. Rich Text Lite: Standard formatting (Bold, Italic, Underline, H3, Lists).
+16. Auto-Resizing Title: The title input expands as you type.
+
+UI/UX:
+17. Responsive Design: Optimized for Desktop, Tablet, and Mobile.
+18. Dashboard: Central hub for search, quick category filtering, and pinned notes.
+19. Announcements: Stay updated with the latest developer news.
+20. Floating Action Buttons (FABs): Quick access to Save, Edit, and Archive actions.
