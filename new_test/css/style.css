@@ -87,12 +87,12 @@ a.note-card {
 	/* Increased specificity */
 	display: flex;
 	flex-direction: column;
-	background-color: var(--card-bg);
+	background-color: #fdfdad;
 	border: 1px solid var(--border-color);
 	min-height: 220px;
 	max-height: 400px;
 	/* Cap growth */
-	padding: 15px;
+	padding: 0;
 	box-shadow: var(--shadow);
 	transition: transform 0.2s;
 	color: #333 !important;
@@ -385,4 +385,8 @@ a.note-add-card:hover {
 	width: 100%;
 	margin: 0;
 	padding: 0;
+}
+
+.card_wrap	{
+	padding: 15px;
 }
