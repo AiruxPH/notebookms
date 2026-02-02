@@ -174,15 +174,18 @@ if (isset($_SESSION['flash'])) {
 					<input type="hidden" name="is_archived" id="is_archived_input"
 						value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
 
-					<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
-						style="flex-grow: 1; resize: none; overflow: hidden; min-height: 40px; height: auto;"
-						oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
+					<div class="title-container" style="flex-grow: 1;">
+						<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
+							style="width: 100%; resize: none; overflow: hidden; min-height: 40px; height: auto;"
+							oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
+						<span id="title-char-counter" class="title-char-counter">0/100</span>
+					</div>
 				</div>
 
 				<!-- Stats Bar Below Title -->
 				<div class="editor-stats-bar">
 					<span id="word-count-top">0</span> words |
-					<span id="char-count-top">0</span> / 100 characters in title |
+					<span id="body-char-count">0</span> characters |
 					<?php if ($date_last_display): ?>
 						Last Modified: <?php echo $date_last_display; ?>
 					<?php else: ?>
@@ -243,13 +246,23 @@ if (isset($_SESSION['flash'])) {
 		const editor = document.getElementById('editor');
 		const hiddenInput = document.getElementById('page_content');
 		const wordCountTop = document.getElementById('word-count-top');
-		const charCountTop = document.getElementById('char-count-top');
+		const bodyCharCount = document.getElementById('body-char-count');
+		const charCountTitle = document.getElementById('title-char-counter');
 		const titleInput = document.querySelector('textarea[name="new_title"]');
 		const form = document.querySelector('form');
 
 		// Initial Auto-grow for title
 		if (titleInput) {
 			titleInput.style.height = titleInput.scrollHeight + 'px';
+		}
+
+		// Prevent Enter key in title
+		if (titleInput) {
+			titleInput.addEventListener('keydown', function (e) {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+				}
+			});
 		}
 
 		// Toolbar Action
@@ -303,9 +316,10 @@ if (isset($_SESSION['flash'])) {
 			const words = text.trim().split(/\s+/).filter(word => word.length > 0);
 
 			if (wordCountTop) wordCountTop.textContent = words.length;
+			if (bodyCharCount) bodyCharCount.textContent = text.length;
 
 			if (titleInput) {
-				if (charCountTop) charCountTop.textContent = titleInput.value.length;
+				if (charCountTitle) charCountTitle.textContent = titleInput.value.length + "/100";
 			}
 
 			// Sync to hidden input on every change (or at least on submit)

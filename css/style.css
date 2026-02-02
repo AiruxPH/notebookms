@@ -181,6 +181,22 @@ a.note-add-card:hover {
 	line-height: 1.2;
 }
 
+.title-container {
+	position: relative;
+	display: flex;
+}
+
+.title-char-counter {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	font-size: 11px;
+	font-weight: normal;
+	color: #999;
+	font-family: Arial, sans-serif;
+	pointer-events: none;
+}
+
 .editor-stats-bar {
 	font-size: 13px;
 	color: #666;
