@@ -120,11 +120,12 @@ if (isset($_GET['id'])) {
 	window.totalPages = <?php echo $total_pages; ?>;
 </script>
 
+<?php
 // Check for Flash Message
 if (isset($_SESSION['flash'])) {
-$msg = $_SESSION['flash']['message'];
-$msg_type = $_SESSION['flash']['type'];
-unset($_SESSION['flash']);
+	$msg = $_SESSION['flash']['message'];
+	$msg_type = $_SESSION['flash']['type'];
+	unset($_SESSION['flash']);
 }
 ?>
 <!DOCTYPE html>
