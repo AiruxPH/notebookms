@@ -227,21 +227,43 @@ function save_note($data)
 
         $id = !empty($data['id']) ? $data['id'] : 'guest_' . uniqid();
         $created = date('Y-m-d H:i:s');
+
+        // Initialize or Retrieve Existing Pages
+        $existing_pages = [];
+        $existing_text = "";
+
         if (isset($_SESSION['guest_notes'][$id])) {
             $created = $_SESSION['guest_notes'][$id]['date_created'];
+            $existing_pages = $_SESSION['guest_notes'][$id]['pages'] ?? [];
+            $existing_text = $_SESSION['guest_notes'][$id]['text'] ?? "";
+
+            // Migration: if pages empty but text exists, put text in page 1
+            if (empty($existing_pages) && !empty($existing_text)) {
+                $existing_pages[1] = $existing_text;
+            }
         }
 
-        // Handle Guest Pages (Basic implementation for now)
-        // If guest adds page, we store it in a 'pages' array?
-        // Current guest impl only has 'text'.
-        // For now, Guest only supports Page 1 to avoid complexity unless user insists.
+        // Update This Page
+        $existing_pages[$page_number] = $text;
+
+        // Update Text (Page 1) for compatibility
+        if ($page_number == 1) {
+            $existing_text = $text;
+        } else {
+            // If we are saving page 2, make sure page 1 text is preserved in 'text' field
+            // If $existing_text is empty but we have pages[1], use that
+            if (empty($existing_text) && isset($existing_pages[1])) {
+                $existing_text = $existing_pages[1];
+            }
+        }
 
         $note_obj = [
             'id' => $id,
             'user_id' => 0,
             'title' => $title,
-            'category' => $category_val, // For guest, keeping as string name
-            'text' => $text, // Guest only Page 1 ??
+            'category' => $category_val,
+            'text' => $existing_text,
+            'pages' => $existing_pages,
             'is_pinned' => $is_pinned,
             'is_archived' => $is_archived,
             'reminder_date' => $reminder_date,

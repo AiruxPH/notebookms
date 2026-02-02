@@ -46,10 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			'page_number' => $_POST['page_number'] ?? 1
 		];
 
-		// DEBUG LOGGING
-		// DEBUG LOGGING (Absolute Path)
-		$log_file = 'C:/Users/ASUS/Documents/notebookms/notebookms/debug_log.txt';
-		file_put_contents($log_file, date('Y-m-d H:i:s') . " - Saving Note: ID=" . $save_data['id'] . ", Page=" . $save_data['page_number'] . ", POST_PAGE=" . ($_POST['page_number'] ?? 'NULL') . "\n", FILE_APPEND);
+
 
 		// SAVE
 		$saved_id = save_note($save_data);
@@ -59,24 +56,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$current_page = $save_data['page_number'];
 
 			// Redirect logic
-			// if (isset($_POST['save_exit'])) {
-			// 	$_SESSION['flash'] = ['message' => "Note saved.", 'type' => 'success'];
-			// 	header("Location: index.php");
-			// 	exit();
-			// }
+			// Redirect logic
+			if (isset($_POST['save_exit'])) {
+				$_SESSION['flash'] = ['message' => "Note saved.", 'type' => 'success'];
+				header("Location: index.php");
+				exit();
+			}
 
-			// DEBUG MODE: NO REDIRECT
-			// if (isset($_POST['action_type']) && $_POST['action_type'] == 'archive_redirect') {
-			// 	// ...
-			// }
+			if (isset($_POST['action_type']) && $_POST['action_type'] == 'archive_redirect') {
+				$action_msg = $save_data['is_archived'] ? "Note Archived" : "Note Unarchived";
+				$_SESSION['flash'] = ['message' => $action_msg, 'type' => 'success'];
+				header("Location: index.php");
+				exit();
+			}
 
-			// PRG DISABLED FOR DEBUGGING
-			// $_SESSION['flash'] = ['message' => "Note saved successfully!", 'type' => 'success'];
-			// header("Location: notepad.php?id=$nid&page=$current_page&mode=edit");
-			// exit();
-
-			$msg = "DEBUG MODE: Saved ID=$saved_id. Posted Page=" . ($_POST['page_number'] ?? 'MISSING');
-			$msg_type = "success";
+			// PRG: Redirect to self to show saved state and avoid resubmission
+			$_SESSION['flash'] = ['message' => "Note saved successfully!", 'type' => 'success'];
+			header("Location: notepad.php?id=$nid&page=$current_page&mode=edit");
+			exit();
 
 		} else {
 			$msg = "Error saving note.";
@@ -138,8 +135,7 @@ if (isset($_SESSION['flash'])) {
 
 	<header>
 		<div class="header-inner">
-			<h1><a href="dashboard.php">Notebook-BAR</a> <small style="font-size: 12px; color: #555;">(Page:
-					<?php echo $current_page; ?>)</small></h1>
+			<h1><a href="dashboard.php">Notebook-BAR</a></h1>
 			<nav>
 				<a href="dashboard.php">Dashboard</a>
 				<a href="index.php">Notes</a>
@@ -325,9 +321,7 @@ if (isset($_SESSION['flash'])) {
 					<input type="hidden" name="is_archived" id="is_archived_input"
 						value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
 
-					<div style="background:red; color:white; padding:5px; font-weight:bold;">
-						DEBUG PAGE: <input type="text" name="page_number" value="<?php echo $current_page; ?>">
-					</div>
+					<input type="hidden" name="page_number" value="<?php echo $current_page; ?>">
 
 					<div class="editor-div" id="editor" contenteditable="true">
 						<?php echo $content; ?>
