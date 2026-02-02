@@ -74,3 +74,8 @@ FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
 -- Step E: Drop the old string column
 ALTER TABLE `notes` DROP COLUMN `category`;
 
+
+-- 5. Add 'security_word' and 'security_word_set' columns to 'users' table
+-- (Required for Forgot Password feature)
+ALTER TABLE users ADD COLUMN security_word VARCHAR(255) DEFAULT NULL AFTER date_modified;
+ALTER TABLE users ADD COLUMN security_word_set TINYINT(1) NOT NULL DEFAULT 0 AFTER security_word;
