@@ -220,11 +220,13 @@ session_start();
 
 			echo "<a href='notepad.php?id=$nid' class='note-card'>";
 			echo "<div class='category_streak' style='background-color: $bg_color;'><br></div>";
+			echo "<div class='card_wrap'>";
 			echo "<div class='note-title'>$pin_icon" . $title . "</div>";
 			echo "<div class='note-meta'>$category &bull; $date_last</div>";
 			echo "<div class='note-preview'>$dtxt</div>";
 			echo "<div class='note-footer'>";
 			echo "<span>Created: $date_created</span>";
+			echo "</div>";
 			echo "</div>";
 			echo "</a>";
 		}
