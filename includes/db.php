@@ -3,6 +3,8 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
+date_default_timezone_set('Asia/Manila');
+
 $servername = "srv1858.hstgr.io";
 $username = "u130348899_nbmstest";
 $password = "Note999@";
@@ -15,6 +17,8 @@ $conn = mysqli_connect($servername, $username, $password, $dbname);
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
+
+mysqli_query($conn, "SET time_zone = '+08:00'");
 
 // Authentication Check
 // If script is NOT login.php or register.php, we just start session. 
