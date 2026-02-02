@@ -192,7 +192,8 @@ if (isset($_SESSION['flash'])) {
 								style="margin: 0; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">
 								<?php echo htmlspecialchars($ntitle); ?>
 							</h1>
-							<div style="font-size: 13px; color: #666; margin-top: 5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+							<div
+								style="font-size: 13px; color: #666; margin-top: 5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
 								<span style="background: #eee; padding: 2px 6px; border-radius: 4px;">
 									<?php
 									$cat_name = "General";
@@ -205,14 +206,16 @@ if (isset($_SESSION['flash'])) {
 									echo htmlspecialchars($cat_name);
 									?>
 								</span>
-                                
-                                <span style="color: #888;" title="Created Date">
-                                    <i class="fa-solid fa-calendar-plus"></i> <?php echo date("M j, Y", strtotime($date_created)); ?>
-                                </span>
 
-                                <span style="color: #888;" title="Last Updated">
-                                    <i class="fa-solid fa-clock-rotate-left"></i> <?php echo date("M j, g:i A", strtotime($date_last)); ?>
-                                </span>
+								<span style="color: #888;" title="Created Date">
+									<i class="fa-solid fa-calendar-plus"></i>
+									<?php echo date("M j, Y", strtotime($date_created)); ?>
+								</span>
+
+								<span style="color: #888;" title="Last Updated">
+									<i class="fa-solid fa-clock-rotate-left"></i>
+									<?php echo date("M j, g:i A", strtotime($date_last)); ?>
+								</span>
 
 								<?php if ($reminder_date_val): ?>
 									<span style="color: #c62828;"><i class="fa-regular fa-clock"></i>
@@ -223,10 +226,11 @@ if (isset($_SESSION['flash'])) {
 
 						<!-- Right: Pin & Archive Icons -->
 						<div style="display: flex; gap: 15px; align-items: center;">
-                            <label class="pin-label" style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 14px; color: #555;">
-                                <input type="checkbox" id="view-pin-checkbox" onchange="togglePin(this.checked)" <?php echo $is_pinned_val ? 'checked' : ''; ?>>
-                                <i class="fa-solid fa-thumbtack"></i> Pin
-                            </label>
+							<label class="pin-label"
+								style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 14px; color: #555;">
+								<input type="checkbox" id="view-pin-checkbox" onchange="togglePin(this.checked)" <?php echo $is_pinned_val ? 'checked' : ''; ?>>
+								<i class="fa-solid fa-thumbtack"></i> Pin
+							</label>
 							<?php if ($is_archived_val): ?>
 								<span title="Archived" style="font-size: 18px; color: #888;"><i
 										class="fa-solid fa-box-archive"></i></span>
@@ -244,12 +248,13 @@ if (isset($_SESSION['flash'])) {
 							<div class="pagination-bar"
 								style="background: #f0f0f0; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px;">
 
-								<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first-v" title="First Page">
+								<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first-v"
+									title="First Page">
 									<i class="fa-solid fa-backward-step"></i>
 								</button>
 
-								<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn" id="btn-prev-v"
-									title="Previous Page">
+								<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn"
+									id="btn-prev-v" title="Previous Page">
 									<i class="fa-solid fa-chevron-left"></i> Prev
 								</button>
 
@@ -261,8 +266,8 @@ if (isset($_SESSION['flash'])) {
 									of <span id="total-pages-display-v"><?php echo $total_pages; ?></span>
 								</span>
 
-								<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn" id="btn-next-v"
-									title="Next Page">
+								<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn"
+									id="btn-next-v" title="Next Page">
 									Next <i class="fa-solid fa-chevron-right"></i>
 								</button>
 
@@ -507,153 +512,156 @@ if (isset($_SESSION['flash'])) {
 			// Sync on blur too just in case
 			editor.addEventListener('blur', syncCurrentPage);
 		}
-        const viewContent = document.getElementById('view-content');
+		const viewContent = document.getElementById('view-content');
 
 		// ===============================
 		// CORE LOGIC
 		// ===============================
-        
-        function syncCurrentPage() {
-            // Edit Mode Sync
-            if (editor) {
-                allPages[currentPage] = editor.innerHTML;
-                if(hiddenInput) hiddenInput.value = editor.innerHTML;
-            }
-        }
 
-        function goToPage(pageNum) {
-            // 1. Sync current page before leaving (if editing)
-            syncCurrentPage();
-            
-            // Validate
-            if (pageNum < 1 || pageNum > totalPages) return;
+		function syncCurrentPage() {
+			// Edit Mode Sync
+			if (editor) {
+				allPages[currentPage] = editor.innerHTML;
+				if (hiddenInput) hiddenInput.value = editor.innerHTML;
+			}
+		}
 
-            // 2. Switch State
-            currentPage = pageNum;
-            
-            // 3. Render New Content
-            if (allPages[currentPage] === undefined) {
-                allPages[currentPage] = "";
-            }
-            
-            if (editor) {
-                editor.innerHTML = allPages[currentPage];
-            } else if (viewContent) {
-                viewContent.innerHTML = allPages[currentPage];
-            }
+		function goToPage(pageNum) {
+			// 1. Sync current page before leaving (if editing)
+			syncCurrentPage();
 
-            // 4. Update UI
-            updateUI();
-        }
+			// Validate
+			if (pageNum < 1 || pageNum > totalPages) return;
 
-        function addNewPage() {
+			// 2. Switch State
+			currentPage = pageNum;
+			window.currentPage = pageNum; // Sync for global use (onclick)
+
+			// 3. Render New Content
+			if (allPages[currentPage] === undefined) {
+				allPages[currentPage] = "";
+			}
+
+			if (editor) {
+				editor.innerHTML = allPages[currentPage];
+			} else if (viewContent) {
+				viewContent.innerHTML = allPages[currentPage];
+			}
+
+			// 4. Update UI
+			updateUI();
+		}
+
+		        function addNewPage() {
             if (!editor) return; // Only in edit mode
             syncCurrentPage();
             totalPages++;
+            window.totalPages = totalPages;
             currentPage = totalPages;
+            window.currentPage = totalPages;
             allPages[currentPage] = ""; // Init empty
             editor.innerHTML = "";
             updateUI();
         }
 
-        function updateUI() {
-            // Edit Mode UI
-            const jumpInput = document.getElementById('jump-page-input');
-            const totalDisplay = document.getElementById('total-pages-display');
-            if (jumpInput) jumpInput.value = currentPage;
-            if (totalDisplay) totalDisplay.innerText = totalPages;
-            
-            // View Mode UI
-            const jumpInputV = document.getElementById('jump-page-input-v');
-            const totalDisplayV = document.getElementById('total-pages-display-v');
-            if (jumpInputV) jumpInputV.value = currentPage;
-            if (totalDisplayV) totalDisplayV.innerText = totalPages;
+		function updateUI() {
+			// Edit Mode UI
+			const jumpInput = document.getElementById('jump-page-input');
+			const totalDisplay = document.getElementById('total-pages-display');
+			if (jumpInput) jumpInput.value = currentPage;
+			if (totalDisplay) totalDisplay.innerText = totalPages;
 
-            updateCharCount();
-        }
+			// View Mode UI
+			const jumpInputV = document.getElementById('jump-page-input-v');
+			const totalDisplayV = document.getElementById('total-pages-display-v');
+			if (jumpInputV) jumpInputV.value = currentPage;
+			if (totalDisplayV) totalDisplayV.innerText = totalPages;
 
-        // ===============================
+			updateCharCount();
+		}
+
+		// ===============================
 		// CONSTRAINTS & FORMATTING
 		// ===============================
-        
-        function handleInput(e) {
-            syncCurrentPage();
-            updateCharCount();
-        }
-        
-        function updateCharCount() {
-            if (!editor) return;
-            // 1. Body Count
-            const text = editor.innerText || "";
-            const wordCountTop = document.getElementById('word-count-top');
-            const bodyCharCount = document.getElementById('body-char-count');
-            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-            
-            if (wordCountTop) wordCountTop.innerText = (text.trim() === "") ? 0 : words.length;
-            
-            if (bodyCharCount) {
-                bodyCharCount.innerText = text.length;
-                if (text.length > MAX_CHARS) {
-                    bodyCharCount.style.color = 'red';
-                    bodyCharCount.style.fontWeight = 'bold';
-                } else {
-                    bodyCharCount.style.color = '#777';
-                    bodyCharCount.style.fontWeight = 'normal';
-                }
-            }
-            
-            // 2. Title Count
-            const titleInput = document.querySelector('textarea[name="new_title"]');
-            const titleCounter = document.getElementById('title-char-counter');
-            if (titleInput && titleCounter) {
-                titleCounter.innerText = titleInput.value.length + "/100";
-            }
-        }
 
-        function handleKeyDown(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                document.execCommand('insertText', false, '    ');
-            }
-            const text = editor.innerText || "";
-            const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'];
-            if (text.length >= MAX_CHARS && !allowed.includes(e.key) && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
-                 e.preventDefault();
-            }
-        }
+		function handleInput(e) {
+			syncCurrentPage();
+			updateCharCount();
+		}
 
-        function togglePin(isPinned) {
-            // Update hidden input if it exists (not strictly needed since we submit immediately)
-            // But we need to make sure the form is ready.
-            const pinInput = document.querySelector('input[name="is_pinned"]');
-            
-            // If we are in view mode, we might not have the pin checkbox in the main form.
-            // Let's create an ad-hoc submission or use the existing fabric logic.
-            
-            // The main form handles save. We want an instant save for pin.
-            if (form) {
-                // Ensure the is_pinned checkbox in the FORM matches the View Mode checkbox
-                // Actually, the view mode checkbox isn't inside the form (or is it? No, it's outside in my current replace).
-                // Let's check the form structure.
-                
-                // If it's outside the form, we can just submit a special action.
-                document.getElementById('action_type').value = 'save_redirect'; // Stay on page
-                
-                // Create or update a hidden input in the form
-                let hiddenPin = form.querySelector('input[name="is_pinned"][type="hidden"]');
-                if(!hiddenPin) {
-                    hiddenPin = document.createElement('input');
-                    hiddenPin.type = 'hidden';
-                    hiddenPin.name = 'is_pinned';
-                    form.appendChild(hiddenPin);
-                }
-                hiddenPin.value = isPinned ? "1" : "0";
-                
-                form.submit();
-            }
-        }
+		function updateCharCount() {
+			if (!editor) return;
+			// 1. Body Count
+			const text = editor.innerText || "";
+			const wordCountTop = document.getElementById('word-count-top');
+			const bodyCharCount = document.getElementById('body-char-count');
+			const words = text.trim().split(/\s+/).filter(word => word.length > 0);
 
-        // ===============================
+			if (wordCountTop) wordCountTop.innerText = (text.trim() === "") ? 0 : words.length;
+
+			if (bodyCharCount) {
+				bodyCharCount.innerText = text.length;
+				if (text.length > MAX_CHARS) {
+					bodyCharCount.style.color = 'red';
+					bodyCharCount.style.fontWeight = 'bold';
+				} else {
+					bodyCharCount.style.color = '#777';
+					bodyCharCount.style.fontWeight = 'normal';
+				}
+			}
+
+			// 2. Title Count
+			const titleInput = document.querySelector('textarea[name="new_title"]');
+			const titleCounter = document.getElementById('title-char-counter');
+			if (titleInput && titleCounter) {
+				titleCounter.innerText = titleInput.value.length + "/100";
+			}
+		}
+
+		function handleKeyDown(e) {
+			if (e.key === 'Tab') {
+				e.preventDefault();
+				document.execCommand('insertText', false, '    ');
+			}
+			const text = editor.innerText || "";
+			const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'];
+			if (text.length >= MAX_CHARS && !allowed.includes(e.key) && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
+				e.preventDefault();
+			}
+		}
+
+		function togglePin(isPinned) {
+			// Update hidden input if it exists (not strictly needed since we submit immediately)
+			// But we need to make sure the form is ready.
+			const pinInput = document.querySelector('input[name="is_pinned"]');
+
+			// If we are in view mode, we might not have the pin checkbox in the main form.
+			// Let's create an ad-hoc submission or use the existing fabric logic.
+
+			// The main form handles save. We want an instant save for pin.
+			if (form) {
+				// Ensure the is_pinned checkbox in the FORM matches the View Mode checkbox
+				// Actually, the view mode checkbox isn't inside the form (or is it? No, it's outside in my current replace).
+				// Let's check the form structure.
+
+				// If it's outside the form, we can just submit a special action.
+				document.getElementById('action_type').value = 'save_redirect'; // Stay on page
+
+				// Create or update a hidden input in the form
+				let hiddenPin = form.querySelector('input[name="is_pinned"][type="hidden"]');
+				if (!hiddenPin) {
+					hiddenPin = document.createElement('input');
+					hiddenPin.type = 'hidden';
+					hiddenPin.name = 'is_pinned';
+					form.appendChild(hiddenPin);
+				}
+				hiddenPin.value = isPinned ? "1" : "0";
+
+				form.submit();
+			}
+		}
+
+		// ===============================
 		// SAVING & FORMS
 		// ===============================
 

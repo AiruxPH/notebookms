@@ -114,9 +114,21 @@
 						</div>
 
 						<div style="background: #fff; padding: 15px; border: 1px solid #eee;">
-							<strong>✨ Rich Text Lite</strong>
-							<p style="font-size: 13px; color: #666; margin-top: 5px; margin-bottom: 0;">Basic formatting
-								tools for emphasis and readability.</p>
+							<strong>⚡ Instant Pagination</strong>
+							<p style="font-size: 13px; color: #666; margin-top: 5px; margin-bottom: 0;">Multi-page
+								navigation is now instant. Flip through notes without waiting for page reloads.</p>
+						</div>
+
+						<div style="background: #fff; padding: 15px; border: 1px solid #eee;">
+							<strong>💾 Bulk Page Saving</strong>
+							<p style="font-size: 13px; color: #666; margin-top: 5px; margin-bottom: 0;">Edit multiple
+								pages and save them all at once with a single click.</p>
+						</div>
+
+						<div style="background: #fff; padding: 15px; border: 1px solid #eee;">
+							<strong>⌨️ Developer Shortcuts</strong>
+							<p style="font-size: 13px; color: #666; margin-top: 5px; margin-bottom: 0;">Tab key support
+								for indentation and 1,800-character limits per page.</p>
 						</div>
 
 					</div>
