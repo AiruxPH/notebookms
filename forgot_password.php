@@ -17,6 +17,17 @@ if (isset($_SESSION['reset_verified']) && $_SESSION['reset_verified'] === true) 
     $step = 3;
 }
 
+// SUPER DEBUG: Check Table Structure
+if (isset($_GET['debug_schema'])) {
+    $res = mysqli_query($conn, "DESCRIBE users");
+    echo "<pre>";
+    while ($r = mysqli_fetch_assoc($res)) {
+        print_r($r);
+    }
+    echo "</pre>";
+    exit;
+}
+
 // Handle Form Posts
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
