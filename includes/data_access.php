@@ -276,6 +276,34 @@ function migrate_guest_data_to_db($user_id)
     global $conn;
 
     if (isset($_SESSION['guest_notes']) && !empty($_SESSION['guest_notes'])) {
+
+        // 1. Migrate Custom Categories First
+        $cat_map = []; // Maps guest_id (e.g., 'g_0') => new db_id
+
+        if (isset($_SESSION['guest_cats']) && !empty($_SESSION['guest_cats'])) {
+            foreach ($_SESSION['guest_cats'] as $idx => $gc) {
+                $name = mysqli_real_escape_string($conn, $gc['name']);
+                $color = mysqli_real_escape_string($conn, $gc['color']);
+
+                // Check duplicate to avoid error, though user just created logic guarantees unique in session
+                // We check against DB just in case they have same name as existing DB category
+                $check = mysqli_query($conn, "SELECT id FROM categories WHERE user_id=$user_id AND name='$name'");
+                if ($row = mysqli_fetch_assoc($check)) {
+                    // Use existing
+                    $cat_map['g_' . $idx] = $row['id'];
+                } else {
+                    // Create new
+                    $sql = "INSERT INTO categories (user_id, name, color) VALUES ($user_id, '$name', '$color')";
+                    if (mysqli_query($conn, $sql)) {
+                        $cat_map['g_' . $idx] = mysqli_insert_id($conn);
+                    }
+                }
+            }
+            // Clear guest cats
+            unset($_SESSION['guest_cats']);
+        }
+
+        // 2. Migrate Notes
         foreach ($_SESSION['guest_notes'] as $note) {
             // Mapping Guest Category ID to valid DB Category ID
             $guest_cat = $note['category'];
@@ -284,15 +312,15 @@ function migrate_guest_data_to_db($user_id)
             if (is_numeric($guest_cat) && $guest_cat <= 5) {
                 // It's a default category, safe to use directly
                 $final_cat_id = $guest_cat;
+            } elseif (isset($cat_map[$guest_cat])) {
+                // It's a mapped custom category
+                $final_cat_id = $cat_map[$guest_cat];
             } else {
-                // It's a custom guest category. We need to create it for the user or map it.
-                // For simplicity in this iteration, if we can't map it, we dump to General.
-                // TODO: Implement migration of custom guest categories
+                // Fallback to General if mapping failed or unknown
                 $final_cat_id = 1;
             }
 
             // Insert into DB
-            // FIXED: Added reminder_date mapping
             $reminder_date = isset($note['reminder_date']) ? $note['reminder_date'] : null;
 
             $stmt = $conn->prepare("INSERT INTO notes (user_id, title, category_id, is_pinned, is_archived, reminder_date, date_created, date_last) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
