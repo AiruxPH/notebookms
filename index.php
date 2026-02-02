@@ -1,10 +1,11 @@
+<?php
 include 'includes/data_access.php';
 session_start();
 
 // Access Control: Redirect Admin to Admin Dashboard
 if (is_admin()) {
-header("Location: admin/dashboard.php");
-exit();
+	header("Location: admin/dashboard.php");
+	exit();
 }
 ?>
 <!DOCTYPE html>
