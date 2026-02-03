@@ -24,9 +24,10 @@ II. Note & Workspace Management
    - Dynamic page switching via JavaScript (No reloads required).
    - "Jump to Page" numerical input.
    - Navigation shortcuts: First, Previous, Next, Last page buttons.
+   - **Page Deletion**: Securely remove specific pages with automatic re-indexing.
 7. Advanced Organization
    - Note Pinning: Toggle important notes to the top of the grid.
-   - Auto-Save Pinning: Instant status update when toggled in View Mode.
+   - Auto-Save Pinning: Instant status update when toggled in View Mode via intuitive buttons.
    - Archiving: Temporary removal from dashboard without deletion.
    - Persistent Trash System: Manage archived notes separately.
 8. Color-Coded Categorization
@@ -61,9 +62,21 @@ IV. UI/UX & Responsive Design
     - Floating Action Buttons (FABs): Sticky navigation for primary actions (Save, Edit, Archive).
     - Flexible Note Grid: Masonry-style layout that adapts to screen width.
 15. Enhanced Visual Feedback
-    - Flash Toast Messages: Smooth sliding notifications for successes and errors.
+    - Flash Toast Messages: Smooth sliding notifications for successes, errors, and pinning actions.
     - Collapsible Widgets: Minimizeable Developer Announcements.
     - Typewriter Aesthetic: Classic 'Courier New' typography for a focus-oriented feel.
 16. Integrated Reminders
     - DateTime Local Input: Set specific deadlines/reminders per note.
     - Dashboard Badge: ⏰ Visual indicators for notes with active reminders.
+
+V. Advanced User Management
+17. Dedicated Profile Management
+    - **2-Column Layout**: Renovated responsive design with sidebar stats (Member Date, Note Count) and main settings area.
+    - **Real-Time Username Updates**: Change username with live AJAX availability checking.
+    - **Security & Privacy**: Forms to securely update password and security recovery word.
+
+VI. Enhanced Navigation & Layout
+18. Clean & Simple Navigation
+    - **Simplified Navbar**: Reverted to clean, text-based navigation for a clutter-free, distraction-less experience.
+    - **Active Page Highlighting**: Visual indicators for the current page status.
+    - **Context-Aware Controls**: Pin/Unpin toggles restricted to View Mode to prevent accidental edits.
