@@ -239,11 +239,12 @@ if (isset($_SESSION['flash'])) {
 
 						<!-- Right: Pin & Archive Icons -->
 						<div style="display: flex; gap: 15px; align-items: center;">
-							<label class="pin-label"
-								style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 14px; color: #555;">
-								<input type="checkbox" id="view-pin-checkbox" onchange="togglePin(this.checked)" <?php echo $is_pinned_val ? 'checked' : ''; ?>>
-								<i class="fa-solid fa-thumbtack"></i> Pin
-							</label>
+							<button type="button" id="pin-toggle-btn" class="btn btn-sm"
+								style="display: flex; align-items: center; gap: 5px; background: <?php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <?php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <?php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 13px;"
+								onclick="togglePin(!<?php echo $is_pinned_val; ?>)">
+								<i class="fa-solid fa-thumbtack"></i>
+								<span id="pin-text"><?php echo $is_pinned_val ? 'Unpin' : 'Pin'; ?></span>
+							</button>
 							<?php if ($is_archived_val): ?>
 								<span title="Archived" style="font-size: 18px; color: #888;"><i
 										class="fa-solid fa-box-archive"></i></span>
@@ -342,11 +343,18 @@ if (isset($_SESSION['flash'])) {
 							?>
 						</select>
 
-						<div style="margin-left: auto; display: flex; align-items: center; gap: 5px;">
-							<label><i class="fa-regular fa-clock"></i></label>
-							<input type="datetime-local" name="reminder_date"
-								value="<?php echo $reminder_date_val ? date('Y-m-d\TH:i', strtotime($reminder_date_val)) : ''; ?>"
-								style="font-size: 13px;">
+						<div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+							<button type="button" id="edit-pin-toggle" class="btn btn-sm"
+								style="display: flex; align-items: center; gap: 5px; background: <?php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <?php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <?php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; padding: 4px 8px;"
+								onclick="togglePinUI()">
+								<i class="fa-solid fa-thumbtack"></i> <span>Pin</span>
+							</button>
+							<div style="display: flex; align-items: center; gap: 5px;">
+								<label><i class="fa-regular fa-clock"></i></label>
+								<input type="datetime-local" name="reminder_date"
+									value="<?php echo $reminder_date_val ? date('Y-m-d\TH:i', strtotime($reminder_date_val)) : ''; ?>"
+									style="font-size: 13px;">
+							</div>
 						</div>
 					</div>
 
@@ -691,34 +699,33 @@ if (isset($_SESSION['flash'])) {
 		}
 
 		function togglePin(isPinned) {
-			// Update hidden input if it exists (not strictly needed since we submit immediately)
-			// But we need to make sure the form is ready.
-			const pinInput = document.querySelector('input[name="is_pinned"]');
+			const pinInput = document.getElementById('is_pinned_input');
+			if (pinInput) pinInput.value = isPinned ? "1" : "0";
 
-			// If we are in view mode, we might not have the pin checkbox in the main form.
-			// Let's create an ad-hoc submission or use the existing fabric logic.
+			// Stay on page and save
+			document.getElementById('action_type').value = 'save_redirect';
 
-			// The main form handles save. We want an instant save for pin.
-			if (form) {
-				// Ensure the is_pinned checkbox in the FORM matches the View Mode checkbox
-				// Actually, the view mode checkbox isn't inside the form (or is it? No, it's outside in my current replace).
-				// Let's check the form structure.
+			// Show toast before submitting (mostly for View mode where it reloads fast)
+			// Actually session-based flash is better for refresh-based actions
+			form.submit();
+		}
 
-				// If it's outside the form, we can just submit a special action.
-				document.getElementById('action_type').value = 'save_redirect'; // Stay on page
+		function togglePinUI() {
+			const pinInput = document.getElementById('is_pinned_input');
+			const pinBtn = document.getElementById('edit-pin-toggle');
+			const isCurrentlyPinned = pinInput.value === "1";
+			const newState = !isCurrentlyPinned;
 
-				// Create or update a hidden input in the form
-				let hiddenPin = form.querySelector('input[name="is_pinned"][type="hidden"]');
-				if (!hiddenPin) {
-					hiddenPin = document.createElement('input');
-					hiddenPin.type = 'hidden';
-					hiddenPin.name = 'is_pinned';
-					form.appendChild(hiddenPin);
-				}
-				hiddenPin.value = isPinned ? "1" : "0";
+			pinInput.value = newState ? "1" : "0";
 
-				form.submit();
+			// Update button look
+			if (pinBtn) {
+				pinBtn.style.background = newState ? '#f9a825' : '#f5f5f5';
+				pinBtn.style.color = newState ? '#fff' : '#555';
+				pinBtn.style.borderColor = newState ? '#f9a825' : '#ccc';
 			}
+
+			showToast(newState ? "Note pinned!" : "Note unpinned!", "success");
 		}
 
 		// ===============================
