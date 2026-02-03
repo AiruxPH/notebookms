@@ -37,6 +37,10 @@ CSIT601 preliminary exam requirement
 ## Notes
 ### Add a "delete permanent" button for archived notes (done)
 ### Added a "page" feature to notes, allowing users to have multiple pages per note (done)
+### Added data migration feature to transfer notes and categories between users (done)
+### Added user management feature to manage users, including user status/role toggling, deletion, and data migration (done)
+
+
 
 ## Editors
 **Verne Mhel N. Calledo**
