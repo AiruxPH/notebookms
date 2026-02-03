@@ -989,7 +989,7 @@ function get_user_by_username($username)
 {
     global $conn;
     $username = mysqli_real_escape_string($conn, $username);
-    $result = mysqli_query($conn, "SELECT id, username, role FROM users WHERE username = '$username' LIMIT 1");
+    $result = mysqli_query($conn, "SELECT * FROM users WHERE username = '$username' LIMIT 1");
     return mysqli_fetch_assoc($result);
 }
 

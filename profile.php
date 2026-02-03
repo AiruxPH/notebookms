@@ -257,7 +257,7 @@ if (isset($_SESSION['flash'])) {
                         <div class="stat-label">Notes</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value"><?php echo date("Y"); ?></div>
+                        <div class="stat-value"><?php echo date("Y", strtotime($user['date_created'])); ?></div>
                         <div class="stat-label">Since</div>
                     </div>
                 </div>
