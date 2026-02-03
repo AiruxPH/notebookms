@@ -39,6 +39,7 @@ CSIT601 preliminary exam requirement
 ### Added a "page" feature to notes, allowing users to have multiple pages per note (done)
 ### Added data migration feature to transfer notes and categories between users (done)
 ### Added user management feature to manage users, including user status/role toggling, deletion, and data migration (done)
+### Added profile page for password and security word management (done)
 
 
 
