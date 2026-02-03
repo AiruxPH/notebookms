@@ -179,6 +179,8 @@ if (isset($_SESSION['flash'])) {
 				<input type="hidden" name="note_id" value="<?php echo htmlspecialchars($nid); ?>">
 				<input type="hidden" name="is_archived" id="is_archived_input"
 					value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
+				<input type="hidden" name="is_pinned" id="is_pinned_input"
+					value="<?php echo isset($is_pinned_val) ? $is_pinned_val : 0; ?>">
 				<input type="hidden" name="page_number" value="<?php echo $current_page; ?>">
 				<input type="hidden" name="page" id="page_content" value="<?php echo htmlspecialchars($content); ?>">
 
@@ -414,7 +416,8 @@ if (isset($_SESSION['flash'])) {
 							</button>
 
 							<!-- Delete Page -->
-							<button type="button" onclick="deletePage()" class="page-btn delete-page-btn" id="btn-delete-page" title="Delete Current Page" 
+							<button type="button" onclick="deletePage()" class="page-btn delete-page-btn" id="btn-delete-page"
+								title="Delete Current Page"
 								style="margin-left: 5px; display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>;">
 								<i class="fa-solid fa-trash-can"></i>
 							</button>
@@ -594,7 +597,7 @@ if (isset($_SESSION['flash'])) {
 			}
 			// 2. Remove the last entry
 			delete allPages[totalPages];
-			
+
 			// 3. Update total
 			totalPages--;
 			window.totalPages = totalPages;
@@ -607,7 +610,7 @@ if (isset($_SESSION['flash'])) {
 
 			// 5. Render
 			editor.innerHTML = allPages[currentPage] || "";
-			
+
 			// 6. Update UI (hides controls if now 1 page)
 			updateUI();
 		}
@@ -617,7 +620,7 @@ if (isset($_SESSION['flash'])) {
 			const viewBar = document.getElementById('view-pagination-bar');
 			const editControls = document.getElementById('pagination-controls');
 			const deleteBtn = document.getElementById('btn-delete-page');
-			
+
 			if (viewBar) viewBar.style.display = (totalPages > 1) ? 'flex' : 'none';
 			if (editControls) editControls.style.display = (totalPages > 1) ? 'flex' : 'none';
 			if (deleteBtn) deleteBtn.style.display = (totalPages > 1) ? 'flex' : 'none';
