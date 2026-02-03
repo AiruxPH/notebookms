@@ -908,6 +908,32 @@ function update_password($username, $new_password)
 }
 
 /**
+ * Update Username
+ */
+function update_username($user_id, $new_username)
+{
+    global $conn;
+    $uid = intval($user_id);
+    $username = mysqli_real_escape_string($conn, trim($new_username));
+
+    // Check availability first (redundant safe-check)
+    $check = mysqli_query($conn, "SELECT id FROM users WHERE username='$username' AND id != $uid");
+    if (mysqli_num_rows($check) > 0) {
+        return false; // Already taken
+    }
+
+    $sql = "UPDATE users SET username = '$username' WHERE id = $uid";
+    if (mysqli_query($conn, $sql)) {
+        // Update session
+        if (session_status() === PHP_SESSION_NONE)
+            session_start();
+        $_SESSION['username'] = $username;
+        return true;
+    }
+    return false;
+}
+
+/**
  * Check if user has security word set (for Dashboard)
  */
 function has_security_word_set($user_id)
