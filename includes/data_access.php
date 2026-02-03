@@ -955,4 +955,45 @@ function get_all_note_pages($note_id)
 
     return $pages;
 }
+
+/**
+ * Get user data by username
+ */
+function get_user_by_username($username)
+{
+    global $conn;
+    $username = mysqli_real_escape_string($conn, $username);
+    $result = mysqli_query($conn, "SELECT id, username, role FROM users WHERE username = '$username' LIMIT 1");
+    return mysqli_fetch_assoc($result);
+}
+
+/**
+ * Migrate all data (notes, categories) from source user to target user
+ */
+function migrate_user_data($source_uid, $target_uid)
+{
+    global $conn;
+    $source_uid = intval($source_uid);
+    $target_uid = intval($target_uid);
+
+    if ($source_uid === $target_uid)
+        return false;
+
+    mysqli_begin_transaction($conn);
+    try {
+        // 1. Migrate Categories (excluding defaults which are user_id=0)
+        mysqli_query($conn, "UPDATE categories SET user_id = $target_uid WHERE user_id = $source_uid");
+
+        // 2. Migrate Notes
+        // We also need to update category_id in notes if we want to be super precise, 
+        // but since we moved categories, their IDs remain the same, just owned by target user now.
+        mysqli_query($conn, "UPDATE notes SET user_id = $target_uid WHERE user_id = $source_uid");
+
+        mysqli_commit($conn);
+        return true;
+    } catch (Exception $e) {
+        mysqli_rollback($conn);
+        return false;
+    }
+}
 ?>
