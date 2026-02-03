@@ -996,4 +996,31 @@ function migrate_user_data($source_uid, $target_uid)
         return false;
     }
 }
+
+/**
+ * Get a summary of user data for migration preview
+ */
+function get_user_migration_summary($uid)
+{
+    global $conn;
+    $uid = intval($uid);
+
+    // Get Notes
+    $notes_res = mysqli_query($conn, "SELECT title FROM notes WHERE user_id = $uid");
+    $notes = [];
+    while ($row = mysqli_fetch_assoc($notes_res)) {
+        $notes[] = $row['title'];
+    }
+
+    // Get Category Count
+    $cats_res = mysqli_query($conn, "SELECT COUNT(*) as total FROM categories WHERE user_id = $uid");
+    $cats_row = mysqli_fetch_assoc($cats_res);
+    $cat_count = $cats_row['total'];
+
+    return [
+        'notes' => $notes,
+        'note_count' => count($notes),
+        'category_count' => $cat_count
+    ];
+}
 ?>

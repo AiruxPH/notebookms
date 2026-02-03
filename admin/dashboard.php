@@ -155,7 +155,7 @@ if (!is_admin()) {
             <div class="migration-section">
                 <h3 style="margin-top: 0; font-size: 16px;">Data Migration Utility</h3>
                 <p style="font-size: 12px; color: #555;">Transfer all notes and categories from one user to another.</p>
-                <form action="user_action.php" method="POST" style="display: flex; gap: 10px; align-items: flex-end;">
+                <form id="migrationForm" style="display: flex; gap: 10px; align-items: flex-end;">
                     <div style="flex: 1; position: relative;">
                         <label style="font-size: 11px; font-weight: bold;">From Username:</label>
                         <input type="text" name="from_username" id="from_username" required placeholder="Owner..."
@@ -170,9 +170,9 @@ if (!is_admin()) {
                             oninput="validateMigrationUser('to')">
                         <div id="to_status" style="font-size: 10px; margin-top: 2px;"></div>
                     </div>
-                    <button type="submit" name="admin_migrate_data" id="migrate_btn" class="btn"
+                    <button type="button" id="migrate_btn" class="btn"
                         style="background: #1976d2; color: #fff; opacity: 0.5;" disabled
-                        onclick="return confirm('Are you sure you want to migrate all data? This cannot be undone.');">Migrate
+                        onclick="openMigrationPreview()">Migrate
                         Data</button>
                 </form>
             </div>
@@ -394,6 +394,32 @@ if (!is_admin()) {
         </div>
     </div>
 
+    <!-- Migration Preview Modal -->
+    <div id="migrationPreviewModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Migration Preview</h3>
+                <span class="close-modal" onclick="closeModal('migrationPreviewModal')">&times;</span>
+            </div>
+            
+            <div id="migrationPreviewContent" style="min-height: 100px; margin-bottom: 20px;">
+                <p style="text-align: center; color: #999; padding: 20px;">Loading preview...</p>
+            </div>
+
+            <div id="migrationProgress" style="display: none; margin-bottom: 20px;">
+                <div style="width: 100%; background: #eee; height: 10px; border-radius: 5px; overflow: hidden;">
+                    <div id="migrationProgressBar" style="width: 0%; height: 100%; background: #1976d2; transition: width 0.3s;"></div>
+                </div>
+                <p id="migrationStatus" style="font-size: 12px; margin-top: 5px; color: #666; text-align: center;">Migrating...</p>
+            </div>
+
+            <div id="migrationFooter" style="text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn" style="background: #eee; color: #333;" onclick="closeModal('migrationPreviewModal')">Cancel</button>
+                <button type="button" id="confirmMigrationBtn" class="btn btn-primary" onclick="performMigration()">Confirm Migration</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentNotesUid = 0;
 
@@ -462,6 +488,84 @@ if (!is_admin()) {
                 btn.disabled = true;
                 btn.style.opacity = '0.5';
             }
+        }
+
+        function openMigrationPreview() {
+            const from = document.getElementById('from_username').value;
+            const to = document.getElementById('to_username').value;
+            
+            document.getElementById('migrationPreviewContent').innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Loading preview...</p>';
+            document.getElementById('migrationProgress').style.display = 'none';
+            document.getElementById('migrationFooter').style.display = 'flex';
+            document.getElementById('confirmMigrationBtn').disabled = true;
+            
+            document.getElementById('migrationPreviewModal').style.display = 'flex';
+            
+            fetch(`ajax_migration_preview.php?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById('migrationPreviewContent').innerHTML = html;
+                    const canMigrate = document.getElementById('can_migrate').value === '1';
+                    document.getElementById('confirmMigrationBtn').disabled = !canMigrate;
+                });
+        }
+
+        function performMigration() {
+            const from = document.getElementById('from_username').value;
+            const to = document.getElementById('to_username').value;
+            const progress = document.getElementById('migrationProgress');
+            const footer = document.getElementById('migrationFooter');
+            const bar = document.getElementById('migrationProgressBar');
+            const status = document.getElementById('migrationStatus');
+            
+            footer.style.display = 'none';
+            progress.style.display = 'block';
+            bar.style.width = '30%';
+            status.textContent = 'Migrating records...';
+            
+            const formData = new FormData();
+            formData.append('from_username', from);
+            formData.append('to_username', to);
+            
+            fetch('ajax_perform_migration.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    bar.style.width = '100%';
+                    bar.style.background = '#2e7d32';
+                    status.textContent = data.message;
+                    status.style.color = '#2e7d32';
+                    status.style.fontWeight = 'bold';
+                    
+                    // Add a "Done" button
+                    const doneBtn = document.createElement('button');
+                    doneBtn.className = 'btn';
+                    doneBtn.style.background = '#2e7d32';
+                    doneBtn.style.color = '#fff';
+                    doneBtn.style.marginTop = '10px';
+                    doneBtn.textContent = 'Close & Refresh';
+                    doneBtn.onclick = () => window.location.reload();
+                    progress.appendChild(doneBtn);
+                } else {
+                    bar.style.width = '100%';
+                    bar.style.background = '#c62828';
+                    status.textContent = 'Error: ' + data.message;
+                    status.style.color = '#c62828';
+                    
+                    setTimeout(() => {
+                        footer.style.display = 'flex';
+                        progress.style.display = 'none';
+                    }, 3000);
+                }
+            })
+            .catch(err => {
+                status.textContent = 'Connection error.';
+                status.style.color = '#c62828';
+                footer.style.display = 'flex';
+            });
         }
 
         function fetchUserNotes() {
