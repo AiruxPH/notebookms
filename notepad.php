@@ -344,11 +344,6 @@ if (isset($_SESSION['flash'])) {
 						</select>
 
 						<div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
-							<button type="button" id="edit-pin-toggle" class="btn btn-sm"
-								style="display: flex; align-items: center; gap: 5px; background: <?php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <?php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <?php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; padding: 4px 8px;"
-								onclick="togglePinUI()">
-								<i class="fa-solid fa-thumbtack"></i> <span>Pin</span>
-							</button>
 							<div style="display: flex; align-items: center; gap: 5px;">
 								<label><i class="fa-regular fa-clock"></i></label>
 								<input type="datetime-local" name="reminder_date"
@@ -708,24 +703,6 @@ if (isset($_SESSION['flash'])) {
 			// Show toast before submitting (mostly for View mode where it reloads fast)
 			// Actually session-based flash is better for refresh-based actions
 			form.submit();
-		}
-
-		function togglePinUI() {
-			const pinInput = document.getElementById('is_pinned_input');
-			const pinBtn = document.getElementById('edit-pin-toggle');
-			const isCurrentlyPinned = pinInput.value === "1";
-			const newState = !isCurrentlyPinned;
-
-			pinInput.value = newState ? "1" : "0";
-
-			// Update button look
-			if (pinBtn) {
-				pinBtn.style.background = newState ? '#f9a825' : '#f5f5f5';
-				pinBtn.style.color = newState ? '#fff' : '#555';
-				pinBtn.style.borderColor = newState ? '#f9a825' : '#ccc';
-			}
-
-			showToast(newState ? "Note pinned!" : "Note unpinned!", "success");
 		}
 
 		// ===============================
