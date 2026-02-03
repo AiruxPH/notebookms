@@ -810,13 +810,43 @@ if (isset($_SESSION['flash'])) {
 			}
 		}
 
+
 		// Initial start
 		wakeUp();
 
-		// Listeners
-		['mousemove', 'mousedown', 'keypress', 'touchmove', 'scroll', 'click'].forEach(evt => {
-			document.addEventListener(evt, wakeUp, { passive: true });
-		});
+		// 1. Scroll always wakes it up (Mobile & Desktop)
+		document.addEventListener('scroll', wakeUp, { passive: true });
+
+		// 2. Mouse Proximity Wake-up (Desktop)
+		document.addEventListener('mousemove', function (e) {
+			if (!fabContainer) return;
+
+			// If already awake and timer running, no need to calc distance constantly
+			// But we need to keep it awake if near.
+			// Let's check distance.
+
+			const rect = fabContainer.getBoundingClientRect();
+			// Distance to the closest edge of the box
+			const x = e.clientX;
+			const y = e.clientY;
+
+			// Simple distance to center or edges? Edges is better.
+			// Since it's bottom-right fixed:
+			// Box is from rect.left to rect.right, rect.top to rect.bottom
+
+			// Calculate distance to element rectangle
+			const dx = Math.max(rect.left - x, 0, x - rect.right);
+			const dy = Math.max(rect.top - y, 0, y - rect.bottom);
+			const distance = Math.sqrt(dx * dx + dy * dy);
+
+			// Threshold (150px seems reasonable)
+			if (distance < 150) {
+				wakeUp();
+			}
+		}, { passive: true });
+
+		// Removed: click, keypress, touchmove (unless scroll) to avoid unwanted wakeups
+
 
 	</script>
 </body>
