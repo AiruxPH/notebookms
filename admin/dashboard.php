@@ -156,18 +156,22 @@ if (!is_admin()) {
                 <h3 style="margin-top: 0; font-size: 16px;">Data Migration Utility</h3>
                 <p style="font-size: 12px; color: #555;">Transfer all notes and categories from one user to another.</p>
                 <form action="user_action.php" method="POST" style="display: flex; gap: 10px; align-items: flex-end;">
-                    <div style="flex: 1;">
+                    <div style="flex: 1; position: relative;">
                         <label style="font-size: 11px; font-weight: bold;">From Username:</label>
-                        <input type="text" name="from_username" required placeholder="Owner..."
-                            style="width: 100%; padding: 6px; border: 1px solid #ccc;">
+                        <input type="text" name="from_username" id="from_username" required placeholder="Owner..."
+                            style="width: 100%; padding: 6px; border: 1px solid #ccc;"
+                            oninput="validateMigrationUser('from')">
+                        <div id="from_status" style="font-size: 10px; margin-top: 2px;"></div>
                     </div>
-                    <div style="flex: 1;">
+                    <div style="flex: 1; position: relative;">
                         <label style="font-size: 11px; font-weight: bold;">To Username:</label>
-                        <input type="text" name="to_username" required placeholder="Recipient..."
-                            style="width: 100%; padding: 6px; border: 1px solid #ccc;">
+                        <input type="text" name="to_username" id="to_username" required placeholder="Recipient..."
+                            style="width: 100%; padding: 6px; border: 1px solid #ccc;"
+                            oninput="validateMigrationUser('to')">
+                        <div id="to_status" style="font-size: 10px; margin-top: 2px;"></div>
                     </div>
-                    <button type="submit" name="admin_migrate_data" class="btn"
-                        style="background: #1976d2; color: #fff;"
+                    <button type="submit" name="admin_migrate_data" id="migrate_btn" class="btn"
+                        style="background: #1976d2; color: #fff; opacity: 0.5;" disabled
                         onclick="return confirm('Are you sure you want to migrate all data? This cannot be undone.');">Migrate
                         Data</button>
                 </form>
@@ -282,16 +286,23 @@ if (!is_admin()) {
                                                         style="background:#e8f5e9; color:#2e7d32; border-color:#a5d6a7;">Activate</button>
                                                 <?php endif; ?>
                                             </form>
-                                            <button type="button" class="btn btn-sm btn-secondary" style="background: #e3f2fd; color: #1976d2;" 
+                                            <button type="button" class="btn btn-sm btn-secondary"
+                                                style="background: #e3f2fd; color: #1976d2;"
                                                 onclick='openPasswordModal(<?php echo $u['id']; ?>, "<?php echo addslashes($u['username']); ?>")'>PW</button>
-                                            <button type="button" class="btn btn-sm btn-secondary" style="background: #f5f5f5; color: #333;" 
-                                                onclick='openNotesModal(<?php echo $u['id']; ?>, "<?php echo addslashes($u['username']); ?>")'>Notes</button>
+                                            <?php if ($u['role'] === 'user'): ?>
+                                                <button type="button" class="btn btn-sm btn-secondary"
+                                                    style="background: #f5f5f5; color: #333;"
+                                                    onclick='openNotesModal(<?php echo $u['id']; ?>, "<?php echo addslashes($u['username']); ?>")'>Notes</button>
+                                            <?php endif; ?>
                                         </div>
                                     <?php else: ?>
                                         <div style="display: flex; gap: 5px; align-items: center;">
                                             <span style="color:#999; font-size: 12px;">(You)</span>
-                                            <button type="button" class="btn btn-sm btn-secondary" style="background: #f5f5f5; color: #333;" 
-                                                onclick='openNotesModal(<?php echo $u['id']; ?>, "<?php echo addslashes($u['username']); ?>")'>Notes</button>
+                                            <?php if ($u['role'] === 'user'): ?>
+                                                <button type="button" class="btn btn-sm btn-secondary"
+                                                    style="background: #f5f5f5; color: #333;"
+                                                    onclick='openNotesModal(<?php echo $u['id']; ?>, "<?php echo addslashes($u['username']); ?>")'>Notes</button>
+                                            <?php endif; ?>
                                         </div>
                                     <?php endif; ?>
                                 </td>
@@ -343,11 +354,13 @@ if (!is_admin()) {
                 <h3>Edit Password: <span id="pwModalUsername"></span></h3>
                 <span class="close-modal" onclick="closeModal('pwModal')">&times;</span>
             </div>
-            <form action="user_action.php" method="POST">
+            <form action="user_action.php" method="POST"
+                onsubmit="return confirm('Are you sure you want to update the password for ' + document.getElementById('pwModalUsername').textContent + '?');">
                 <input type="hidden" name="user_id" id="pwModalUid">
                 <div style="margin-bottom: 15px;">
                     <label>New Password:</label>
-                    <input type="text" name="new_password" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc;">
+                    <input type="text" name="new_password" required
+                        style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc;">
                 </div>
                 <div style="text-align: right;">
                     <button type="submit" name="admin_update_password" class="btn btn-primary">Update Password</button>
@@ -363,9 +376,10 @@ if (!is_admin()) {
                 <h3>Notes for <span id="notesModalUsername"></span></h3>
                 <span class="close-modal" onclick="closeModal('notesModal')">&times;</span>
             </div>
-            
+
             <div style="margin-bottom: 15px; display: flex; gap: 10px;">
-                <input type="text" id="notesSearch" placeholder="Search notes..." style="flex: 1; padding: 8px; border: 1px solid #ccc;" oninput="fetchUserNotes()">
+                <input type="text" id="notesSearch" placeholder="Search notes..."
+                    style="flex: 1; padding: 8px; border: 1px solid #ccc;" oninput="fetchUserNotes()">
                 <select id="notesStatus" style="padding: 8px; border: 1px solid #ccc;" onchange="fetchUserNotes()">
                     <option value="all">All Status</option>
                     <option value="pinned">Pinned</option>
@@ -402,6 +416,54 @@ if (!is_admin()) {
             document.getElementById(id).style.display = 'none';
         }
 
+        const migrationState = {
+            from: false,
+            to: false
+        };
+
+        function validateMigrationUser(type) {
+            const input = document.getElementById(type + '_username');
+            const status = document.getElementById(type + '_status');
+            const username = input.value.trim();
+
+            if (username === '') {
+                status.textContent = '';
+                migrationState[type] = false;
+                updateMigrateButton();
+                return;
+            }
+
+            fetch(`ajax_check_user.php?username=${encodeURIComponent(username)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.exists) {
+                        status.textContent = '❌ Not found';
+                        status.style.color = '#c62828';
+                        migrationState[type] = false;
+                    } else if (data.role === 'admin') {
+                        status.textContent = '❌ Admin accounts invalid';
+                        status.style.color = '#c62828';
+                        migrationState[type] = false;
+                    } else {
+                        status.textContent = '✅ Valid';
+                        status.style.color = '#2e7d32';
+                        migrationState[type] = true;
+                    }
+                    updateMigrateButton();
+                });
+        }
+
+        function updateMigrateButton() {
+            const btn = document.getElementById('migrate_btn');
+            if (migrationState.from && migrationState.to) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            }
+        }
+
         function fetchUserNotes() {
             const search = document.getElementById('notesSearch').value;
             const status = document.getElementById('notesStatus').value;
@@ -420,7 +482,7 @@ if (!is_admin()) {
         }
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
             }

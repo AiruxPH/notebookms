@@ -49,8 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['admin_migrate_data']))
 
     if (!$source) {
         $_SESSION['flash'] = ['message' => "Source user '$from_user' not found.", 'type' => 'error'];
+    } elseif ($source['role'] === 'admin') {
+        $_SESSION['flash'] = ['message' => "Cannot migrate data from an admin account.", 'type' => 'error'];
     } elseif (!$target) {
         $_SESSION['flash'] = ['message' => "Target user '$to_user' not found.", 'type' => 'error'];
+    } elseif ($target['role'] === 'admin') {
+        $_SESSION['flash'] = ['message' => "Cannot migrate data to an admin account.", 'type' => 'error'];
     } elseif ($source['id'] == $target['id']) {
         $_SESSION['flash'] = ['message' => "Source and target users must be different.", 'type' => 'error'];
     } else {
