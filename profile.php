@@ -85,13 +85,13 @@ if (isset($_SESSION['flash'])) {
                 <span></span>
             </label>
             <nav>
-                <a href="dashboard.php"><i class="fa-solid fa-house"></i> Dashboard</a>
-                <a href="index.php"><i class="fa-solid fa-note-sticky"></i> Notes</a>
-                <a href="categories.php"><i class="fa-solid fa-tags"></i> Categories</a>
-                <a href="profile.php" style="background: #fff;"><i class="fa-solid fa-user"></i> Profile</a>
-                <a href="logout.php" style="color: #c62828;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-                <a href="about.php"><i class="fa-solid fa-circle-info"></i> About</a>
-                <a href="contact.php"><i class="fa-solid fa-envelope"></i> Contact Us</a>
+                <a href="dashboard.php">Dashboard</a>
+                <a href="index.php">Notes</a>
+                <a href="categories.php">Categories</a>
+                <a href="profile.php" style="background: #fff;">Profile</a>
+                <a href="logout.php" style="color: #c62828;">Logout</a>
+                <a href="about.php">About</a>
+                <a href="contact.php">Contact Us</a>
             </nav>
         </div>
     </header>
@@ -174,7 +174,7 @@ if (isset($_SESSION['flash'])) {
         }
 
         <?php if (isset($msg)): ?>
-                showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
+            showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
         <?php endif; ?>
     </script>
 </body>
