@@ -22,22 +22,24 @@
 				<span></span>
 			</label>
 			<nav>
-				<a href="dashboard.php">Dashboard</a>
-				<a href="index.php">Notes</a>
-				<a href="categories.php">Categories</a>
+				<a href="dashboard.php"><i class="fa-solid fa-house"></i> Dashboard</a>
+				<a href="index.php"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+				<a href="categories.php"><i class="fa-solid fa-tags"></i> Categories</a>
 				<?php if (is_logged_in()): ?>
-					<a href="logout.php" style="color: #c62828;">Logout</a>
+					<a href="profile.php"><i class="fa-solid fa-user"></i> Profile</a>
+					<a href="logout.php" style="color: #c62828;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
 				<?php else: ?>
-					<a href="login.php" style="color: #2e7d32;">Login</a>
+					<a href="login.php" style="color: #2e7d32;"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
 				<?php endif; ?>
-				<a href="about.php">About</a>
-				<a href="contact.php">Contact Us</a>
+				<a href="about.php" style="background: white;"><i class="fa-solid fa-circle-info"></i> About</a>
+				<a href="contact.php"><i class="fa-solid fa-envelope"></i> Contact Us</a>
 			</nav>
 		</div>
 	</header>
 
 	<div class="container">
-		<div style="background: var(--card-bg); padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow); width: 100%; max-width: 100%; overflow: hidden;">
+		<div
+			style="background: var(--card-bg); padding: 40px; border: 1px solid var(--border-color); box-shadow: var(--shadow); width: 100%; max-width: 100%; overflow: hidden;">
 
 			<div style="text-align: center; margin-bottom: 30px;">
 				<h2 style="font-size: 28px; margin-bottom: 10px;">About Notebook-BAR</h2>
@@ -72,8 +74,7 @@
 			<div>
 				<h3 style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">✨ Key Features
 				</h3>
-				<div
-					style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
+				<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
 
 					<div style="background: #fff; padding: 15px; border: 1px solid #eee;">
 						<strong>📝 Secure Text Storage</strong>

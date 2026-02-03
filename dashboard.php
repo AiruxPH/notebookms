@@ -62,16 +62,17 @@ if (is_logged_in() && !has_security_word_set(get_current_user_id())) {
                 <span></span>
             </label>
             <nav>
-                <a href="dashboard.php">Dashboard</a>
-                <a href="index.php">Notes</a>
-                <a href="categories.php">Categories</a>
+                <a href="dashboard.php" style="background: white;"><i class="fa-solid fa-house"></i> Dashboard</a>
+                <a href="index.php"><i class="fa-solid fa-note-sticky"></i> Notes</a>
+                <a href="categories.php"><i class="fa-solid fa-tags"></i> Categories</a>
                 <?php if (is_logged_in()): ?>
-                    <a href="logout.php" style="color: #c62828;">Logout</a>
+                    <a href="profile.php"><i class="fa-solid fa-user"></i> Profile</a>
+                    <a href="logout.php" style="color: #c62828;"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
                 <?php else: ?>
-                    <a href="login.php" style="color: #2e7d32;">Login</a>
+                    <a href="login.php" style="color: #2e7d32;"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
                 <?php endif; ?>
-                <a href="about.php">About</a>
-                <a href="contact.php">Contact Us</a>
+                <a href="about.php"><i class="fa-solid fa-circle-info"></i> About</a>
+                <a href="contact.php"><i class="fa-solid fa-envelope"></i> Contact Us</a>
             </nav>
         </div>
     </header>
