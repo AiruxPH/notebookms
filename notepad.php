@@ -791,6 +791,33 @@ if (isset($_SESSION['flash'])) {
 		<?php if ($msg): ?>
 			showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
 		<?php endif; ?>
+
+		// ===============================
+		// IDLE FAB LOGIC ("Sulk")
+		// ===============================
+		let idleTimer;
+		const fabContainer = document.querySelector('.fab-container');
+
+		function goIdle() {
+			if (fabContainer) fabContainer.classList.add('idle');
+		}
+
+		function wakeUp() {
+			if (fabContainer) {
+				fabContainer.classList.remove('idle');
+				clearTimeout(idleTimer);
+				idleTimer = setTimeout(goIdle, 3000); // 3 seconds idle time
+			}
+		}
+
+		// Initial start
+		wakeUp();
+
+		// Listeners
+		['mousemove', 'mousedown', 'keypress', 'touchmove', 'scroll', 'click'].forEach(evt => {
+			document.addEventListener(evt, wakeUp, { passive: true });
+		});
+
 	</script>
 </body>
 

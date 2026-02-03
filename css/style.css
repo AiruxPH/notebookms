@@ -825,6 +825,17 @@ a.note-add-card:hover {
 	gap: 15px;
 	align-items: flex-end;
 	z-index: 1000;
+	transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+}
+
+.fab-container.idle {
+	transform: translate(40%, 40%) scale(0.9);
+	opacity: 0.6;
+}
+
+.fab-container:hover {
+	transform: translate(0, 0) scale(1) !important;
+	opacity: 1 !important;
 }
 
 .fab-btn {
