@@ -40,7 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			'title' => $_POST['new_title'] ?? 'Untitled',
 			'category' => $_POST['category'] ?? 1,
 			'text' => $_POST['page'] ?? '',
-			'is_pinned' => isset($_POST['is_pinned']) ? 1 : 0,
+			// This line is broken, implementing temporary fix
+			//'is_pinned' => isset($_POST['is_pinned']) ? 1 : 0,
+			'is_pinned' => !empty($_POST['is_pinned']) ? 1 : 0,
 			'is_archived' => $_POST['is_archived'] ?? 0,
 			'reminder_date' => !empty($_POST['reminder_date']) ? str_replace('T', ' ', $_POST['reminder_date']) : null,
 			'page_number' => $_POST['page_number'] ?? 1,
@@ -851,5 +853,6 @@ if (isset($_SESSION['flash'])) {
 
 	</script>
 </body>
+
 
 </html>
