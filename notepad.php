@@ -702,7 +702,7 @@ if (isset($_SESSION['flash'])) {
 			}
 		}
 
-		function togglePin(isPinned) {
+		function togglePin() {
 			pinInput = document.getElementById('is_pinned_input');
 			// Temporary fix for pin input
 			//if (pinInput) pinInput.value = isPinned ? "1" : "0";
@@ -868,6 +868,7 @@ if (isset($_SESSION['flash'])) {
 
 
 </html>
+
 
 
 
