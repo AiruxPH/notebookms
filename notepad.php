@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			'text' => $_POST['page'] ?? '',
 			// This line is broken, implementing temporary fix
 			//'is_pinned' => isset($_POST['is_pinned']) ? 1 : 0,
-			'is_pinned' => (isset($_POST['is_pinned']) && $_POST['is_pinned'] == '1') ? 1 : 0,
+			'is_pinned' => $_POST['is_pinned'],
 			'is_archived' => $_POST['is_archived'] ?? 0,
 			'reminder_date' => !empty($_POST['reminder_date']) ? str_replace('T', ' ', $_POST['reminder_date']) : null,
 			'page_number' => $_POST['page_number'] ?? 1,
@@ -697,9 +697,13 @@ if (isset($_SESSION['flash'])) {
 		}
 
 		function togglePin(isPinned) {
-			const pinInput = document.getElementById('is_pinned_input');
-			if (pinInput) pinInput.value = isPinned ? "1" : "0";
-
+			pinInput = document.getElementById('is_pinned_input');
+			// Temporary fix for pin input
+			//if (pinInput) pinInput.value = isPinned ? "1" : "0";
+			/*if (pinInput == 1) {
+				pinInput 
+			} */
+			
 			// Stay on page and save
 			document.getElementById('action_type').value = 'save_redirect';
 
@@ -856,4 +860,5 @@ if (isset($_SESSION['flash'])) {
 
 
 </html>
+
 
