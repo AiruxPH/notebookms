@@ -242,9 +242,15 @@ if (isset($_SESSION['flash'])) {
 
 						<!-- Right: Pin & Archive Icons -->
 						<div style="display: flex; gap: 15px; align-items: center;">
+							<!--<button type="button" id="pin-toggle-btn" class="btn btn-sm"
+								style="display: flex; align-items: center; gap: 5px; background: <?php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <?php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <?php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 13px;"
+								<onclick="togglePin(!<?php echo $is_pinned_val; ?>)">
+								<i class="fa-solid fa-thumbtack"></i>
+								<span id="pin-text"><?php echo $is_pinned_val ? 'Unpin' : 'Pin'; ?></span>
+							</button> -->
 							<button type="button" id="pin-toggle-btn" class="btn btn-sm"
 								style="display: flex; align-items: center; gap: 5px; background: <?php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <?php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <?php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 13px;"
-								onclick="togglePin(!<?php echo $is_pinned_val; ?>)">
+								<onclick="togglePin()">
 								<i class="fa-solid fa-thumbtack"></i>
 								<span id="pin-text"><?php echo $is_pinned_val ? 'Unpin' : 'Pin'; ?></span>
 							</button>
@@ -700,9 +706,11 @@ if (isset($_SESSION['flash'])) {
 			pinInput = document.getElementById('is_pinned_input');
 			// Temporary fix for pin input
 			//if (pinInput) pinInput.value = isPinned ? "1" : "0";
-			/*if (pinInput == 1) {
-				pinInput 
-			} */
+			if (pinInput == 1) {
+				pinInput.value = "0"; 
+			} else if (pinInput == 0) {
+				pinInput.value = "1";
+			}
 			
 			// Stay on page and save
 			document.getElementById('action_type').value = 'save_redirect';
@@ -860,5 +868,6 @@ if (isset($_SESSION['flash'])) {
 
 
 </html>
+
 
 
