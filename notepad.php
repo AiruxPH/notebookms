@@ -766,6 +766,18 @@ if (isset($_SESSION['flash'])) {
 			}
 		}
 
+		function confirmDeletePermanent() {
+			if (confirm("Are you sure you want to delete this note PERMANENTLY? This cannot be undone.")) {
+				const form = document.getElementById('note-form');
+				const input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = 'delete_permanent';
+				input.value = '1';
+				form.appendChild(input);
+				form.submit();
+			}
+		}
+
 		// Renamed to avoid using the old confirmNavigation
 		function confirmNavigation() {
 			return true;

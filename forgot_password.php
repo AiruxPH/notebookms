@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['verify_username'])) {
             $username = mysqli_real_escape_string($conn, $_POST['username']);
             // We check for 'security_word_set' flag
-            $check = mysqli_query($conn, "SELECT id, security_word_set FROM users WHERE username='$username'");
+            $check = mysqli_query($conn, "SELECT user_id, security_word_set FROM users WHERE username='$username'");
 
             if (!$check) {
                 throw new Exception("SQL Error: " . mysqli_error($conn));

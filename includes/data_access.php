@@ -450,7 +450,8 @@ function get_categories()
         if (isset($_SESSION['guest_cats'])) {
             foreach ($_SESSION['guest_cats'] as $i => $c) {
                 // Assign a temp ID for guest custom cats
-                $c['id'] = 'g_' . $i;
+                $c['category_id'] = 'g_' . $i;
+                $c['id'] = 'g_' . $i; // Keep for backward compatibility if needed
                 $categories[] = $c;
             }
         }
