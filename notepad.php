@@ -252,7 +252,9 @@ if (isset($_SESSION['flash'])) {
 								style="display: flex; align-items: center; gap: 5px; background: <php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 13px;"
 								<onclick="togglePin()">
 								<i class="fa-solid fa-thumbtack"></i>
-								<span id="pin-text"><php echo $is_pinned_val ? 'Unpin' : 'Pin'; ?></span>
+								<span id="pin-text">
+									<php echo $is_pinned_val ? 'Unpin' : 'Pin' ; ?>
+								</span>
 							</button>
 							<?php if ($is_archived_val): ?>
 								<span title="Archived" style="font-size: 18px; color: #888;"><i
@@ -706,18 +708,18 @@ if (isset($_SESSION['flash'])) {
 			const pinInput = document.getElementById('is_pinned_input');
 			// Temporary fix for pin input
 			//if (pinInput) pinInput.value = isPinned ? "1" : "0";
-			if (pinInput == 1) {
-				pinInput.value = "0"; 
-			} else if (pinInput == 0) {
+			if (pinInput.value == 1) {
+				pinInput.value = "0";
+			} else if (pinInput.value == 0) {
 				pinInput.value = "1";
 			}
-			
+
 			// Stay on page and save
 			document.getElementById('action_type').value = 'save_redirect';
 
 			// Show toast before submitting (mostly for View mode where it reloads fast)
 			// Actually session-based flash is better for refresh-based actions
-			form.submit();
+			document.getElementById('note-form').submit();
 		}
 
 		// ===============================
@@ -868,11 +870,3 @@ if (isset($_SESSION['flash'])) {
 
 
 </html>
-
-
-
-
-
-
-
-
