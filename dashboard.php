@@ -180,7 +180,7 @@ if (is_logged_in() && !has_security_word_set(get_current_user_id())) {
                     foreach ($quick_cats as $c) {
                         $cname = htmlspecialchars($c['name']);
                         $ccolor = htmlspecialchars($c['color']);
-                        echo "<a href='index.php?cat={$c['id']}' class='cat-chip'>
+                        echo "<a href='index.php?cat={$c['category_id']}' class='cat-chip'>
                                 <span class='chip-dot' style='background-color: $ccolor;'></span>
                                 $cname
                               </a>";
@@ -217,7 +217,7 @@ if (is_logged_in() && !has_security_word_set(get_current_user_id())) {
 
                     if (count($pinned_notes) > 0) {
                         foreach ($pinned_notes as $row) {
-                            $nid = $row['id'];
+                            $nid = $row['note_id'];
                             $dtitle = htmlspecialchars($row['title']);
                             $dcat = htmlspecialchars($row['category']);
                             $ddatl = date("g:i A", strtotime($row['date_last']));
