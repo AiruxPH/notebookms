@@ -546,7 +546,7 @@ a.note-add-card:hover {
 
 	.header-inner {
 		flex-direction: column;
-		gap: 15px;
+		gap: 0;
 		text-align: center;
 	}
 
