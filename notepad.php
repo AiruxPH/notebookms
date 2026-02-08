@@ -445,7 +445,7 @@ if (isset($_SESSION['flash'])) {
 
 								<!-- Delete Page -->
 								<button type="button" onclick="deletePage()" class="page-btn delete-page-btn"
-									id="btn-delete-page" title="Delete Current Page" style="margin-left: 5px; color: #c62828;">
+									id="btn-delete-page" title="Delete Current Page" style="color: #c62828;">
 									<i class="fa-solid fa-trash-can"></i>
 								</button>
 							</div>
