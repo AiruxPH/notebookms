@@ -283,8 +283,8 @@ $categories = get_categories();
                             $cid = $c['category_id'];
                             $cname = htmlspecialchars($c['name']);
                             $ccolor = htmlspecialchars($c['color']);
-                            // Logic: IDs 1-5 are defaults
-                            $is_default = (is_numeric($cid) && $cid <= 5);
+                            // Logic: user_id 0 means default/system category
+                            $is_default = ($c['user_id'] == 0);
                             ?>
                             <div class="category-item-container">
                                 <div class="category-row" id="row-<?php echo $cid; ?>">
