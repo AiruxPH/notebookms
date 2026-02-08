@@ -369,9 +369,8 @@ if (isset($_SESSION['flash'])) {
 								$all_cats = get_categories();
 								$defaults = [];
 								$custom = [];
-								$default_names = ['General', 'Personal', 'Work', 'Study', 'Ideas'];
 								foreach ($all_cats as $c) {
-									if (in_array($c['name'], $default_names))
+									if ($c['user_id'] == 0)
 										$defaults[] = $c;
 									else
 										$custom[] = $c;

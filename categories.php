@@ -299,8 +299,12 @@ $categories = get_categories();
                                         <?php endif; ?>
                                     </div>
 
-                                    <?php if (!$is_default): ?>
-                                        <div class="cat-actions">
+                                    <div class="cat-actions">
+                                        <!-- View Button (Always Visible) -->
+                                        <a href="index.php?cat=<?php echo $cid; ?>" class="btn btn-sm"
+                                            style="text-decoration: none; margin-right: 5px; border: 1px solid #ccc;">View</a>
+
+                                        <?php if (!$is_default): ?>
                                             <button type="button" class="btn btn-sm"
                                                 onclick="toggleEdit('<?php echo $cid; ?>')">Edit</button>
                                             <form method="post" style="display: inline;"
@@ -310,8 +314,8 @@ $categories = get_categories();
                                                 <button type="submit" class="btn btn-sm"
                                                     style="color: #c62828; border-color: #c62828;">Delete</button>
                                             </form>
-                                        </div>
-                                    <?php endif; ?>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
 
                                 <?php if (!$is_default): ?>
