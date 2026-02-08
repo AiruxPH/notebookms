@@ -173,6 +173,25 @@
             </div>
 
             <div class="changelog-entry">
+                <div class="changelog-version">v1.3.1 - Mobile Experience Update (Current)</div>
+                <div class="changelog-date">Released: <?php echo date("F j, Y"); ?></div>
+                <ul class="changelog-list">
+                    <li><span class="tag-feat">feat</span> <strong>Collapsible Sidebar:</strong> Replaced the old mobile
+                        menu with a smooth, slide-in sidebar navigation.</li>
+                    <li><span class="tag-feat">feat</span> <strong>Floating Pagination:</strong> Added animated,
+                        pill-shaped pagination controls for better usability and aesthetics.</li>
+                    <li><span class="tag-style">style</span> <strong>Smart FABs:</strong> Floating Action Buttons now
+                        intelligently hide/show to reduce screen clutter.</li>
+                    <li><span class="tag-style">style</span> <strong>Animations:</strong> Implemented smooth CSS
+                        transitions for pagination and menu interactions.</li>
+                    <li><span class="tag-fix">fix</span> Resolved mobile layout issues where pagination controls would
+                        overflow.</li>
+                    <li><span class="tag-refactor">refactor</span> Unified header structure across all 11 application
+                        pages.</li>
+                </ul>
+            </div>
+
+            <div class="changelog-entry">
                 <div class="changelog-version">v1.3.0 - Refactoring & Stability</div>
                 <div class="changelog-date">Released: <?php echo date("F j, Y"); ?></div>
                 <ul class="changelog-list">
