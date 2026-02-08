@@ -81,26 +81,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <header>
         <div class="header-inner">
             <h1><a href="dashboard.php">Notebook-BAR</a></h1>
-            <input type="checkbox" id="menu-toggle" class="menu-toggle">
-            <label for="menu-toggle" class="hamburger">
+
+            <!-- Hamburger Button -->
+            <button class="hamburger" aria-label="Toggle Menu">
                 <span></span>
                 <span></span>
                 <span></span>
-            </label>
-            <nav>
+            </button>
+
+            <!-- Desktop Nav -->
+            <nav class="desktop-nav">
                 <a href="dashboard.php">Dashboard</a>
                 <a href="index.php">Notes</a>
                 <a href="categories.php">Categories</a>
                 <?php if (is_logged_in()): ?>
                     <a href="logout.php" style="color: #c62828;">Logout</a>
                 <?php else: ?>
-                    <a href="login.php" style="color: #2e7d32; border-color: #2e7d32;">Login</a>
+                    <a href="login.php" style="color: #2e7d32; border-color: #2e7d32; background: white;">Login</a>
                 <?php endif; ?>
                 <a href="about.php">About</a>
                 <a href="contact.php">Contact Us</a>
             </nav>
         </div>
     </header>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay"></div>
+
+    <!-- Mobile Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Menu</h3>
+            <button class="sidebar-close">&times;</button>
+        </div>
+        <nav>
+            <a href="dashboard.php">Dashboard</a>
+            <a href="index.php">Notes</a>
+            <a href="categories.php">Categories</a>
+            <?php if (is_logged_in()): ?>
+                <a href="logout.php" style="color: #c62828;">Logout</a>
+            <?php else: ?>
+                <a href="login.php"
+                    style="color: #2e7d32; border-color: #2e7d32; background: #f0f0f0; font-weight: bold;">Login</a>
+            <?php endif; ?>
+            <a href="about.php">About</a>
+            <a href="contact.php">Contact Us</a>
+        </nav>
+    </div>
+
+    <script src="js/sidebar.js"></script>
 
     <div class="container">
         <div class="auth-container">

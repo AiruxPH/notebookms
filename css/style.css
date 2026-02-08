@@ -68,17 +68,7 @@ header nav a {
 	display: inline-block;
 }
 
-header nav a:hover {
-	background-color: white;
-}
-
 /* Hamburger Menu (Mobile) */
-.menu-toggle {
-	position: absolute;
-	opacity: 0;
-	pointer-events: none;
-}
-
 .hamburger {
 	display: none;
 	cursor: pointer;
@@ -86,7 +76,8 @@ header nav a:hover {
 	gap: 4px;
 	padding: 10px;
 	z-index: 1001;
-	flex-shrink: 0;
+	background: none;
+	border: none;
 }
 
 .hamburger span {
@@ -96,6 +87,102 @@ header nav a:hover {
 	background-color: #333;
 	border-radius: 2px;
 	transition: 0.3s;
+}
+
+/* Sidebar Styles */
+.sidebar {
+	position: fixed;
+	top: 0;
+	right: -280px;
+	/* Hidden by default */
+	width: 280px;
+	height: 100%;
+	background: #fffde7;
+	/* Matches card bg */
+	box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+	z-index: 1002;
+	transition: right 0.3s ease;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+}
+
+.sidebar.active {
+	right: 0;
+}
+
+.sidebar-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+	border-bottom: 2px solid #d1d190;
+	padding-bottom: 10px;
+}
+
+.sidebar-header h3 {
+	margin: 0;
+	color: #333;
+	font-size: 18px;
+}
+
+.sidebar-close {
+	background: none;
+	border: none;
+	font-size: 24px;
+	cursor: pointer;
+	color: #555;
+}
+
+.sidebar nav {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.sidebar nav a {
+	padding: 12px 15px;
+	background: #fff;
+	border: 1px solid #d1d190;
+	border-radius: 4px;
+	text-align: left;
+	font-size: 16px;
+	color: #333;
+	transition: background 0.2s;
+}
+
+.sidebar nav a:hover {
+	background: #f0f0f0;
+}
+
+/* Overlay */
+.sidebar-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1001;
+	opacity: 0;
+	visibility: hidden;
+	transition: all 0.3s ease;
+}
+
+.sidebar-overlay.active {
+	opacity: 1;
+	visibility: visible;
+}
+
+/* Desktop Nav (Keep as is, hide sidebar/hamburger) */
+@media (min-width: 769px) {
+
+	.hamburger,
+	.sidebar,
+	.sidebar-overlay {
+		display: none !important;
+	}
 }
 
 @media (max-width: 768px) {
@@ -550,19 +637,22 @@ a.note-add-card:hover {
 		text-align: center;
 	}
 
-	header nav {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		gap: 10px;
+	/* Hide Desktop Nav on Mobile */
+	.desktop-nav {
+		display: none !important;
 	}
 
-	header nav a {
-		margin-left: 0;
-		padding: 10px 15px;
-		font-size: 14px;
-		width: 100%;
-		text-align: center;
+	.hamburger {
+		display: flex;
+		/* Show hamburger */
+	}
+
+	.header-inner {
+		flex-direction: row;
+		/* Keep row for logo + hamburger */
+		justify-content: space-between;
+		gap: 0;
+		text-align: left;
 	}
 
 	.note-grid {
