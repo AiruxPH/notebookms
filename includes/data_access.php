@@ -115,6 +115,10 @@ function get_notes($filters = [])
                     continue;
                 }
             }
+            // Inject note_id for compatibility if missing
+            if (!isset($n['note_id'])) {
+                $n['note_id'] = $n['id'];
+            }
             $notes[] = $n;
         }
 
@@ -294,6 +298,7 @@ function save_note($data)
 
         $note_obj = [
             'id' => $id,
+            'note_id' => $id, // COMPATIBILITY FIX: ensure note_id exists for index.php
             'user_id' => 0,
             'title' => $title,
             'category' => $category_val,

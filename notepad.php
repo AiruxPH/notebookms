@@ -110,8 +110,15 @@ if (isset($_GET['id'])) {
 		// Content for initial load (Page 1 usually, or requested page)
 		$content = isset($all_pages[$current_page]) ? $all_pages[$current_page] : "";
 	} else {
-		header("Location: index.php");
+		// DEBUGGING
+		echo "DEBUG INFO:<br>";
+		echo "Requested ID: " . htmlspecialchars($nid) . "<br>";
+		echo "User ID: " . get_current_user_id() . "<br>";
+		echo "Note Query Result: <pre>" . print_r($note, true) . "</pre><br>";
+		echo "DB Error: " . mysqli_error($conn) . "<br>";
 		exit();
+		// header("Location: index.php");
+		// exit();
 	}
 }
 ?>
