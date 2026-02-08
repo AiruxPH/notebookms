@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 		// Collect Data
 		$save_data = [
+			'note_id' => $_POST['note_id'] ?? '',
 			'id' => $_POST['note_id'] ?? '',
 			'title' => $_POST['new_title'] ?? 'Untitled',
 			'category' => $_POST['category'] ?? 1,

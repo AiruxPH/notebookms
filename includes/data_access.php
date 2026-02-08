@@ -298,7 +298,7 @@ function save_note($data)
 
         $note_obj = [
             'id' => $id,
-            'note_id' => $id, // COMPATIBILITY FIX: ensure note_id exists for index.php
+            'note_id' => $id, // Ensure note_id is present for index.php links
             'user_id' => 0,
             'title' => $title,
             'category' => $category_val,
