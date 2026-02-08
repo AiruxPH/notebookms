@@ -947,11 +947,42 @@ a.note-add-card:hover {
 /* Adjust mobile layout to not overlap with FAB */
 @media (max-width: 768px) {
 	.floating-pagination {
-		bottom: 20px;
-		/* Make it smaller or stack if needed */
-		padding: 5px 10px;
-		width: auto;
-		max-width: 90%;
-		overflow-x: auto;
+		bottom: 15px;
+		width: 90%;
+		max-width: 400px;
+		padding: 5px;
+		justify-content: center;
+	}
+
+	/* Hide Secondary Buttons on Mobile */
+	#btn-first,
+	#btn-last,
+	#btn-first-v,
+	#btn-last-v {
+		display: none !important;
+	}
+
+	/* Compact Page Indicator */
+	.floating-pagination .page-indicator {
+		font-size: 0;
+		/* Hide "Page" text */
+		gap: 2px !important;
+	}
+
+	.floating-pagination .page-indicator input,
+	.floating-pagination .page-indicator span {
+		font-size: 13px;
+		/* Restore font size for input/numbers */
+	}
+
+	/* Add separator / since "of" text is hidden */
+	.floating-pagination .page-indicator span::before {
+		content: "/ ";
+		margin-right: 3px;
+	}
+
+	/* Move FABs up to avoid overlap */
+	.fab-container {
+		bottom: 85px;
 	}
 }
