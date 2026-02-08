@@ -19,7 +19,7 @@ $q_esc = mysqli_real_escape_string($conn, $search);
 
 $sql = "SELECT n.*, c.name as category_name, c.color as category_color 
         FROM notes n 
-        LEFT JOIN categories c ON n.category_id = c.id
+        LEFT JOIN categories c ON n.category_id = c.category_id
         WHERE n.user_id = $uid";
 
 if ($search) {

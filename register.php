@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Passwords do not match.";
     } else {
         // Check if exists
-        $check = mysqli_query($conn, "SELECT id FROM users WHERE username = '$username'");
+        $check = mysqli_query($conn, "SELECT user_id FROM users WHERE username = '$username'");
         if (mysqli_num_rows($check) > 0) {
             $error = "Username already exists.";
         } else {

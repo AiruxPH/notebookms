@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($row['is_active'] == 0) {
                 $error = "Account is deactivated. Please contact admin.";
             } else {
-                $_SESSION['user_id'] = $row['id'];
+                $_SESSION['user_id'] = $row['user_id'];
                 $_SESSION['username'] = $row['username'];
                 $_SESSION['role'] = $row['role']; // Store role
 

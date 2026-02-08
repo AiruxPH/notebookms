@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['admin_update_password'
     // get_all_users exists, but let's use a direct query or a better helper.
 
     global $conn;
-    $res = mysqli_query($conn, "SELECT username FROM users WHERE id = $uid");
+    $res = mysqli_query($conn, "SELECT username FROM users WHERE user_id = $uid");
     if ($row = mysqli_fetch_assoc($res)) {
         if (update_password($row['username'], $new_pw)) {
             $_SESSION['flash'] = ['message' => "Password updated for " . $row['username'], 'type' => 'success'];
@@ -55,10 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['admin_migrate_data']))
         $_SESSION['flash'] = ['message' => "Target user '$to_user' not found.", 'type' => 'error'];
     } elseif ($target['role'] === 'admin') {
         $_SESSION['flash'] = ['message' => "Cannot migrate data to an admin account.", 'type' => 'error'];
-    } elseif ($source['id'] == $target['id']) {
+    } elseif ($source['user_id'] == $target['user_id']) {
         $_SESSION['flash'] = ['message' => "Source and target users must be different.", 'type' => 'error'];
     } else {
-        if (migrate_user_data($source['id'], $target['id'])) {
+        if (migrate_user_data($source['user_id'], $target['user_id'])) {
             $_SESSION['flash'] = ['message' => "Data migrated from $from_user to $to_user.", 'type' => 'success'];
         } else {
             $_SESSION['flash'] = ['message' => "Migration failed.", 'type' => 'error'];

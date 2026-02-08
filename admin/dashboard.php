@@ -127,7 +127,7 @@ if (!is_admin()) {
         $search = $_GET['q'] ?? '';
         $role_filter = $_GET['role'] ?? '';
         $status_filter = $_GET['status'] ?? '';
-        $sort = $_GET['sort'] ?? 'id';
+        $sort = $_GET['sort'] ?? 'user_id';
         $order = $_GET['order'] ?? 'ASC';
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $limit = 10;
@@ -211,7 +211,7 @@ if (!is_admin()) {
                 <div style="flex: 1; min-width: 120px;">
                     <label style="font-size: 12px; font-weight: bold;">Sort:</label>
                     <select name="sort" style="width: 100%; padding: 8px; border: 1px solid #ccc;">
-                        <option value="id" <?php if ($sort === 'id')
+                        <option value="user_id" <?php if ($sort === 'user_id')
                             echo 'selected'; ?>>ID</option>
                         <option value="username" <?php if ($sort === 'username')
                             echo 'selected'; ?>>Username</option>
@@ -240,7 +240,7 @@ if (!is_admin()) {
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>User ID</th>
                         <th>Username</th>
                         <th>Role</th>
                         <th>Notes</th>
@@ -253,7 +253,7 @@ if (!is_admin()) {
                     <?php if (count($users) > 0): ?>
                         <?php foreach ($users as $u): ?>
                             <tr>
-                                <td><?php echo $u['id']; ?></td>
+                                <td><?php echo $u['user_id']; ?></td>
                                 <td><?php echo htmlspecialchars($u['username']); ?></td>
                                 <td>
                                     <?php if ($u['role'] === 'admin'): ?>
@@ -273,10 +273,10 @@ if (!is_admin()) {
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($u['id'] != $current_uid): ?>
+                                    <?php if ($u['user_id'] != $current_uid): ?>
                                         <div style="display: flex; gap: 5px;">
                                             <form method="post" action="user_action.php" style="display:inline;">
-                                                <input type="hidden" name="user_id" value="<?php echo $u['id']; ?>">
+                                                <input type="hidden" name="user_id" value="<?php echo $u['user_id']; ?>">
                                                 <input type="hidden" name="current_status" value="<?php echo $u['is_active']; ?>">
                                                 <?php if ($u['is_active']): ?>
                                                     <button type="submit" name="toggle_status" class="btn btn-sm"
@@ -288,11 +288,11 @@ if (!is_admin()) {
                                             </form>
                                             <button type="button" class="btn btn-sm btn-secondary"
                                                 style="background: #e3f2fd; color: #1976d2;"
-                                                onclick='openPasswordModal(<?php echo $u['id']; ?>, "<?php echo addslashes($u['username']); ?>")'>PW</button>
+                                                onclick='openPasswordModal(<?php echo $u['user_id']; ?>, "<?php echo addslashes($u['username']); ?>")'>PW</button>
                                             <?php if ($u['role'] === 'user'): ?>
                                                 <button type="button" class="btn btn-sm btn-secondary"
                                                     style="background: #f5f5f5; color: #333;"
-                                                    onclick='openNotesModal(<?php echo $u['id']; ?>, "<?php echo addslashes($u['username']); ?>")'>Notes</button>
+                                                    onclick='openNotesModal(<?php echo $u['user_id']; ?>, "<?php echo addslashes($u['username']); ?>")'>Notes</button>
                                             <?php endif; ?>
                                         </div>
                                     <?php else: ?>
@@ -401,21 +401,25 @@ if (!is_admin()) {
                 <h3>Migration Preview</h3>
                 <span class="close-modal" onclick="closeModal('migrationPreviewModal')">&times;</span>
             </div>
-            
+
             <div id="migrationPreviewContent" style="min-height: 100px; margin-bottom: 20px;">
                 <p style="text-align: center; color: #999; padding: 20px;">Loading preview...</p>
             </div>
 
             <div id="migrationProgress" style="display: none; margin-bottom: 20px;">
                 <div style="width: 100%; background: #eee; height: 10px; border-radius: 5px; overflow: hidden;">
-                    <div id="migrationProgressBar" style="width: 0%; height: 100%; background: #1976d2; transition: width 0.3s;"></div>
+                    <div id="migrationProgressBar"
+                        style="width: 0%; height: 100%; background: #1976d2; transition: width 0.3s;"></div>
                 </div>
-                <p id="migrationStatus" style="font-size: 12px; margin-top: 5px; color: #666; text-align: center;">Migrating...</p>
+                <p id="migrationStatus" style="font-size: 12px; margin-top: 5px; color: #666; text-align: center;">
+                    Migrating...</p>
             </div>
 
             <div id="migrationFooter" style="text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" class="btn" style="background: #eee; color: #333;" onclick="closeModal('migrationPreviewModal')">Cancel</button>
-                <button type="button" id="confirmMigrationBtn" class="btn btn-primary" onclick="performMigration()">Confirm Migration</button>
+                <button type="button" class="btn" style="background: #eee; color: #333;"
+                    onclick="closeModal('migrationPreviewModal')">Cancel</button>
+                <button type="button" id="confirmMigrationBtn" class="btn btn-primary"
+                    onclick="performMigration()">Confirm Migration</button>
             </div>
         </div>
     </div>
@@ -493,14 +497,14 @@ if (!is_admin()) {
         function openMigrationPreview() {
             const from = document.getElementById('from_username').value;
             const to = document.getElementById('to_username').value;
-            
+
             document.getElementById('migrationPreviewContent').innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Loading preview...</p>';
             document.getElementById('migrationProgress').style.display = 'none';
             document.getElementById('migrationFooter').style.display = 'flex';
             document.getElementById('confirmMigrationBtn').disabled = true;
-            
+
             document.getElementById('migrationPreviewModal').style.display = 'flex';
-            
+
             fetch(`ajax_migration_preview.php?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`)
                 .then(res => res.text())
                 .then(html => {
@@ -517,55 +521,55 @@ if (!is_admin()) {
             const footer = document.getElementById('migrationFooter');
             const bar = document.getElementById('migrationProgressBar');
             const status = document.getElementById('migrationStatus');
-            
+
             footer.style.display = 'none';
             progress.style.display = 'block';
             bar.style.width = '30%';
             status.textContent = 'Migrating records...';
-            
+
             const formData = new FormData();
             formData.append('from_username', from);
             formData.append('to_username', to);
-            
+
             fetch('ajax_perform_migration.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    bar.style.width = '100%';
-                    bar.style.background = '#2e7d32';
-                    status.textContent = data.message;
-                    status.style.color = '#2e7d32';
-                    status.style.fontWeight = 'bold';
-                    
-                    // Add a "Done" button
-                    const doneBtn = document.createElement('button');
-                    doneBtn.className = 'btn';
-                    doneBtn.style.background = '#2e7d32';
-                    doneBtn.style.color = '#fff';
-                    doneBtn.style.marginTop = '10px';
-                    doneBtn.textContent = 'Close & Refresh';
-                    doneBtn.onclick = () => window.location.reload();
-                    progress.appendChild(doneBtn);
-                } else {
-                    bar.style.width = '100%';
-                    bar.style.background = '#c62828';
-                    status.textContent = 'Error: ' + data.message;
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        bar.style.width = '100%';
+                        bar.style.background = '#2e7d32';
+                        status.textContent = data.message;
+                        status.style.color = '#2e7d32';
+                        status.style.fontWeight = 'bold';
+
+                        // Add a "Done" button
+                        const doneBtn = document.createElement('button');
+                        doneBtn.className = 'btn';
+                        doneBtn.style.background = '#2e7d32';
+                        doneBtn.style.color = '#fff';
+                        doneBtn.style.marginTop = '10px';
+                        doneBtn.textContent = 'Close & Refresh';
+                        doneBtn.onclick = () => window.location.reload();
+                        progress.appendChild(doneBtn);
+                    } else {
+                        bar.style.width = '100%';
+                        bar.style.background = '#c62828';
+                        status.textContent = 'Error: ' + data.message;
+                        status.style.color = '#c62828';
+
+                        setTimeout(() => {
+                            footer.style.display = 'flex';
+                            progress.style.display = 'none';
+                        }, 3000);
+                    }
+                })
+                .catch(err => {
+                    status.textContent = 'Connection error.';
                     status.style.color = '#c62828';
-                    
-                    setTimeout(() => {
-                        footer.style.display = 'flex';
-                        progress.style.display = 'none';
-                    }, 3000);
-                }
-            })
-            .catch(err => {
-                status.textContent = 'Connection error.';
-                status.style.color = '#c62828';
-                footer.style.display = 'flex';
-            });
+                    footer.style.display = 'flex';
+                });
         }
 
         function fetchUserNotes() {

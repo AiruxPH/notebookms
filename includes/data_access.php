@@ -49,10 +49,10 @@ function get_notes($filters = [])
         // JOIN categories to get name and color
         // Subquery for page count
         $sql = "SELECT n.*, p.text, c.name as category_name, c.color as category_color, 
-                (SELECT COUNT(*) FROM pages WHERE note_id = n.id) as page_count
+                (SELECT COUNT(*) FROM pages WHERE note_id = n.note_id) as page_count
                 FROM notes n 
-                LEFT JOIN pages p ON n.id = p.note_id AND p.page_number = 1 
-                LEFT JOIN categories c ON n.category_id = c.id
+                LEFT JOIN pages p ON n.note_id = p.note_id AND p.page_number = 1 
+                LEFT JOIN categories c ON n.category_id = c.category_id
                 WHERE n.user_id = $uid AND n.is_archived = $archived";
 
         if ($category) {
@@ -70,6 +70,9 @@ function get_notes($filters = [])
         while ($row = mysqli_fetch_assoc($result)) {
             // Map back for compatibility if needed, or prefer frontend update
             $row['category'] = $row['category_name'] ? $row['category_name'] : 'General';
+            // Map NEW ID to OLD ID key for compatibility if frontend uses 'id'
+            // BUT requirement 2 says: "Update all PHP code ... change $row['id'] to $row['note_id']"
+            // So we will stick to returning the raw row, and update frontend files to use note_id.
             $notes[] = $row;
         }
     } else {
@@ -138,11 +141,11 @@ function get_note($id)
     if (is_logged_in()) {
         // DB
         $id_esc = intval($id);
-        $sql = "SELECT n.*, p.text, c.name as category_name, c.id as category_id_val 
+        $sql = "SELECT n.*, p.text, c.name as category_name, c.category_id as category_id_val 
                 FROM notes n 
-                LEFT JOIN pages p ON n.id = p.note_id 
-                LEFT JOIN categories c ON n.category_id = c.id
-                WHERE n.id = $id_esc AND n.user_id = $uid 
+                LEFT JOIN pages p ON n.note_id = p.note_id 
+                LEFT JOIN categories c ON n.category_id = c.category_id
+                WHERE n.note_id = $id_esc AND n.user_id = $uid 
                 LIMIT 1";
         $result = mysqli_query($conn, $sql);
         $row = mysqli_fetch_assoc($result);
@@ -195,14 +198,14 @@ function save_note($data)
     if (is_logged_in()) {
         $cat_id = intval($category_val);
 
-        if (!empty($data['id'])) {
+        if (!empty($data['note_id'])) {
             // UPDATE
-            $id = intval($data['id']);
-            $check = mysqli_query($conn, "SELECT id FROM notes WHERE id=$id AND user_id=$uid");
+            $id = intval($data['note_id']);
+            $check = mysqli_query($conn, "SELECT note_id FROM notes WHERE note_id=$id AND user_id=$uid");
             if (mysqli_num_rows($check) == 0)
                 return false;
 
-            $stmt = $conn->prepare("UPDATE notes SET title=?, category_id=?, is_pinned=?, is_archived=?, reminder_date=?, date_last=NOW() WHERE id=?");
+            $stmt = $conn->prepare("UPDATE notes SET title=?, category_id=?, is_pinned=?, is_archived=?, reminder_date=?, date_last=NOW() WHERE note_id=?");
             $stmt->bind_param("siiisi", $title, $cat_id, $is_pinned, $is_archived, $reminder_date, $id);
             $stmt->execute();
 
@@ -320,7 +323,7 @@ function delete_note($id)
 
     if (is_logged_in()) {
         $id = intval($id);
-        $sql = "DELETE FROM notes WHERE id=$id AND user_id=$uid";
+        $sql = "DELETE FROM notes WHERE note_id=$id AND user_id=$uid";
         return mysqli_query($conn, $sql);
     } else {
         if (isset($_SESSION['guest_notes'][$id])) {
@@ -350,10 +353,10 @@ function migrate_guest_data_to_db($user_id)
 
                 // Check duplicate to avoid error, though user just created logic guarantees unique in session
                 // We check against DB just in case they have same name as existing DB category
-                $check = mysqli_query($conn, "SELECT id FROM categories WHERE user_id=$user_id AND name='$name'");
+                $check = mysqli_query($conn, "SELECT category_id FROM categories WHERE user_id=$user_id AND name='$name'");
                 if ($row = mysqli_fetch_assoc($check)) {
                     // Use existing
-                    $cat_map['g_' . $idx] = $row['id'];
+                    $cat_map['g_' . $idx] = $row['category_id'];
                 } else {
                     // Create new
                     $sql = "INSERT INTO categories (user_id, name, color) VALUES ($user_id, '$name', '$color')";
@@ -423,17 +426,18 @@ function get_categories()
     $categories = [];
 
     // Hardcoded defaults for fallback/consistency (With IDs now)
+    // Hardcoded defaults for fallback/consistency (With IDs now)
     $defaults = [
-        ['id' => 1, 'name' => 'General', 'color' => '#fff9c4'],
-        ['id' => 2, 'name' => 'Personal', 'color' => '#e8f5e9'],
-        ['id' => 3, 'name' => 'Work', 'color' => '#e3f2fd'],
-        ['id' => 4, 'name' => 'Study', 'color' => '#fce4ec'],
-        ['id' => 5, 'name' => 'Ideas', 'color' => '#f3e5f5']
+        ['category_id' => 1, 'name' => 'General', 'color' => '#fff9c4'],
+        ['category_id' => 2, 'name' => 'Personal', 'color' => '#e8f5e9'],
+        ['category_id' => 3, 'name' => 'Work', 'color' => '#e3f2fd'],
+        ['category_id' => 4, 'name' => 'Study', 'color' => '#fce4ec'],
+        ['category_id' => 5, 'name' => 'Ideas', 'color' => '#f3e5f5']
     ];
 
     if (is_logged_in()) {
         // Fetch Defaults (user_id=0) AND User's (user_id=$uid)
-        $sql = "SELECT * FROM categories WHERE user_id = 0 OR user_id = $uid ORDER BY user_id ASC, id ASC";
+        $sql = "SELECT * FROM categories WHERE user_id = 0 OR user_id = $uid ORDER BY user_id ASC, category_id ASC";
         $result = mysqli_query($conn, $sql);
         while ($row = mysqli_fetch_assoc($result)) {
             $categories[] = $row;
@@ -490,7 +494,7 @@ function add_category($name, $color)
         }
 
         // Check duplicate
-        $check = mysqli_query($conn, "SELECT id FROM categories WHERE user_id=$uid AND name='$name_esc'");
+        $check = mysqli_query($conn, "SELECT category_id FROM categories WHERE user_id=$uid AND name='$name_esc'");
         if (mysqli_num_rows($check) > 0)
             return 0; // Duplicate
 
@@ -533,7 +537,7 @@ function delete_category($id)
         mysqli_query($conn, "UPDATE notes SET category_id = 1 WHERE category_id = $id AND user_id = $uid");
 
         // Only delete if it belongs to this user
-        $sql = "DELETE FROM categories WHERE user_id=$uid AND id=$id";
+        $sql = "DELETE FROM categories WHERE user_id=$uid AND category_id=$id";
         return mysqli_query($conn, $sql);
     } else {
         // Guest
@@ -573,7 +577,7 @@ function save_note_page($note_id, $page_number, $text)
 
     if (is_logged_in()) {
         // Check availability
-        $check = mysqli_query($conn, "SELECT id FROM pages WHERE note_id=$nid AND page_number=$p");
+        $check = mysqli_query($conn, "SELECT note_id FROM pages WHERE note_id=$nid AND page_number=$p");
         if (mysqli_num_rows($check) > 0) {
             $stmt = $conn->prepare("UPDATE pages SET text=? WHERE note_id=? AND page_number=?");
             $stmt->bind_param("sii", $text, $nid, $p);
@@ -628,7 +632,7 @@ function delete_note_permanently($note_id)
 
     if (is_logged_in()) {
         // Verify ownership and verify it is archived (safety check)
-        $check = mysqli_query($conn, "SELECT id FROM notes WHERE id = $nid AND user_id = $uid AND is_archived = 1");
+        $check = mysqli_query($conn, "SELECT note_id FROM notes WHERE note_id = $nid AND user_id = $uid AND is_archived = 1");
         if (mysqli_num_rows($check) == 0)
             return false;
 
@@ -636,7 +640,7 @@ function delete_note_permanently($note_id)
         mysqli_query($conn, "DELETE FROM pages WHERE note_id = $nid");
 
         // Delete Note
-        return mysqli_query($conn, "DELETE FROM notes WHERE id = $nid");
+        return mysqli_query($conn, "DELETE FROM notes WHERE note_id = $nid");
     } else {
         // Guest
         if (isset($_SESSION['guest_notes'][$note_id])) { // Use string ID
@@ -730,11 +734,11 @@ function update_category($id, $name, $color)
         $color_esc = mysqli_real_escape_string($conn, $color);
 
         // Check if name taken by another category of same user
-        $check = mysqli_query($conn, "SELECT id FROM categories WHERE user_id=$uid AND name='$name_esc' AND id != $id");
+        $check = mysqli_query($conn, "SELECT category_id FROM categories WHERE user_id=$uid AND name='$name_esc' AND category_id != $id");
         if (mysqli_num_rows($check) > 0)
             return 0; // Duplicate
 
-        $sql = "UPDATE categories SET name='$name_esc', color='$color_esc' WHERE user_id=$uid AND id=$id";
+        $sql = "UPDATE categories SET name='$name_esc', color='$color_esc' WHERE user_id=$uid AND category_id=$id";
         return mysqli_query($conn, $sql);
     } else {
         // Guest
@@ -774,13 +778,13 @@ function get_all_users($search = '', $role = '', $status = '', $sort = 'id', $or
     $order = strtoupper($order) === 'DESC' ? 'DESC' : 'ASC';
 
     // Allowed Sort Columns
-    $allowed_sorts = ['id', 'username', 'role', 'date_created', 'is_active'];
+    $allowed_sorts = ['user_id', 'username', 'role', 'date_created', 'is_active'];
     if (!in_array($sort, $allowed_sorts))
-        $sort = 'id';
+        $sort = 'user_id';
 
     // Base Header
-    $sql = "SELECT u.id, u.username, u.role, u.is_active, u.date_created, 
-            (SELECT COUNT(*) FROM notes n WHERE n.user_id = u.id) as note_count 
+    $sql = "SELECT u.user_id, u.username, u.role, u.is_active, u.date_created, 
+            (SELECT COUNT(*) FROM notes n WHERE n.user_id = u.user_id) as note_count 
             FROM users u WHERE 1=1";
 
     // Filters
@@ -821,7 +825,7 @@ function get_all_users($search = '', $role = '', $status = '', $sort = 'id', $or
     $total = $total_row['total'];
 
     // Add Order and Limit
-    $sql .= " ORDER BY u.$sort $order, u.id ASC LIMIT $limit OFFSET $offset";
+    $sql .= " ORDER BY u.$sort $order, u.user_id ASC LIMIT $limit OFFSET $offset";
 
     $result = mysqli_query($conn, $sql);
     $users = [];
@@ -849,7 +853,7 @@ function toggle_user_status($user_id, $current_status)
     // Invert status
     $new_status = ($current_status == 1) ? 0 : 1;
 
-    $sql = "UPDATE users SET is_active = $new_status WHERE id = $uid";
+    $sql = "UPDATE users SET is_active = $new_status WHERE user_id = $uid";
     return mysqli_query($conn, $sql);
 }
 
@@ -867,7 +871,7 @@ function set_security_word($user_id, $word)
     // Plan says "case-insensitive for better UX", so we can store it as is but compare lower.
 
     $word_esc = mysqli_real_escape_string($conn, $word);
-    $sql = "UPDATE users SET security_word = '$word_esc', security_word_set = 1 WHERE id = $uid";
+    $sql = "UPDATE users SET security_word = '$word_esc', security_word_set = 1 WHERE user_id = $uid";
     return mysqli_query($conn, $sql);
 }
 
@@ -917,12 +921,12 @@ function update_username($user_id, $new_username)
     $username = mysqli_real_escape_string($conn, trim($new_username));
 
     // Check availability first (redundant safe-check)
-    $check = mysqli_query($conn, "SELECT id FROM users WHERE username='$username' AND id != $uid");
+    $check = mysqli_query($conn, "SELECT user_id FROM users WHERE username='$username' AND user_id != $uid");
     if (mysqli_num_rows($check) > 0) {
         return false; // Already taken
     }
 
-    $sql = "UPDATE users SET username = '$username' WHERE id = $uid";
+    $sql = "UPDATE users SET username = '$username' WHERE user_id = $uid";
     if (mysqli_query($conn, $sql)) {
         // Update session
         if (session_status() === PHP_SESSION_NONE)
@@ -940,7 +944,7 @@ function has_security_word_set($user_id)
 {
     global $conn;
     $uid = intval($user_id);
-    $result = mysqli_query($conn, "SELECT security_word_set FROM users WHERE id=$uid");
+    $result = mysqli_query($conn, "SELECT security_word_set FROM users WHERE user_id=$uid");
     if ($row = mysqli_fetch_assoc($result)) {
         return $row['security_word_set'] == 1;
     }

@@ -218,7 +218,7 @@ if (isset($_SESSION['flash'])) {
 									<?php
 									$cat_name = "General";
 									foreach (get_categories() as $c) {
-										if ($c['id'] == $ncat) {
+										if ($c['category_id'] == $ncat) {
 											$cat_name = $c['name'];
 											break;
 										}
@@ -336,16 +336,16 @@ if (isset($_SESSION['flash'])) {
 							if (!empty($defaults)) {
 								echo "<optgroup label='Defaults'>";
 								foreach ($defaults as $c) {
-									$sel = ($ncat == $c['id']) ? "selected" : "";
-									echo "<option value='{$c['id']}' $sel>" . htmlspecialchars($c['name']) . "</option>";
+									$sel = ($ncat == $c['category_id']) ? "selected" : "";
+									echo "<option value='{$c['category_id']}' $sel>" . htmlspecialchars($c['name']) . "</option>";
 								}
 								echo "</optgroup>";
 							}
 							if (!empty($custom)) {
 								echo "<optgroup label='My Categories'>";
 								foreach ($custom as $c) {
-									$sel = ($ncat == $c['id']) ? "selected" : "";
-									echo "<option value='{$c['id']}' $sel>" . htmlspecialchars($c['name']) . "</option>";
+									$sel = ($ncat == $c['category_id']) ? "selected" : "";
+									echo "<option value='{$c['category_id']}' $sel>" . htmlspecialchars($c['name']) . "</option>";
 								}
 								echo "</optgroup>";
 							}
