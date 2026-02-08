@@ -829,7 +829,8 @@ a.note-add-card:hover {
 }
 
 .fab-container.idle {
-	transform: translateX(60px);
+	transform: translateX(calc(50% + 30px));
+	/* Exact center alignment */
 	opacity: 0.8;
 }
 
@@ -994,6 +995,14 @@ a.note-add-card:hover {
 	/* Default FAB position (when no pagination or single page) */
 	.fab-container {
 		bottom: 30px;
+		right: 20px;
+		/* Tighter on mobile */
+	}
+
+	/* Mobile Idle: Hide 50% exactly */
+	.fab-container.idle {
+		transform: translateX(calc(50% + 20px));
+		opacity: 0.8;
 	}
 }
 
