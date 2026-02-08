@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			}
 
 			// PRG: Redirect to self to show saved state and avoid resubmission
-			$redirect_mode = isset($_GET['mode']) ? $_GET['mode'] : 'edit';
+			$redirect_mode = $_POST['mode'] ?? 'view';
 			$_SESSION['flash'] = ['message' => "Note saved successfully!", 'type' => 'success'];
 			header("Location: notepad.php?id=$nid&page=$current_page&mode=$redirect_mode");
 			exit();
@@ -194,6 +194,12 @@ if (isset($_SESSION['flash'])) {
 					$mode = 'view';
 				$is_view_mode = ($mode == 'view');
 				?>
+
+				<!-- State Preservation for Redirection/Saving -->
+				<input type="hidden" name="mode" value="<?php echo $mode; ?>">
+				<?php if ($is_view_mode): ?>
+					<input type="hidden" name="new_title" value="<?php echo htmlspecialchars($ntitle); ?>">
+				<?php endif; ?>
 
 				<!-- VIEW MODE HEADER (Clean Look) -->
 				<?php if ($is_view_mode): ?>
