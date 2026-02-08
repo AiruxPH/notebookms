@@ -403,8 +403,7 @@ if (isset($_SESSION['flash'])) {
 						<?php if ($nid != ""): ?>
 							<div class="floating-pagination <?php echo ($total_pages <= 1) ? 'pagination-single' : ''; ?>">
 
-								<div id="pagination-controls"
-									style="display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>; align-items: center; gap: 8px;">
+								<div id="pagination-controls" style="display: flex; align-items: center; gap: 8px;">
 									<!-- First -->
 									<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first"
 										title="First Page">
@@ -446,8 +445,7 @@ if (isset($_SESSION['flash'])) {
 
 								<!-- Delete Page -->
 								<button type="button" onclick="deletePage()" class="page-btn delete-page-btn"
-									id="btn-delete-page" title="Delete Current Page"
-									style="margin-left: 5px; display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>; color: #c62828;">
+									id="btn-delete-page" title="Delete Current Page" style="margin-left: 5px; color: #c62828;">
 									<i class="fa-solid fa-trash-can"></i>
 								</button>
 							</div>
@@ -647,20 +645,38 @@ if (isset($_SESSION['flash'])) {
 			function updateUI() {
 				// Toggle visibility based on totalPages
 				const viewBar = document.getElementById('view-pagination-bar');
-				const editControls = document.getElementById('pagination-controls');
-				const deleteBtn = document.getElementById('btn-delete-page');
 
-				if (viewBar) viewBar.style.display = (totalPages > 1) ? 'flex' : 'none';
-				if (editControls) editControls.style.display = (totalPages > 1) ? 'flex' : 'none';
-				if (deleteBtn) deleteBtn.style.display = (totalPages > 1) ? 'flex' : 'none';
+				// Edit Mode Container
+				const editPagination = document.querySelector('.floating-pagination');
 
-				// Edit Mode UI
+				// Update Body Class for FAB Positioning
+				if (totalPages > 1) {
+					document.body.classList.add('has-pagination');
+				} else {
+					document.body.classList.remove('has-pagination');
+				}
+
+				// View Mode Logic
+				if (viewBar) {
+					viewBar.style.display = (totalPages > 1) ? 'flex' : 'none';
+				}
+
+				// Edit Mode Logic (Class-Based Animation)
+				if (editPagination) {
+					if (totalPages > 1) {
+						editPagination.classList.remove('pagination-single');
+					} else {
+						editPagination.classList.add('pagination-single');
+					}
+				}
+
+				// Update Inputs
 				const jumpInput = document.getElementById('jump-page-input');
 				const totalDisplay = document.getElementById('total-pages-display');
 				if (jumpInput) jumpInput.value = currentPage;
 				if (totalDisplay) totalDisplay.innerText = totalPages;
 
-				// View Mode UI
+				// View Mode UI Input
 				const jumpInputV = document.getElementById('jump-page-input-v');
 				const totalDisplayV = document.getElementById('total-pages-display-v');
 				if (jumpInputV) jumpInputV.value = currentPage;

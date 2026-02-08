@@ -998,30 +998,58 @@ a.note-add-card:hover {
 }
 
 /* Dynamic Container: Single Page Edit Mode (Global) */
+.floating-pagination {
+	/* Existing styles plus transition */
+	transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+	overflow: hidden;
+	/* Ensure expanding content doesn't bleed */
+}
+
+/* Items inside pagination */
+#pagination-controls,
+.delete-page-btn {
+	transition: all 0.4s ease;
+	max-width: 400px;
+	/* Arbitrary large max-width for expansion */
+	opacity: 1;
+	transform: translateX(0);
+}
+
+/* Collapsed State (Single Page) */
 .floating-pagination.pagination-single {
 	padding: 5px;
 	border-radius: 50px;
-	/* Fully rounded */
 	width: auto;
 	bottom: 30px;
-	/* Align with FABs */
 	gap: 0;
+}
+
+/* Hide controls smoothly in single mode */
+.floating-pagination.pagination-single #pagination-controls,
+.floating-pagination.pagination-single .delete-page-btn {
+	max-width: 0;
+	opacity: 0;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+	pointer-events: none;
+	transform: translateX(-10px);
 }
 
 .floating-pagination.pagination-single .add-page-btn {
 	box-shadow: none;
-	/* Remove button shadow, use container shadow */
 	width: 42px;
 	height: 42px;
 	margin: 0;
 	background: transparent;
-	/* Button blends into container */
 	color: var(--nav-bg);
+	transform: rotate(0deg);
 }
+
+/* Optional: Rotate plus button when expanding? No, keeping it simple. */
 
 .floating-pagination.pagination-single .add-page-btn i {
 	color: #333;
-	/* Icon color */
 }
 
 .floating-pagination.pagination-single .add-page-btn:hover {
