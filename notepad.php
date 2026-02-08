@@ -249,11 +249,11 @@ if (isset($_SESSION['flash'])) {
 								<span id="pin-text"><?php echo $is_pinned_val ? 'Unpin' : 'Pin'; ?></span>
 							</button>-->
 							<button type="button" id="pin-toggle-btn" class="btn btn-sm"
-								style="display: flex; align-items: center; gap: 5px; background: <php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 13px;"
-								<onclick="togglePin()">
+								style="display: flex; align-items: center; gap: 5px; background: <?php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <?php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <?php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 13px;"
+								onclick="togglePin()">
 								<i class="fa-solid fa-thumbtack"></i>
 								<span id="pin-text">
-									<php echo $is_pinned_val ? 'Unpin' : 'Pin' ; ?>
+									<?php echo $is_pinned_val ? 'Unpin' : 'Pin'; ?>
 								</span>
 							</button>
 							<?php if ($is_archived_val): ?>
