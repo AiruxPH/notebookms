@@ -24,6 +24,9 @@ CSIT601 preliminary exam requirement
   This allow the users to apply basic text formatting makes notes more readable and allows the user to bring more emphasis to certain parts.
 
 ## To-do
+### See what's causing error 500 during registration
+
+## To-do (Done)
 ### Placement of stats of note cards, like time stamps (done)
 ### Height of note cards, static or flexible with a max? -V (i let titles have 100 characters max and i let the preview text have a max of 140 characters, i also prevent white spaces for the title)
 ### Set overflow for note card preview text (done)
