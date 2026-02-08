@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	}
 
 	// HANDLE SAVE / ARCHIVE
-	elseif (isset($_POST['save_note']) || isset($_POST['save_exit']) || (isset($_POST['action_type']) && $_POST['action_type'] == 'archive_redirect')) {
+	elseif (isset($_POST['save_note']) || isset($_POST['save_exit']) || (isset($_POST['action_type']) && in_array($_POST['action_type'], ['archive_redirect', 'save_redirect']))) {
 
 		// Collect Data
 		$save_data = [
@@ -40,8 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			'title' => $_POST['new_title'] ?? 'Untitled',
 			'category' => $_POST['category'] ?? 1,
 			'text' => $_POST['page'] ?? '',
-			// This line is broken, implementing temporary fix
-			//'is_pinned' => isset($_POST['is_pinned']) ? 1 : 0,
 			'is_pinned' => $_POST['is_pinned'],
 			'is_archived' => $_POST['is_archived'] ?? 0,
 			'reminder_date' => !empty($_POST['reminder_date']) ? str_replace('T', ' ', $_POST['reminder_date']) : null,
@@ -59,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			$current_page = $save_data['page_number'];
 
 			// Redirect logic
-			// Redirect logic
 			if (isset($_POST['save_exit'])) {
 				$_SESSION['flash'] = ['message' => "Note saved.", 'type' => 'success'];
 				header("Location: index.php");
@@ -74,8 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			}
 
 			// PRG: Redirect to self to show saved state and avoid resubmission
+			$redirect_mode = isset($_GET['mode']) ? $_GET['mode'] : 'edit';
 			$_SESSION['flash'] = ['message' => "Note saved successfully!", 'type' => 'success'];
-			header("Location: notepad.php?id=$nid&page=$current_page&mode=edit");
+			header("Location: notepad.php?id=$nid&page=$current_page&mode=$redirect_mode");
 			exit();
 
 		} else {
@@ -242,12 +240,6 @@ if (isset($_SESSION['flash'])) {
 
 						<!-- Right: Pin & Archive Icons -->
 						<div style="display: flex; gap: 15px; align-items: center;">
-							<!--<button type="button" id="pin-toggle-btn" class="btn btn-sm"
-								style="display: flex; align-items: center; gap: 5px; background: <?php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <?php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <?php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 13px;"
-								<onclick="togglePin(!<php echo $is_pinned_val; ?>)">
-								<i class="fa-solid fa-thumbtack"></i>
-								<span id="pin-text"><?php echo $is_pinned_val ? 'Unpin' : 'Pin'; ?></span>
-							</button>-->
 							<button type="button" id="pin-toggle-btn" class="btn btn-sm"
 								style="display: flex; align-items: center; gap: 5px; background: <?php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <?php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <?php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 13px;"
 								onclick="togglePin()">
@@ -704,10 +696,8 @@ if (isset($_SESSION['flash'])) {
 			}
 		}
 
-		function togglePin(isPinned) {
+		function togglePin() {
 			const pinInput = document.getElementById('is_pinned_input');
-			// Temporary fix for pin input
-			//if (pinInput) pinInput.value = isPinned ? "1" : "0";
 			if (pinInput.value == 1) {
 				pinInput.value = "0";
 			} else if (pinInput.value == 0) {
