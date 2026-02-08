@@ -1028,6 +1028,8 @@ a.note-add-card:hover {
 .floating-pagination.pagination-single #pagination-controls,
 .floating-pagination.pagination-single .delete-page-btn {
 	max-width: 0;
+	min-width: 0;
+	/* Override min-width: 36px */
 	opacity: 0;
 	padding: 0;
 	margin: 0;
