@@ -274,10 +274,10 @@ if (isset($_SESSION['flash'])) {
 							<?php echo $content; ?>
 						</div>
 
-						<!-- View Mode Pagination (Client-Side) -->
+						<!-- View Mode Pagination (Floating) -->
 						<?php if ($nid != ""): ?>
-							<div class="pagination-bar" id="view-pagination-bar"
-								style="background: #f0f0f0; display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>; align-items: center; justify-content: center; gap: 8px; margin-top: 20px;">
+							<div class="floating-pagination" id="view-pagination-bar"
+								style="display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>;">
 
 								<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first-v"
 									title="First Page">
@@ -286,20 +286,20 @@ if (isset($_SESSION['flash'])) {
 
 								<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn"
 									id="btn-prev-v" title="Previous Page">
-									<i class="fa-solid fa-chevron-left"></i> <span class="btn-text">Prev</span>
+									<i class="fa-solid fa-chevron-left"></i>
 								</button>
 
 								<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
 									Page
 									<input type="number" id="jump-page-input-v" value="<?php echo $current_page; ?>" min="1"
-										style="width: 50px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;"
+										style="width: 40px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;"
 										onchange="goToPage(parseInt(this.value))">
 									of <span id="total-pages-display-v"><?php echo $total_pages; ?></span>
 								</span>
 
 								<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn"
 									id="btn-next-v" title="Next Page">
-									<span class="btn-text">Next</span> <i class="fa-solid fa-chevron-right"></i>
+									<i class="fa-solid fa-chevron-right"></i>
 								</button>
 
 								<button type="button" onclick="goToPage(window.totalPages)" class="page-btn" id="btn-last-v"
