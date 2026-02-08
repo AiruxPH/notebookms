@@ -92,7 +92,7 @@ if (is_admin()) {
 									echo "<optgroup label='Defaults'>";
 									foreach ($defaults as $c) {
 										$cname = htmlspecialchars($c['name']);
-										$cid = $c['id'];
+										$cid = $c['category_id'];
 										$sel = ($curr_cat == $cid) ? "selected" : "";
 										echo "<option value='$cid' $sel>$cname</option>";
 									}
@@ -103,7 +103,7 @@ if (is_admin()) {
 									echo "<optgroup label='My Categories'>";
 									foreach ($custom as $c) {
 										$cname = htmlspecialchars($c['name']);
-										$cid = $c['id'];
+										$cid = $c['category_id'];
 										$sel = ($curr_cat == $cid) ? "selected" : "";
 										echo "<option value='$cid' $sel>$cname</option>";
 									}
@@ -177,7 +177,7 @@ if (is_admin()) {
 					// Display
 					if (count($notes) > 0) {
 						foreach ($notes as $row) {
-							$nid = $row['id'];
+							$nid = $row['note_id'];
 							$title = htmlspecialchars($row['title']);
 							$category = htmlspecialchars($row['category']);
 							$date_last = date("M j, g:i A", strtotime($row['date_last']));

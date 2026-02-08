@@ -220,14 +220,10 @@ $categories = get_categories();
                             <div style="margin-bottom: 15px;">
                                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">Name (Max
                                     50):</label>
-                                <div class="col-8">
+                                <div>
                                     <input type="text" name="cat_name" placeholder="Category Name (Max 30 chars)"
                                         required maxlength="30"
                                         style="width: 100%; padding: 8px; box-sizing: border-box;">
-                                </div>
-                                <div class="col-4">
-                                    <input type="color" name="cat_color" value="#fff9c4"
-                                        style="width: 100%; padding: 0; border: none; height: 36px;">
                                 </div>
                             </div>
                             <div style="margin-bottom: 15px;">
@@ -255,7 +251,7 @@ $categories = get_categories();
                     <div style="background: #fff; outline: 1px solid #eee;">
                         <?php
                         foreach ($categories as $index => $c):
-                            $cid = $c['id'];
+                            $cid = $c['category_id'];
                             $cname = htmlspecialchars($c['name']);
                             $ccolor = htmlspecialchars($c['color']);
                             // Logic: IDs 1-5 are defaults

@@ -7,7 +7,7 @@ if (!is_logged_in()) {
 }
 
 $user = get_user_by_username($_SESSION['username']);
-$uid = $user['id'];
+$uid = $user['user_id'];
 $username = $user['username'];
 $join_date = date("F j, Y", strtotime($user['date_created']));
 
