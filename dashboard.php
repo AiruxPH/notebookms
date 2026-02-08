@@ -132,25 +132,21 @@ if (is_logged_in() && !has_security_word_set(get_current_user_id())) {
         <!-- Welcome / Announcements Section -->
         <div id="dev-announcement" class="dashboard-section announcement-box" style="margin-bottom: 20px;">
             <div class="announcement-header">
-                <h2 style="margin: 0;">📢 Updates & Announcements</h2>
-                <button onclick="toggleAnnouncement()"
-                    style="background: #fff; border: 1px solid #ccc; font-size: 13px; font-weight: bold; cursor: pointer; color: #333; padding: 4px 10px; border-radius: 4px; box-shadow: 1px 1px 0 rgba(0,0,0,0.1);"
-                    title="Minimize">Hide</button>
+                <h3>📢 Dev Board: Notes from the Architect</h3>
+                <button class="btn-text" onclick="toggleAnnouncement()" title="Minimize">_</button>
             </div>
-            <p>Welcome to <strong>Notebook-BAR v1.3</strong>! Latest improvements:</p>
-            <ul style="padding-left: 20px; line-height: 1.6;">
-                <li>🔧 <strong>System Upgrade:</strong> Complete database schema refactoring for better performance and
-                    stability.</li>
-                <li>👤 <strong>Guest Mode Fixed:</strong> Resolved issues with opening and saving notes in Guest Mode.
+            <p><strong>Latest Update (v1.3.1 - Mobile Experience):</strong></p>
+            <ul>
+                <li><strong>New Mobile Sidebar:</strong> Navigation is now cleaner with a collapsible sidebar.</li>
+                <li><strong>Floating Pagination:</strong> Smooth animations and better positioning for page controls.
                 </li>
-                <li>🐞 <strong>Bug Fixes:</strong> Fixed pinning issue that caused duplicate notes.</li>
-                <li>🔒 <strong>Security:</strong> Enhanced user validation and session handling.</li>
+                <li><strong>Smart FABs:</strong> Action buttons now smartly hide/show to keep your view clear.</li>
             </ul>
+            <p><em>"Simplicity is the ultimate sophistication."</em></p>
         </div>
-
-        <div id="dev-announcement-minimized" class="announcement-minimized" onclick="toggleAnnouncement()">
-            <span>📢 Show Announcements</span>
-            <span>+</span>
+        <div class="announcement-minimized" id="announcement-minimized" onclick="toggleAnnouncement()">
+            <span>📢 Dev Board (v1.3.1)</span>
+            <span style="font-size: 12px;">▼</span>
         </div>
 
         <div class="dashboard-grid-layout">

@@ -173,7 +173,7 @@
             </div>
 
             <div class="changelog-entry">
-                <div class="changelog-version">v1.3.0 - Refactoring & Stability (Current)</div>
+                <div class="changelog-version">v1.3.0 - Refactoring & Stability</div>
                 <div class="changelog-date">Released: <?php echo date("F j, Y"); ?></div>
                 <ul class="changelog-list">
                     <li><span class="tag-refactor">refactor</span> Standardized primary keys to `user_id`, `note_id`,
