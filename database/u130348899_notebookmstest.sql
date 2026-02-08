@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Feb 08, 2026 at 03:09 PM
+-- Generation Time: Feb 08, 2026 at 03:46 PM
 -- Server version: 11.8.3-MariaDB-log
 -- PHP Version: 7.2.34
 
@@ -28,7 +28,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `categories` (
-  `id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT 0,
   `name` varchar(100) NOT NULL,
   `color` varchar(50) DEFAULT '#ffffff'
@@ -38,7 +38,7 @@ CREATE TABLE `categories` (
 -- Dumping data for table `categories`
 --
 
-INSERT INTO `categories` (`id`, `user_id`, `name`, `color`) VALUES
+INSERT INTO `categories` (`category_id`, `user_id`, `name`, `color`) VALUES
 (1, 0, 'General', '#fff9c4'),
 (2, 0, 'Personal', '#e8f5e9'),
 (3, 0, 'Work', '#e3f2fd'),
@@ -72,7 +72,7 @@ DELIMITER ;
 --
 
 CREATE TABLE `notes` (
-  `id` int(11) NOT NULL,
+  `note_id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT 0,
   `title` varchar(255) NOT NULL,
   `date_created` datetime DEFAULT current_timestamp(),
@@ -87,7 +87,7 @@ CREATE TABLE `notes` (
 -- Dumping data for table `notes`
 --
 
-INSERT INTO `notes` (`id`, `user_id`, `title`, `date_created`, `date_last`, `is_pinned`, `is_archived`, `category_id`, `reminder_date`) VALUES
+INSERT INTO `notes` (`note_id`, `user_id`, `title`, `date_created`, `date_last`, `is_pinned`, `is_archived`, `category_id`, `reminder_date`) VALUES
 (1, 5, 'this is the title', '2026-02-01 10:05:02', '2026-02-03 10:59:48', 0, 0, 1, NULL),
 (2, 5, 'Yes', '2026-02-01 10:20:25', '2026-02-03 10:59:48', 0, 0, 1, NULL),
 (3, 5, 'CSIT6 PRELIM', '2026-02-01 11:18:14', '2026-02-03 10:59:48', 1, 0, 4, '2026-02-04 10:50:00'),
@@ -109,7 +109,6 @@ INSERT INTO `notes` (`id`, `user_id`, `title`, `date_created`, `date_last`, `is_
 --
 
 CREATE TABLE `pages` (
-  `id` int(11) NOT NULL,
   `note_id` int(11) NOT NULL,
   `page_number` int(11) DEFAULT 1,
   `text` longtext DEFAULT NULL
@@ -119,25 +118,25 @@ CREATE TABLE `pages` (
 -- Dumping data for table `pages`
 --
 
-INSERT INTO `pages` (`id`, `note_id`, `page_number`, `text`) VALUES
-(1, 1, 1, '\r\n					\r\n					\r\n					\r\n					<b>This is a body</b><div><b><br></b></div><div>this <b><i>this is italic</i></b></div><div><b><i><br></i></b></div><div><b><i><u>this is iitalic underlined<br><br></u></i></b><h3><b><i><u>hey<br><br><ul><li><b><i><u>Thiss is a list</u></i></b></li><li><b><i><u>secon</u></i></b></li><li><b><i><u>third</u></i></b></li><li><b><i><u>fourth</u></i></b></li><li><b><i><u>fith</u></i></b></li><li><b><i><u>sixh</u></i></b></li><li><b><i><u>jhdfjwad</u></i></b></li><li><b><i><u>ad</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>wd</u></i></b></li><li><b><i><u>wad</u></i></b></li><li><b><i><u><br></u></i></b></li></ul></u></i></b></h3></div>																'),
-(2, 2, 1, 'Test'),
-(4, 4, 1, '<h3>Green</h3><div>This is green</div>'),
-(5, 5, 1, '\r\n					\r\n					123								'),
-(6, 6, 1, '\r\n					Aasdfasdawasd				'),
-(7, 7, 1, '\r\n					\r\n					\r\n					\r\n					\r\n					\r\n					test																								'),
-(8, 8, 1, '\r\n					\r\n					\r\n					\r\n					\r\n					aaaaaaaaaaaaaaaaaaa aaaaaaaaaa&nbsp; &nbsp; &nbsp; aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<div><br></div>																				'),
-(9, 9, 1, '\r\n					Narration: This is a narration				'),
-(15, 10, 1, '<p>On the morning the notebooks arrived, the town woke to a softer sound than usual. No engines. No shouting vendors. Just paper sliding against paper as if the air itself had learned how to turn a page.</p><p>Milo found the stack on his doorstep, wrapped in twine, each cover blank and warm to the touch. He counted nine notebooks. Inside the top one, a single line waited for him.</p><p>Write carefully. The ink remembers.</p><p>Milo laughed, because that is what you do when something strange pretends to be serious. He brought the notebooks inside, set them beside the kettle, and told himself this was just another prank from the university kids who passed through town.</p><p>He was wrong.</p>'),
-(16, 10, 2, '\n						This is page 2					'),
-(17, 10, 3, 'This is page 3'),
-(18, 10, 4, ''),
-(19, 10, 5, ''),
-(22, 11, 1, 'Hello world. Jsjajaj'),
-(27, 3, 1, 'This website is a preliminary examination requirement and yes there is a thing cc\n'),
-(28, 12, 1, 'ASdfasdasd'),
-(31, 13, 1, 'Ass'),
-(32, 13, 2, '<blockquote><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, \nsed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut \nenim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut \naliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit \nin voluptate velit esse cillum dolore eu fugiat nulla pariatur. \nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui \nofficia deserunt mollit anim id est laborum.</p></blockquote>');
+INSERT INTO `pages` (`note_id`, `page_number`, `text`) VALUES
+(1, 1, '\r\n					\r\n					\r\n					\r\n					<b>This is a body</b><div><b><br></b></div><div>this <b><i>this is italic</i></b></div><div><b><i><br></i></b></div><div><b><i><u>this is iitalic underlined<br><br></u></i></b><h3><b><i><u>hey<br><br><ul><li><b><i><u>Thiss is a list</u></i></b></li><li><b><i><u>secon</u></i></b></li><li><b><i><u>third</u></i></b></li><li><b><i><u>fourth</u></i></b></li><li><b><i><u>fith</u></i></b></li><li><b><i><u>sixh</u></i></b></li><li><b><i><u>jhdfjwad</u></i></b></li><li><b><i><u>ad</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>awd</u></i></b></li><li><b><i><u>wd</u></i></b></li><li><b><i><u>wad</u></i></b></li><li><b><i><u><br></u></i></b></li></ul></u></i></b></h3></div>																'),
+(2, 1, 'Test'),
+(4, 1, '<h3>Green</h3><div>This is green</div>'),
+(5, 1, '\r\n					\r\n					123								'),
+(6, 1, '\r\n					Aasdfasdawasd				'),
+(7, 1, '\r\n					\r\n					\r\n					\r\n					\r\n					\r\n					test																								'),
+(8, 1, '\r\n					\r\n					\r\n					\r\n					\r\n					aaaaaaaaaaaaaaaaaaa aaaaaaaaaa&nbsp; &nbsp; &nbsp; aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<div><br></div>																				'),
+(9, 1, '\r\n					Narration: This is a narration				'),
+(10, 1, '<p>On the morning the notebooks arrived, the town woke to a softer sound than usual. No engines. No shouting vendors. Just paper sliding against paper as if the air itself had learned how to turn a page.</p><p>Milo found the stack on his doorstep, wrapped in twine, each cover blank and warm to the touch. He counted nine notebooks. Inside the top one, a single line waited for him.</p><p>Write carefully. The ink remembers.</p><p>Milo laughed, because that is what you do when something strange pretends to be serious. He brought the notebooks inside, set them beside the kettle, and told himself this was just another prank from the university kids who passed through town.</p><p>He was wrong.</p>'),
+(10, 2, '\n						This is page 2					'),
+(10, 3, 'This is page 3'),
+(10, 4, ''),
+(10, 5, ''),
+(11, 1, 'Hello world. Jsjajaj'),
+(3, 1, 'This website is a preliminary examination requirement and yes there is a thing cc\n'),
+(12, 1, 'ASdfasdasd'),
+(13, 1, 'Ass'),
+(13, 2, '<blockquote><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, \nsed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut \nenim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut \naliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit \nin voluptate velit esse cillum dolore eu fugiat nulla pariatur. \nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui \nofficia deserunt mollit anim id est laborum.</p></blockquote>');
 
 -- --------------------------------------------------------
 
@@ -146,7 +145,7 @@ INSERT INTO `pages` (`id`, `note_id`, `page_number`, `text`) VALUES
 --
 
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` enum('user','admin') NOT NULL DEFAULT 'user',
@@ -161,7 +160,8 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `role`, `is_active`, `date_created`, `date_modified`, `security_word`, `security_word_set`) VALUES
+INSERT INTO `users` (`user_id`, `username`, `password`, `role`, `is_active`, `date_created`, `date_modified`, `security_word`, `security_word_set`) VALUES
+(0, 'system_default', 'N/A', 'admin', 1, '2026-02-08 15:41:43', '2026-02-08 15:41:43', NULL, 0),
 (1, 'AiruxPH', 'RandyBOY999999@@@', 'user', 1, '2026-02-02 16:50:04', '2026-02-03 02:30:04', 'randy', 1),
 (2, 'archer', '123', 'user', 1, '2026-02-02 16:50:04', '2026-02-03 10:53:35', 'Arc', 1),
 (3, 'admin', 'admin', 'admin', 1, '2026-02-02 16:56:16', '2026-02-02 16:56:16', NULL, 0),
@@ -199,27 +199,28 @@ DELIMITER ;
 -- Indexes for table `categories`
 --
 ALTER TABLE `categories`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`category_id`),
+  ADD KEY `fk_category_user` (`user_id`);
 
 --
 -- Indexes for table `notes`
 --
 ALTER TABLE `notes`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`note_id`),
+  ADD KEY `fk_note_user` (`user_id`),
   ADD KEY `fk_note_category` (`category_id`);
 
 --
 -- Indexes for table `pages`
 --
 ALTER TABLE `pages`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `note_id` (`note_id`);
 
 --
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`user_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -229,35 +230,42 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
-
---
--- AUTO_INCREMENT for table `pages`
---
-ALTER TABLE `pages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `note_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
 --
 
 --
+-- Constraints for table `categories`
+--
+ALTER TABLE `categories`
+  ADD CONSTRAINT `fk_category_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `notes`
+--
+ALTER TABLE `notes`
+  ADD CONSTRAINT `fk_note_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_note_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `pages`
 --
 ALTER TABLE `pages`
-  ADD CONSTRAINT `pages_ibfk_1` FOREIGN KEY (`note_id`) REFERENCES `notes` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_page_note` FOREIGN KEY (`note_id`) REFERENCES `notes` (`note_id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
