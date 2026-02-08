@@ -985,4 +985,32 @@ a.note-add-card:hover {
 	.fab-container {
 		bottom: 85px;
 	}
+
+	/* Lonely Circle: Single Page Edit Mode */
+	.floating-pagination.pagination-single {
+		background: transparent;
+		box-shadow: none;
+		border: none;
+		padding: 0;
+		width: auto;
+		bottom: 30px;
+		/* Align with FABs */
+	}
+
+	.floating-pagination.pagination-single .add-page-btn {
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+		width: 48px;
+		height: 48px;
+		margin: 0;
+	}
+
+	/* Move FABs up ONLY if full pagination is present */
+	.has-pagination .fab-container {
+		bottom: 75px;
+	}
+
+	/* Default FAB position (when no pagination or single page) */
+	.fab-container {
+		bottom: 30px;
+	}
 }

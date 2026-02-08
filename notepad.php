@@ -151,738 +151,747 @@ if (isset($_SESSION['flash'])) {
 </head>
 
 <body>
+	<?php
+	$body_class = ($total_pages > 1) ? 'has-pagination' : '';
+	?>
 
-	<header>
-		<div class="header-inner">
-			<h1><a href="dashboard.php">Notebook-BAR</a></h1>
-			<input type="checkbox" id="menu-toggle" class="menu-toggle">
-			<label for="menu-toggle" class="hamburger">
-				<span></span>
-				<span></span>
-				<span></span>
-			</label>
-			<nav>
-				<a href="dashboard.php">Dashboard</a>
-				<a href="index.php">Notes</a>
-				<a href="categories.php">Categories</a>
-				<?php if (is_logged_in()): ?>
-					<a href="profile.php">Profile</a>
-					<a href="logout.php" style="color: #c62828;">Logout</a>
-				<?php else: ?>
-					<a href="login.php" style="color: #2e7d32;">Login</a>
-				<?php endif; ?>
-				<a href="about.php">About</a>
-				<a href="contact.php">Contact Us</a>
-			</nav>
-		</div>
-	</header>
+	<body class="<?php echo $body_class; ?>">
 
-	<div class="container">
-		<div id="toast-overlay" class="toast-overlay">
-			<div id="toast-message" class="toast-message"></div>
-		</div>
+		<header>
+			<div class="header-inner">
+				<h1><a href="dashboard.php">Notebook-BAR</a></h1>
+				<input type="checkbox" id="menu-toggle" class="menu-toggle">
+				<label for="menu-toggle" class="hamburger">
+					<span></span>
+					<span></span>
+					<span></span>
+				</label>
+				<nav>
+					<a href="dashboard.php">Dashboard</a>
+					<a href="index.php">Notes</a>
+					<a href="categories.php">Categories</a>
+					<?php if (is_logged_in()): ?>
+						<a href="profile.php">Profile</a>
+						<a href="logout.php" style="color: #c62828;">Logout</a>
+					<?php else: ?>
+						<a href="login.php" style="color: #2e7d32;">Login</a>
+					<?php endif; ?>
+					<a href="about.php">About</a>
+					<a href="contact.php">Contact Us</a>
+				</nav>
+			</div>
+		</header>
 
-		<div class="editor-layout">
-			<form method="post" id="note-form">
-				<input type="hidden" name="action_type" id="action_type" value="save">
-				<input type="hidden" name="note_id" value="<?php echo htmlspecialchars($nid); ?>">
-				<input type="hidden" name="is_archived" id="is_archived_input"
-					value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
-				<input type="hidden" name="is_pinned" id="is_pinned_input"
-					value="<?php echo isset($is_pinned_val) ? $is_pinned_val : 0; ?>">
-				<input type="hidden" name="page_number" value="<?php echo $current_page; ?>">
-				<input type="hidden" name="page" id="page_content" value="<?php echo htmlspecialchars($content); ?>">
+		<div class="container">
+			<div id="toast-overlay" class="toast-overlay">
+				<div id="toast-message" class="toast-message"></div>
+			</div>
 
-				<?php
-				$mode = 'edit';
-				if ($nid != "") {
-					$mode = (isset($_GET['mode']) && $_GET['mode'] == 'edit') ? 'edit' : 'view';
-				}
-				if ($is_archived_val)
-					$mode = 'view';
-				$is_view_mode = ($mode == 'view');
-				?>
+			<div class="editor-layout">
+				<form method="post" id="note-form">
+					<input type="hidden" name="action_type" id="action_type" value="save">
+					<input type="hidden" name="note_id" value="<?php echo htmlspecialchars($nid); ?>">
+					<input type="hidden" name="is_archived" id="is_archived_input"
+						value="<?php echo isset($is_archived_val) ? $is_archived_val : 0; ?>">
+					<input type="hidden" name="is_pinned" id="is_pinned_input"
+						value="<?php echo isset($is_pinned_val) ? $is_pinned_val : 0; ?>">
+					<input type="hidden" name="page_number" value="<?php echo $current_page; ?>">
+					<input type="hidden" name="page" id="page_content"
+						value="<?php echo htmlspecialchars($content); ?>">
 
-				<!-- State Preservation for Redirection/Saving -->
-				<input type="hidden" name="mode" value="<?php echo $mode; ?>">
-				<?php if ($is_view_mode): ?>
-					<input type="hidden" name="new_title" value="<?php echo htmlspecialchars($ntitle); ?>">
-				<?php endif; ?>
+					<?php
+					$mode = 'edit';
+					if ($nid != "") {
+						$mode = (isset($_GET['mode']) && $_GET['mode'] == 'edit') ? 'edit' : 'view';
+					}
+					if ($is_archived_val)
+						$mode = 'view';
+					$is_view_mode = ($mode == 'view');
+					?>
 
-				<!-- VIEW MODE HEADER (Clean Look) -->
-				<?php if ($is_view_mode): ?>
-					<div class="editor-metadata-bar"
-						style="justify-content: space-between; border-bottom: 2px solid #ddd; padding-bottom: 15px;">
+					<!-- State Preservation for Redirection/Saving -->
+					<input type="hidden" name="mode" value="<?php echo $mode; ?>">
+					<?php if ($is_view_mode): ?>
+						<input type="hidden" name="new_title" value="<?php echo htmlspecialchars($ntitle); ?>">
+					<?php endif; ?>
 
-						<!-- Left: Title & Category/Dates -->
-						<div>
-							<h1
-								style="margin: 0; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">
-								<?php echo htmlspecialchars($ntitle); ?>
-							</h1>
-							<div
-								style="font-size: 13px; color: #666; margin-top: 5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-								<span style="background: #eee; padding: 2px 6px; border-radius: 4px;">
-									<?php
-									$cat_name = "General";
-									foreach (get_categories() as $c) {
-										if ($c['category_id'] == $ncat) {
-											$cat_name = $c['name'];
-											break;
+					<!-- VIEW MODE HEADER (Clean Look) -->
+					<?php if ($is_view_mode): ?>
+						<div class="editor-metadata-bar"
+							style="justify-content: space-between; border-bottom: 2px solid #ddd; padding-bottom: 15px;">
+
+							<!-- Left: Title & Category/Dates -->
+							<div>
+								<h1
+									style="margin: 0; font-size: 24px; font-family: 'Courier New', monospace; font-weight: bold;">
+									<?php echo htmlspecialchars($ntitle); ?>
+								</h1>
+								<div
+									style="font-size: 13px; color: #666; margin-top: 5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+									<span style="background: #eee; padding: 2px 6px; border-radius: 4px;">
+										<?php
+										$cat_name = "General";
+										foreach (get_categories() as $c) {
+											if ($c['category_id'] == $ncat) {
+												$cat_name = $c['name'];
+												break;
+											}
 										}
-									}
-									echo htmlspecialchars($cat_name);
-									?>
-								</span>
+										echo htmlspecialchars($cat_name);
+										?>
+									</span>
 
-								<span style="color: #888;" title="Created Date">
-									<i class="fa-solid fa-calendar-plus"></i>
-									<?php echo date("M j, Y", strtotime($date_created)); ?>
-								</span>
+									<span style="color: #888;" title="Created Date">
+										<i class="fa-solid fa-calendar-plus"></i>
+										<?php echo date("M j, Y", strtotime($date_created)); ?>
+									</span>
 
-								<span style="color: #888;" title="Last Updated">
-									<i class="fa-solid fa-clock-rotate-left"></i>
-									<?php echo date("M j, g:i A", strtotime($date_last)); ?>
-								</span>
+									<span style="color: #888;" title="Last Updated">
+										<i class="fa-solid fa-clock-rotate-left"></i>
+										<?php echo date("M j, g:i A", strtotime($date_last)); ?>
+									</span>
 
-								<?php if ($reminder_date_val): ?>
-									<span style="color: #c62828;"><i class="fa-regular fa-clock"></i>
-										<?php echo date("M j, g:i A", strtotime($reminder_date_val)); ?></span>
+									<?php if ($reminder_date_val): ?>
+										<span style="color: #c62828;"><i class="fa-regular fa-clock"></i>
+											<?php echo date("M j, g:i A", strtotime($reminder_date_val)); ?></span>
+									<?php endif; ?>
+								</div>
+							</div>
+
+							<!-- Right: Pin & Archive Icons -->
+							<div style="display: flex; gap: 15px; align-items: center;">
+								<button type="button" id="pin-toggle-btn" class="btn btn-sm"
+									style="display: flex; align-items: center; gap: 5px; background: <?php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <?php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <?php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 13px;"
+									onclick="togglePin()">
+									<i class="fa-solid fa-thumbtack"></i>
+									<span id="pin-text">
+										<?php echo $is_pinned_val ? 'Unpin' : 'Pin'; ?>
+									</span>
+								</button>
+								<?php if ($is_archived_val): ?>
+									<span title="Archived" style="font-size: 18px; color: #888;"><i
+											class="fa-solid fa-box-archive"></i></span>
 								<?php endif; ?>
 							</div>
 						</div>
 
-						<!-- Right: Pin & Archive Icons -->
-						<div style="display: flex; gap: 15px; align-items: center;">
-							<button type="button" id="pin-toggle-btn" class="btn btn-sm"
-								style="display: flex; align-items: center; gap: 5px; background: <?php echo $is_pinned_val ? '#f9a825' : '#f5f5f5'; ?>; color: <?php echo $is_pinned_val ? '#fff' : '#555'; ?>; border: 1px solid <?php echo $is_pinned_val ? '#f9a825' : '#ccc'; ?>; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 13px;"
-								onclick="togglePin()">
-								<i class="fa-solid fa-thumbtack"></i>
-								<span id="pin-text">
-									<?php echo $is_pinned_val ? 'Unpin' : 'Pin'; ?>
-								</span>
-							</button>
-							<?php if ($is_archived_val): ?>
-								<span title="Archived" style="font-size: 18px; color: #888;"><i
-										class="fa-solid fa-box-archive"></i></span>
+						<div class="notebook-container" style="margin-top: 20px;">
+							<div class="notebook-paper" id="view-content">
+								<?php echo $content; ?>
+							</div>
+
+							<!-- View Mode Pagination (Floating) -->
+							<?php if ($nid != ""): ?>
+								<div class="floating-pagination" id="view-pagination-bar"
+									style="display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>;">
+
+									<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first-v"
+										title="First Page">
+										<i class="fa-solid fa-backward-step"></i>
+									</button>
+
+									<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn"
+										id="btn-prev-v" title="Previous Page">
+										<i class="fa-solid fa-chevron-left"></i>
+									</button>
+
+									<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
+										Page
+										<input type="number" id="jump-page-input-v" value="<?php echo $current_page; ?>" min="1"
+											style="width: 40px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;"
+											onchange="goToPage(parseInt(this.value))">
+										of <span id="total-pages-display-v"><?php echo $total_pages; ?></span>
+									</span>
+
+									<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn"
+										id="btn-next-v" title="Next Page">
+										<i class="fa-solid fa-chevron-right"></i>
+									</button>
+
+									<button type="button" onclick="goToPage(window.totalPages)" class="page-btn" id="btn-last-v"
+										title="Last Page">
+										<i class="fa-solid fa-forward-step"></i>
+									</button>
+								</div>
 							<?php endif; ?>
 						</div>
-					</div>
 
-					<div class="notebook-container" style="margin-top: 20px;">
-						<div class="notebook-paper" id="view-content">
+						<!-- EDIT MODE (Classic Editor) -->
+					<?php else: ?>
+						<div class="title-row" style="position: relative;">
+							<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
+								style="width: 100%; resize: none; overflow: hidden; min-height: 32px;"
+								oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
+							<span id="title-char-counter"
+								style="position: absolute; right: 5px; bottom: 5px; font-size: 11px; color: #aaa; pointer-events: none;">0/100</span>
+						</div>
+
+						<div
+							style="font-size: 11px; color: #888; margin-bottom: 10px; padding-left: 2px; font-family: sans-serif;">
+							<span id="word-count-top">0</span> words <span style="margin: 0 4px; color: #ccc;">|</span>
+							<span id="body-char-count">0</span> / 1800 characters <span
+								style="margin: 0 4px; color: #ccc;">|</span>
+							Updated: <?php echo date("M j, g:i A", strtotime($date_last)); ?>
+						</div>
+
+						<div class="editor-metadata-bar">
+							<select name="category" class="cat-select" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
+								<?php
+								$all_cats = get_categories();
+								$defaults = [];
+								$custom = [];
+								$default_names = ['General', 'Personal', 'Work', 'Study', 'Ideas'];
+								foreach ($all_cats as $c) {
+									if (in_array($c['name'], $default_names))
+										$defaults[] = $c;
+									else
+										$custom[] = $c;
+								}
+								if (!empty($defaults)) {
+									echo "<optgroup label='Defaults'>";
+									foreach ($defaults as $c) {
+										$sel = ($ncat == $c['category_id']) ? "selected" : "";
+										echo "<option value='{$c['category_id']}' $sel>" . htmlspecialchars($c['name']) . "</option>";
+									}
+									echo "</optgroup>";
+								}
+								if (!empty($custom)) {
+									echo "<optgroup label='My Categories'>";
+									foreach ($custom as $c) {
+										$sel = ($ncat == $c['category_id']) ? "selected" : "";
+										echo "<option value='{$c['category_id']}' $sel>" . htmlspecialchars($c['name']) . "</option>";
+									}
+									echo "</optgroup>";
+								}
+								?>
+							</select>
+
+							<div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+								<div style="display: flex; align-items: center; gap: 5px;">
+									<label><i class="fa-regular fa-clock"></i></label>
+									<input type="datetime-local" name="reminder_date"
+										value="<?php echo $reminder_date_val ? date('Y-m-d\TH:i', strtotime($reminder_date_val)) : ''; ?>"
+										style="font-size: 13px;">
+								</div>
+							</div>
+						</div>
+
+						<!-- Formatting Toolbar -->
+						<div
+							style="background: #eee; padding: 5px; border: 1px solid #ccc; border-bottom: none; display: flex; gap: 5px;">
+							<button type="button" onclick="formatText('b')" style="font-weight: bold; width: 30px;"><i
+									class="fa-solid fa-bold"></i></button>
+							<button type="button" onclick="formatText('i')" style="font-style: italic; width: 30px;"><i
+									class="fa-solid fa-italic"></i></button>
+							<button type="button" onclick="formatText('u')"
+								style="text-decoration: underline; width: 30px;"><i
+									class="fa-solid fa-underline"></i></button>
+							<span style="border-left: 1px solid #ccc; margin: 0 5px;"></span>
+							<button type="button" onclick="formatText('h3')"
+								style="font-weight: bold; width: 30px;">H3</button>
+							<button type="button" onclick="formatText('li')" style="width: 30px;"><i
+									class="fa-solid fa-list-ul"></i></button>
+						</div>
+
+
+
+						<div class="editor-div" id="editor" contenteditable="true">
 							<?php echo $content; ?>
 						</div>
 
-						<!-- View Mode Pagination (Floating) -->
+						<!-- Edit Mode Pagination (Floating) -->
 						<?php if ($nid != ""): ?>
-							<div class="floating-pagination" id="view-pagination-bar"
-								style="display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>;">
+							<div class="floating-pagination <?php echo ($total_pages <= 1) ? 'pagination-single' : ''; ?>">
 
-								<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first-v"
-									title="First Page">
-									<i class="fa-solid fa-backward-step"></i>
+								<div id="pagination-controls"
+									style="display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>; align-items: center; gap: 8px;">
+									<!-- First -->
+									<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first"
+										title="First Page">
+										<i class="fa-solid fa-backward-step"></i>
+									</button>
+
+									<!-- Prev -->
+									<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn"
+										id="btn-prev" title="Previous Page">
+										<i class="fa-solid fa-chevron-left"></i>
+									</button>
+
+									<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
+										Page
+										<input type="number" id="jump-page-input" value="<?php echo $current_page; ?>" min="1"
+											style="width: 40px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;"
+											onchange="goToPage(parseInt(this.value))">
+										of <span id="total-pages-display"><?php echo $total_pages; ?></span>
+									</span>
+
+									<!-- Next -->
+									<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn"
+										id="btn-next" title="Next Page">
+										<i class="fa-solid fa-chevron-right"></i>
+									</button>
+
+									<!-- Last -->
+									<button type="button" onclick="goToPage(window.totalPages)" class="page-btn" id="btn-last"
+										title="Last Page">
+										<i class="fa-solid fa-forward-step"></i>
+									</button>
+								</div>
+
+								<!-- Add Page -->
+								<button type="button" onclick="addNewPage()" class="page-btn add-page-btn" title="Add New Page"
+									style="color: var(--nav-bg); background: #333; border-radius: 50%;">
+									<i class="fa-solid fa-plus" style="color: #fff;"></i>
 								</button>
 
-								<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn"
-									id="btn-prev-v" title="Previous Page">
-									<i class="fa-solid fa-chevron-left"></i>
-								</button>
-
-								<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
-									Page
-									<input type="number" id="jump-page-input-v" value="<?php echo $current_page; ?>" min="1"
-										style="width: 40px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;"
-										onchange="goToPage(parseInt(this.value))">
-									of <span id="total-pages-display-v"><?php echo $total_pages; ?></span>
-								</span>
-
-								<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn"
-									id="btn-next-v" title="Next Page">
-									<i class="fa-solid fa-chevron-right"></i>
-								</button>
-
-								<button type="button" onclick="goToPage(window.totalPages)" class="page-btn" id="btn-last-v"
-									title="Last Page">
-									<i class="fa-solid fa-forward-step"></i>
-								</button>
-							</div>
-						<?php endif; ?>
-					</div>
-
-					<!-- EDIT MODE (Classic Editor) -->
-				<?php else: ?>
-					<div class="title-row" style="position: relative;">
-						<textarea name="new_title" class="title-input" placeholder="Note Title" required maxlength="100"
-							style="width: 100%; resize: none; overflow: hidden; min-height: 32px;"
-							oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" <?php echo $is_archived_val ? 'disabled' : ''; ?>><?php echo htmlspecialchars($ntitle); ?></textarea>
-						<span id="title-char-counter"
-							style="position: absolute; right: 5px; bottom: 5px; font-size: 11px; color: #aaa; pointer-events: none;">0/100</span>
-					</div>
-
-					<div
-						style="font-size: 11px; color: #888; margin-bottom: 10px; padding-left: 2px; font-family: sans-serif;">
-						<span id="word-count-top">0</span> words <span style="margin: 0 4px; color: #ccc;">|</span>
-						<span id="body-char-count">0</span> / 1800 characters <span
-							style="margin: 0 4px; color: #ccc;">|</span>
-						Updated: <?php echo date("M j, g:i A", strtotime($date_last)); ?>
-					</div>
-
-					<div class="editor-metadata-bar">
-						<select name="category" class="cat-select" <?php echo $is_archived_val ? 'disabled' : ''; ?>>
-							<?php
-							$all_cats = get_categories();
-							$defaults = [];
-							$custom = [];
-							$default_names = ['General', 'Personal', 'Work', 'Study', 'Ideas'];
-							foreach ($all_cats as $c) {
-								if (in_array($c['name'], $default_names))
-									$defaults[] = $c;
-								else
-									$custom[] = $c;
-							}
-							if (!empty($defaults)) {
-								echo "<optgroup label='Defaults'>";
-								foreach ($defaults as $c) {
-									$sel = ($ncat == $c['category_id']) ? "selected" : "";
-									echo "<option value='{$c['category_id']}' $sel>" . htmlspecialchars($c['name']) . "</option>";
-								}
-								echo "</optgroup>";
-							}
-							if (!empty($custom)) {
-								echo "<optgroup label='My Categories'>";
-								foreach ($custom as $c) {
-									$sel = ($ncat == $c['category_id']) ? "selected" : "";
-									echo "<option value='{$c['category_id']}' $sel>" . htmlspecialchars($c['name']) . "</option>";
-								}
-								echo "</optgroup>";
-							}
-							?>
-						</select>
-
-						<div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
-							<div style="display: flex; align-items: center; gap: 5px;">
-								<label><i class="fa-regular fa-clock"></i></label>
-								<input type="datetime-local" name="reminder_date"
-									value="<?php echo $reminder_date_val ? date('Y-m-d\TH:i', strtotime($reminder_date_val)) : ''; ?>"
-									style="font-size: 13px;">
-							</div>
-						</div>
-					</div>
-
-					<!-- Formatting Toolbar -->
-					<div
-						style="background: #eee; padding: 5px; border: 1px solid #ccc; border-bottom: none; display: flex; gap: 5px;">
-						<button type="button" onclick="formatText('b')" style="font-weight: bold; width: 30px;"><i
-								class="fa-solid fa-bold"></i></button>
-						<button type="button" onclick="formatText('i')" style="font-style: italic; width: 30px;"><i
-								class="fa-solid fa-italic"></i></button>
-						<button type="button" onclick="formatText('u')" style="text-decoration: underline; width: 30px;"><i
-								class="fa-solid fa-underline"></i></button>
-						<span style="border-left: 1px solid #ccc; margin: 0 5px;"></span>
-						<button type="button" onclick="formatText('h3')" style="font-weight: bold; width: 30px;">H3</button>
-						<button type="button" onclick="formatText('li')" style="width: 30px;"><i
-								class="fa-solid fa-list-ul"></i></button>
-					</div>
-
-
-
-					<div class="editor-div" id="editor" contenteditable="true">
-						<?php echo $content; ?>
-					</div>
-
-					<!-- Edit Mode Pagination (Floating) -->
-					<?php if ($nid != ""): ?>
-						<div class="floating-pagination">
-
-							<div id="pagination-controls"
-								style="display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>; align-items: center; gap: 8px;">
-								<!-- First -->
-								<button type="button" onclick="goToPage(1)" class="page-btn" id="btn-first" title="First Page">
-									<i class="fa-solid fa-backward-step"></i>
-								</button>
-
-								<!-- Prev -->
-								<button type="button" onclick="goToPage(window.currentPage - 1)" class="page-btn" id="btn-prev"
-									title="Previous Page">
-									<i class="fa-solid fa-chevron-left"></i>
-								</button>
-
-								<span class="page-indicator" style="display: flex; align-items: center; gap: 5px;">
-									Page
-									<input type="number" id="jump-page-input" value="<?php echo $current_page; ?>" min="1"
-										style="width: 40px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 2px;"
-										onchange="goToPage(parseInt(this.value))">
-									of <span id="total-pages-display"><?php echo $total_pages; ?></span>
-								</span>
-
-								<!-- Next -->
-								<button type="button" onclick="goToPage(window.currentPage + 1)" class="page-btn" id="btn-next"
-									title="Next Page">
-									<i class="fa-solid fa-chevron-right"></i>
-								</button>
-
-								<!-- Last -->
-								<button type="button" onclick="goToPage(window.totalPages)" class="page-btn" id="btn-last"
-									title="Last Page">
-									<i class="fa-solid fa-forward-step"></i>
+								<!-- Delete Page -->
+								<button type="button" onclick="deletePage()" class="page-btn delete-page-btn"
+									id="btn-delete-page" title="Delete Current Page"
+									style="margin-left: 5px; display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>; color: #c62828;">
+									<i class="fa-solid fa-trash-can"></i>
 								</button>
 							</div>
 
-							<!-- Add Page -->
-							<button type="button" onclick="addNewPage()" class="page-btn add-page-btn" title="Add New Page"
-								style="color: var(--nav-bg); background: #333; border-radius: 50%;">
-								<i class="fa-solid fa-plus" style="color: #fff;"></i>
-							</button>
+					</div>
+				<?php endif; ?>
 
-							<!-- Delete Page -->
-							<button type="button" onclick="deletePage()" class="page-btn delete-page-btn" id="btn-delete-page"
-								title="Delete Current Page"
-								style="margin-left: 5px; display: <?php echo ($total_pages > 1) ? 'flex' : 'none'; ?>; color: #c62828;">
-								<i class="fa-solid fa-trash-can"></i>
-							</button>
-						</div>
-
-				</div>
 			<?php endif; ?>
 
-		<?php endif; ?>
+			<!-- Floating Action Buttons (FAB) -->
+			<div class="fab-container">
 
-		<!-- Floating Action Buttons (FAB) -->
-		<div class="fab-container">
-
-			<!-- SAVE / EDIT Actions -->
-			<?php if (!$is_archived_val && !$is_view_mode): ?>
-				<button type="submit" name="save_exit" class="fab-btn fab-save" title="Save & Exit">
-					<i class="fa-solid fa-floppy-disk"></i>
-					<span class="fab-label">Save & Exit</span>
-				</button>
-				<button type="submit" name="save_note" class="fab-btn fab-secondary" title="Save">
-					<i class="fa-solid fa-check"></i>
-					<span class="fab-label">Save</span>
-				</button>
-			<?php endif; ?>
-
-			<!-- EDIT Toggle -->
-			<?php if ($is_view_mode && !$is_archived_val): ?>
-				<a href="notepad.php?id=<?php echo $nid; ?>&mode=edit&page=<?php echo $current_page; ?>"
-					class="fab-btn fab-primary" title="Edit Note">
-					<i class="fa-solid fa-pen"></i>
-					<span class="fab-label">Edit</span>
-				</a>
-			<?php elseif (!$is_view_mode && $nid != ""): ?>
-				<a href="notepad.php?id=<?php echo $nid; ?>&mode=view&page=<?php echo $current_page; ?>"
-					class="fab-btn fab-secondary" onclick="return confirmNavigation()" title="View Mode">
-					<i class="fa-solid fa-eye"></i>
-					<span class="fab-label">View</span>
-				</a>
-			<?php endif; ?>
-
-			<!-- Archive / Delete Actions -->
-			<?php if ($nid != ""): ?>
-				<?php if (isset($is_archived_val) && $is_archived_val): ?>
-					<!-- DELETE PERMANENT -->
-					<button type="button" onclick="confirmDeletePermanent()" class="fab-btn"
-						style="background: #ffebee; color: #c62828;">
-						<i class="fa-solid fa-trash-can"></i>
-						<span class="fab-label">Delete Forever</span>
+				<!-- SAVE / EDIT Actions -->
+				<?php if (!$is_archived_val && !$is_view_mode): ?>
+					<button type="submit" name="save_exit" class="fab-btn fab-save" title="Save & Exit">
+						<i class="fa-solid fa-floppy-disk"></i>
+						<span class="fab-label">Save & Exit</span>
 					</button>
-					<!-- UNARCHIVE -->
-					<button type="button" onclick="confirmUnarchive()" class="fab-btn"
-						style="background: #e1f5fe; color: #0277bd;">
-						<i class="fa-solid fa-box-open"></i>
-						<span class="fab-label">Unarchive</span>
-					</button>
-				<?php elseif (!$is_view_mode): ?>
-					<!-- Archive REMOVED from Edit Mode -->
-				<?php else: ?>
-					<!-- Archive (View Mode) -->
-					<button type="button" onclick="confirmArchive()" class="fab-btn"
-						style="background: #ffebee; color: #c62828;">
-						<i class="fa-solid fa-box-archive"></i>
-						<span class="fab-label">Archive</span>
+					<button type="submit" name="save_note" class="fab-btn fab-secondary" title="Save">
+						<i class="fa-solid fa-check"></i>
+						<span class="fab-label">Save</span>
 					</button>
 				<?php endif; ?>
-			<?php endif; ?>
 
-			<!-- Removed Home Button as requested -->
+				<!-- EDIT Toggle -->
+				<?php if ($is_view_mode && !$is_archived_val): ?>
+					<a href="notepad.php?id=<?php echo $nid; ?>&mode=edit&page=<?php echo $current_page; ?>"
+						class="fab-btn fab-primary" title="Edit Note">
+						<i class="fa-solid fa-pen"></i>
+						<span class="fab-label">Edit</span>
+					</a>
+				<?php elseif (!$is_view_mode && $nid != ""): ?>
+					<a href="notepad.php?id=<?php echo $nid; ?>&mode=view&page=<?php echo $current_page; ?>"
+						class="fab-btn fab-secondary" onclick="return confirmNavigation()" title="View Mode">
+						<i class="fa-solid fa-eye"></i>
+						<span class="fab-label">View</span>
+					</a>
+				<?php endif; ?>
+
+				<!-- Archive / Delete Actions -->
+				<?php if ($nid != ""): ?>
+					<?php if (isset($is_archived_val) && $is_archived_val): ?>
+						<!-- DELETE PERMANENT -->
+						<button type="button" onclick="confirmDeletePermanent()" class="fab-btn"
+							style="background: #ffebee; color: #c62828;">
+							<i class="fa-solid fa-trash-can"></i>
+							<span class="fab-label">Delete Forever</span>
+						</button>
+						<!-- UNARCHIVE -->
+						<button type="button" onclick="confirmUnarchive()" class="fab-btn"
+							style="background: #e1f5fe; color: #0277bd;">
+							<i class="fa-solid fa-box-open"></i>
+							<span class="fab-label">Unarchive</span>
+						</button>
+					<?php elseif (!$is_view_mode): ?>
+						<!-- Archive REMOVED from Edit Mode -->
+					<?php else: ?>
+						<!-- Archive (View Mode) -->
+						<button type="button" onclick="confirmArchive()" class="fab-btn"
+							style="background: #ffebee; color: #c62828;">
+							<i class="fa-solid fa-box-archive"></i>
+							<span class="fab-label">Archive</span>
+						</button>
+					<?php endif; ?>
+				<?php endif; ?>
+
+				<!-- Removed Home Button as requested -->
+			</div>
+			</form>
 		</div>
-		</form>
-	</div>
-	</div>
+		</div>
 
-	<script>
-		// ===============================
-		// STATE MANAGEMENT
-		// ===============================
-		// Note: window.initialPages, window.currentPage, window.totalPages injected by PHP
-		let allPages = window.initialPages || {};
-		let currentPage = window.currentPage || 1;
-		let totalPages = window.totalPages || 1;
+		<script>
+			// ===============================
+			// STATE MANAGEMENT
+			// ===============================
+			// Note: window.initialPages, window.currentPage, window.totalPages injected by PHP
+			let allPages = window.initialPages || {};
+			let currentPage = window.currentPage || 1;
+			let totalPages = window.totalPages || 1;
 
-		const editor = document.getElementById('editor');
-		const form = document.getElementById('note-form');
-		const hiddenInput = document.getElementById('page_content'); // Stores CURRENT page text (legacy/fallback)
-		// Hidden input for BULK save
-		const bulkInput = document.createElement('input');
-		bulkInput.type = 'hidden';
-		bulkInput.name = 'pages_json';
-		form.appendChild(bulkInput);
+			const editor = document.getElementById('editor');
+			const form = document.getElementById('note-form');
+			const hiddenInput = document.getElementById('page_content'); // Stores CURRENT page text (legacy/fallback)
+			// Hidden input for BULK save
+			const bulkInput = document.createElement('input');
+			bulkInput.type = 'hidden';
+			bulkInput.name = 'pages_json';
+			form.appendChild(bulkInput);
 
-		const MAX_CHARS = 1800;
+			const MAX_CHARS = 1800;
 
-		// ===============================
-		// INITIALIZATION
-		// ===============================
-		if (editor) {
-			// Restore current page state if exists
-			if (allPages[currentPage] !== undefined) {
-				editor.innerHTML = allPages[currentPage];
-			} else {
-				// If new page or empty
-				allPages[currentPage] = editor.innerHTML;
-			}
-			updateCharCount();
-
-			// Events
-			editor.addEventListener('input', handleInput);
-			editor.addEventListener('keydown', handleKeyDown);
-			// Sync on blur too just in case
-			editor.addEventListener('blur', syncCurrentPage);
-		}
-		const viewContent = document.getElementById('view-content');
-
-		// ===============================
-		// CORE LOGIC
-		// ===============================
-
-		function syncCurrentPage() {
-			// Edit Mode Sync
+			// ===============================
+			// INITIALIZATION
+			// ===============================
 			if (editor) {
-				allPages[currentPage] = editor.innerHTML;
-				if (hiddenInput) hiddenInput.value = editor.innerHTML;
-			}
-		}
-
-		function goToPage(pageNum) {
-			// 1. Sync current page before leaving (if editing)
-			syncCurrentPage();
-
-			// Validate
-			if (pageNum < 1 || pageNum > totalPages) return;
-
-			// 2. Switch State
-			currentPage = pageNum;
-			window.currentPage = pageNum; // Sync for global use (onclick)
-
-			// 3. Render New Content
-			if (allPages[currentPage] === undefined) {
-				allPages[currentPage] = "";
-			}
-
-			if (editor) {
-				editor.innerHTML = allPages[currentPage];
-			} else if (viewContent) {
-				viewContent.innerHTML = allPages[currentPage];
-			}
-
-			// 4. Update UI
-			updateUI();
-		}
-
-		function addNewPage() {
-			if (!editor) return; // Only in edit mode
-			syncCurrentPage();
-			totalPages++;
-			window.totalPages = totalPages;
-			currentPage = totalPages;
-			window.currentPage = totalPages;
-			allPages[currentPage] = ""; // Init empty
-			editor.innerHTML = "";
-			updateUI();
-		}
-
-		function deletePage() {
-			if (!editor) return;
-			if (totalPages <= 1) {
-				alert("Cannot delete the only page.");
-				return;
-			}
-
-			if (!confirm("Are you sure you want to delete this page? This cannot be undone.")) return;
-
-			// 1. Shift pages after the current one
-			for (let i = currentPage; i < totalPages; i++) {
-				allPages[i] = allPages[i + 1];
-			}
-			// 2. Remove the last entry
-			delete allPages[totalPages];
-
-			// 3. Update total
-			totalPages--;
-			window.totalPages = totalPages;
-
-			// 4. Adjust current page if we deleted the last page
-			if (currentPage > totalPages) {
-				currentPage = totalPages;
-				window.currentPage = totalPages;
-			}
-
-			// 5. Render
-			editor.innerHTML = allPages[currentPage] || "";
-
-			// 6. Update UI (hides controls if now 1 page)
-			updateUI();
-		}
-
-		function updateUI() {
-			// Toggle visibility based on totalPages
-			const viewBar = document.getElementById('view-pagination-bar');
-			const editControls = document.getElementById('pagination-controls');
-			const deleteBtn = document.getElementById('btn-delete-page');
-
-			if (viewBar) viewBar.style.display = (totalPages > 1) ? 'flex' : 'none';
-			if (editControls) editControls.style.display = (totalPages > 1) ? 'flex' : 'none';
-			if (deleteBtn) deleteBtn.style.display = (totalPages > 1) ? 'flex' : 'none';
-
-			// Edit Mode UI
-			const jumpInput = document.getElementById('jump-page-input');
-			const totalDisplay = document.getElementById('total-pages-display');
-			if (jumpInput) jumpInput.value = currentPage;
-			if (totalDisplay) totalDisplay.innerText = totalPages;
-
-			// View Mode UI
-			const jumpInputV = document.getElementById('jump-page-input-v');
-			const totalDisplayV = document.getElementById('total-pages-display-v');
-			if (jumpInputV) jumpInputV.value = currentPage;
-			if (totalDisplayV) totalDisplayV.innerText = totalPages;
-
-			updateCharCount();
-		}
-
-		// ===============================
-		// CONSTRAINTS & FORMATTING
-		// ===============================
-
-		function handleInput(e) {
-			syncCurrentPage();
-			updateCharCount();
-		}
-
-		function updateCharCount() {
-			if (!editor) return;
-			// 1. Body Count
-			const text = editor.innerText || "";
-			const wordCountTop = document.getElementById('word-count-top');
-			const bodyCharCount = document.getElementById('body-char-count');
-			const words = text.trim().split(/\s+/).filter(word => word.length > 0);
-
-			if (wordCountTop) wordCountTop.innerText = (text.trim() === "") ? 0 : words.length;
-
-			if (bodyCharCount) {
-				bodyCharCount.innerText = text.length;
-				if (text.length > MAX_CHARS) {
-					bodyCharCount.style.color = 'red';
-					bodyCharCount.style.fontWeight = 'bold';
+				// Restore current page state if exists
+				if (allPages[currentPage] !== undefined) {
+					editor.innerHTML = allPages[currentPage];
 				} else {
-					bodyCharCount.style.color = '#777';
-					bodyCharCount.style.fontWeight = 'normal';
+					// If new page or empty
+					allPages[currentPage] = editor.innerHTML;
+				}
+				updateCharCount();
+
+				// Events
+				editor.addEventListener('input', handleInput);
+				editor.addEventListener('keydown', handleKeyDown);
+				// Sync on blur too just in case
+				editor.addEventListener('blur', syncCurrentPage);
+			}
+			const viewContent = document.getElementById('view-content');
+
+			// ===============================
+			// CORE LOGIC
+			// ===============================
+
+			function syncCurrentPage() {
+				// Edit Mode Sync
+				if (editor) {
+					allPages[currentPage] = editor.innerHTML;
+					if (hiddenInput) hiddenInput.value = editor.innerHTML;
 				}
 			}
 
-			// 2. Title Count
+			function goToPage(pageNum) {
+				// 1. Sync current page before leaving (if editing)
+				syncCurrentPage();
+
+				// Validate
+				if (pageNum < 1 || pageNum > totalPages) return;
+
+				// 2. Switch State
+				currentPage = pageNum;
+				window.currentPage = pageNum; // Sync for global use (onclick)
+
+				// 3. Render New Content
+				if (allPages[currentPage] === undefined) {
+					allPages[currentPage] = "";
+				}
+
+				if (editor) {
+					editor.innerHTML = allPages[currentPage];
+				} else if (viewContent) {
+					viewContent.innerHTML = allPages[currentPage];
+				}
+
+				// 4. Update UI
+				updateUI();
+			}
+
+			function addNewPage() {
+				if (!editor) return; // Only in edit mode
+				syncCurrentPage();
+				totalPages++;
+				window.totalPages = totalPages;
+				currentPage = totalPages;
+				window.currentPage = totalPages;
+				allPages[currentPage] = ""; // Init empty
+				editor.innerHTML = "";
+				updateUI();
+			}
+
+			function deletePage() {
+				if (!editor) return;
+				if (totalPages <= 1) {
+					alert("Cannot delete the only page.");
+					return;
+				}
+
+				if (!confirm("Are you sure you want to delete this page? This cannot be undone.")) return;
+
+				// 1. Shift pages after the current one
+				for (let i = currentPage; i < totalPages; i++) {
+					allPages[i] = allPages[i + 1];
+				}
+				// 2. Remove the last entry
+				delete allPages[totalPages];
+
+				// 3. Update total
+				totalPages--;
+				window.totalPages = totalPages;
+
+				// 4. Adjust current page if we deleted the last page
+				if (currentPage > totalPages) {
+					currentPage = totalPages;
+					window.currentPage = totalPages;
+				}
+
+				// 5. Render
+				editor.innerHTML = allPages[currentPage] || "";
+
+				// 6. Update UI (hides controls if now 1 page)
+				updateUI();
+			}
+
+			function updateUI() {
+				// Toggle visibility based on totalPages
+				const viewBar = document.getElementById('view-pagination-bar');
+				const editControls = document.getElementById('pagination-controls');
+				const deleteBtn = document.getElementById('btn-delete-page');
+
+				if (viewBar) viewBar.style.display = (totalPages > 1) ? 'flex' : 'none';
+				if (editControls) editControls.style.display = (totalPages > 1) ? 'flex' : 'none';
+				if (deleteBtn) deleteBtn.style.display = (totalPages > 1) ? 'flex' : 'none';
+
+				// Edit Mode UI
+				const jumpInput = document.getElementById('jump-page-input');
+				const totalDisplay = document.getElementById('total-pages-display');
+				if (jumpInput) jumpInput.value = currentPage;
+				if (totalDisplay) totalDisplay.innerText = totalPages;
+
+				// View Mode UI
+				const jumpInputV = document.getElementById('jump-page-input-v');
+				const totalDisplayV = document.getElementById('total-pages-display-v');
+				if (jumpInputV) jumpInputV.value = currentPage;
+				if (totalDisplayV) totalDisplayV.innerText = totalPages;
+
+				updateCharCount();
+			}
+
+			// ===============================
+			// CONSTRAINTS & FORMATTING
+			// ===============================
+
+			function handleInput(e) {
+				syncCurrentPage();
+				updateCharCount();
+			}
+
+			function updateCharCount() {
+				if (!editor) return;
+				// 1. Body Count
+				const text = editor.innerText || "";
+				const wordCountTop = document.getElementById('word-count-top');
+				const bodyCharCount = document.getElementById('body-char-count');
+				const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+
+				if (wordCountTop) wordCountTop.innerText = (text.trim() === "") ? 0 : words.length;
+
+				if (bodyCharCount) {
+					bodyCharCount.innerText = text.length;
+					if (text.length > MAX_CHARS) {
+						bodyCharCount.style.color = 'red';
+						bodyCharCount.style.fontWeight = 'bold';
+					} else {
+						bodyCharCount.style.color = '#777';
+						bodyCharCount.style.fontWeight = 'normal';
+					}
+				}
+
+				// 2. Title Count
+				const titleInput = document.querySelector('textarea[name="new_title"]');
+				const titleCounter = document.getElementById('title-char-counter');
+				if (titleInput && titleCounter) {
+					titleCounter.innerText = titleInput.value.length + "/100";
+				}
+			}
+
+			function handleKeyDown(e) {
+				if (e.key === 'Tab') {
+					e.preventDefault();
+					document.execCommand('insertText', false, '    ');
+				}
+				const text = editor.innerText || "";
+				const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'];
+				if (text.length >= MAX_CHARS && !allowed.includes(e.key) && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
+					e.preventDefault();
+				}
+			}
+
+			function togglePin() {
+				const pinInput = document.getElementById('is_pinned_input');
+				if (pinInput.value == 1) {
+					pinInput.value = "0";
+				} else if (pinInput.value == 0) {
+					pinInput.value = "1";
+				}
+
+				// Stay on page and save
+				document.getElementById('action_type').value = 'save_redirect';
+
+				// Show toast before submitting (mostly for View mode where it reloads fast)
+				// Actually session-based flash is better for refresh-based actions
+				document.getElementById('note-form').submit();
+			}
+
+			// ===============================
+			// SAVING & FORMS
+			// ===============================
+
+			if (form) {
+				form.addEventListener('submit', function (e) {
+					syncCurrentPage(); // Ensure latest edits are captured
+
+					// SERIALIZE ALL PAGES
+					bulkInput.value = JSON.stringify(allPages);
+
+					// Update legacy hidden input too
+					hiddenInput.value = editor.innerHTML;
+
+					// Also update archive/action fields if needed (handled by onclicks usually)
+				});
+			}
+
+			// Helper Utils
+			function formatText(command) {
+				if (!editor) return;
+				editor.focus();
+				if (command === 'h3') document.execCommand('formatBlock', false, '<h3>');
+				else if (command === 'li') document.execCommand('insertUnorderedList', false, null);
+				else {
+					let cmd = (command === 'i') ? 'italic' : (command === 'u' ? 'underline' : 'bold');
+					document.execCommand(cmd, false, null);
+				}
+			}
+
+			function confirmArchive() {
+				if (confirm("Archive this note?")) {
+					document.getElementById('is_archived_input').value = 1;
+					document.getElementById('action_type').value = 'archive_redirect';
+					form.submit(); // submit handler will do the syncing
+				}
+			}
+
+			function confirmUnarchive() {
+				if (confirm("Unarchive this note?")) {
+					document.getElementById('is_archived_input').value = 0;
+					document.getElementById('action_type').value = 'archive_redirect';
+					const disabled = form.querySelectorAll('[disabled]');
+					disabled.forEach(el => el.disabled = false);
+					form.submit();
+				}
+			}
+
+			function confirmDeletePermanent() {
+				if (confirm("Are you sure you want to delete this note PERMANENTLY? This cannot be undone.")) {
+					const form = document.getElementById('note-form');
+					const input = document.createElement('input');
+					input.type = 'hidden';
+					input.name = 'delete_permanent';
+					input.value = '1';
+					form.appendChild(input);
+					form.submit();
+				}
+			}
+
+			// Renamed to avoid using the old confirmNavigation
+			function confirmNavigation() {
+				return true;
+			}
+
+			// Title Resizer
 			const titleInput = document.querySelector('textarea[name="new_title"]');
-			const titleCounter = document.getElementById('title-char-counter');
-			if (titleInput && titleCounter) {
-				titleCounter.innerText = titleInput.value.length + "/100";
-			}
-		}
-
-		function handleKeyDown(e) {
-			if (e.key === 'Tab') {
-				e.preventDefault();
-				document.execCommand('insertText', false, '    ');
-			}
-			const text = editor.innerText || "";
-			const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'];
-			if (text.length >= MAX_CHARS && !allowed.includes(e.key) && !e.ctrlKey && !e.metaKey && e.key.length === 1) {
-				e.preventDefault();
-			}
-		}
-
-		function togglePin() {
-			const pinInput = document.getElementById('is_pinned_input');
-			if (pinInput.value == 1) {
-				pinInput.value = "0";
-			} else if (pinInput.value == 0) {
-				pinInput.value = "1";
+			if (titleInput) {
+				titleInput.addEventListener('input', function () {
+					this.style.height = '';
+					this.style.height = this.scrollHeight + 'px';
+				});
+				titleInput.style.height = titleInput.scrollHeight + 'px';
+				titleInput.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
 			}
 
-			// Stay on page and save
-			document.getElementById('action_type').value = 'save_redirect';
+			// Toast Logic
+			const toastOverlay = document.getElementById('toast-overlay');
+			const toastMessage = document.getElementById('toast-message');
 
-			// Show toast before submitting (mostly for View mode where it reloads fast)
-			// Actually session-based flash is better for refresh-based actions
-			document.getElementById('note-form').submit();
-		}
-
-		// ===============================
-		// SAVING & FORMS
-		// ===============================
-
-		if (form) {
-			form.addEventListener('submit', function (e) {
-				syncCurrentPage(); // Ensure latest edits are captured
-
-				// SERIALIZE ALL PAGES
-				bulkInput.value = JSON.stringify(allPages);
-
-				// Update legacy hidden input too
-				hiddenInput.value = editor.innerHTML;
-
-				// Also update archive/action fields if needed (handled by onclicks usually)
-			});
-		}
-
-		// Helper Utils
-		function formatText(command) {
-			if (!editor) return;
-			editor.focus();
-			if (command === 'h3') document.execCommand('formatBlock', false, '<h3>');
-			else if (command === 'li') document.execCommand('insertUnorderedList', false, null);
-			else {
-				let cmd = (command === 'i') ? 'italic' : (command === 'u' ? 'underline' : 'bold');
-				document.execCommand(cmd, false, null);
+			function showToast(msg, type) {
+				if (!toastMessage) return;
+				toastMessage.textContent = msg;
+				toastMessage.className = "toast-message " + (type === 'error' ? 'toast-error' : 'toast-success');
+				void toastMessage.offsetWidth;
+				toastOverlay.style.display = 'flex';
+				requestAnimationFrame(() => {
+					toastMessage.classList.add('show');
+				});
+				setTimeout(() => {
+					toastMessage.classList.remove('show');
+					setTimeout(() => { toastOverlay.style.display = 'none'; }, 300);
+				}, 3000);
 			}
-		}
 
-		function confirmArchive() {
-			if (confirm("Archive this note?")) {
-				document.getElementById('is_archived_input').value = 1;
-				document.getElementById('action_type').value = 'archive_redirect';
-				form.submit(); // submit handler will do the syncing
+			<?php if ($msg): ?>
+				showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
+			<?php endif; ?>
+
+			// ===============================
+			// IDLE FAB LOGIC ("Sulk")
+			// ===============================
+			let idleTimer;
+			const fabContainer = document.querySelector('.fab-container');
+
+			function goIdle() {
+				if (fabContainer) fabContainer.classList.add('idle');
 			}
-		}
 
-		function confirmUnarchive() {
-			if (confirm("Unarchive this note?")) {
-				document.getElementById('is_archived_input').value = 0;
-				document.getElementById('action_type').value = 'archive_redirect';
-				const disabled = form.querySelectorAll('[disabled]');
-				disabled.forEach(el => el.disabled = false);
-				form.submit();
+			function wakeUp() {
+				if (fabContainer) {
+					fabContainer.classList.remove('idle');
+					clearTimeout(idleTimer);
+					idleTimer = setTimeout(goIdle, 3000); // 3 seconds idle time
+				}
 			}
-		}
-
-		function confirmDeletePermanent() {
-			if (confirm("Are you sure you want to delete this note PERMANENTLY? This cannot be undone.")) {
-				const form = document.getElementById('note-form');
-				const input = document.createElement('input');
-				input.type = 'hidden';
-				input.name = 'delete_permanent';
-				input.value = '1';
-				form.appendChild(input);
-				form.submit();
-			}
-		}
-
-		// Renamed to avoid using the old confirmNavigation
-		function confirmNavigation() {
-			return true;
-		}
-
-		// Title Resizer
-		const titleInput = document.querySelector('textarea[name="new_title"]');
-		if (titleInput) {
-			titleInput.addEventListener('input', function () {
-				this.style.height = '';
-				this.style.height = this.scrollHeight + 'px';
-			});
-			titleInput.style.height = titleInput.scrollHeight + 'px';
-			titleInput.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
-		}
-
-		// Toast Logic
-		const toastOverlay = document.getElementById('toast-overlay');
-		const toastMessage = document.getElementById('toast-message');
-
-		function showToast(msg, type) {
-			if (!toastMessage) return;
-			toastMessage.textContent = msg;
-			toastMessage.className = "toast-message " + (type === 'error' ? 'toast-error' : 'toast-success');
-			void toastMessage.offsetWidth;
-			toastOverlay.style.display = 'flex';
-			requestAnimationFrame(() => {
-				toastMessage.classList.add('show');
-			});
-			setTimeout(() => {
-				toastMessage.classList.remove('show');
-				setTimeout(() => { toastOverlay.style.display = 'none'; }, 300);
-			}, 3000);
-		}
-
-		<?php if ($msg): ?>
-			showToast("<?php echo addslashes($msg); ?>", "<?php echo $msg_type; ?>");
-		<?php endif; ?>
-
-		// ===============================
-		// IDLE FAB LOGIC ("Sulk")
-		// ===============================
-		let idleTimer;
-		const fabContainer = document.querySelector('.fab-container');
-
-		function goIdle() {
-			if (fabContainer) fabContainer.classList.add('idle');
-		}
-
-		function wakeUp() {
-			if (fabContainer) {
-				fabContainer.classList.remove('idle');
-				clearTimeout(idleTimer);
-				idleTimer = setTimeout(goIdle, 3000); // 3 seconds idle time
-			}
-		}
 
 
-		// Initial start
-		wakeUp();
+			// Initial start
+			wakeUp();
 
-		// 1. Scroll always wakes it up (Mobile & Desktop)
-		document.addEventListener('scroll', wakeUp, { passive: true });
+			// 1. Scroll always wakes it up (Mobile & Desktop)
+			document.addEventListener('scroll', wakeUp, { passive: true });
 
-		// 2. Mouse Proximity Wake-up (Desktop)
-		document.addEventListener('mousemove', function (e) {
-			if (!fabContainer) return;
+			// 2. Mouse Proximity Wake-up (Desktop)
+			document.addEventListener('mousemove', function (e) {
+				if (!fabContainer) return;
 
-			// If already awake and timer running, no need to calc distance constantly
-			// But we need to keep it awake if near.
-			// Let's check distance.
+				// If already awake and timer running, no need to calc distance constantly
+				// But we need to keep it awake if near.
+				// Let's check distance.
 
-			const rect = fabContainer.getBoundingClientRect();
-			// Distance to the closest edge of the box
-			const x = e.clientX;
-			const y = e.clientY;
+				const rect = fabContainer.getBoundingClientRect();
+				// Distance to the closest edge of the box
+				const x = e.clientX;
+				const y = e.clientY;
 
-			// Simple distance to center or edges? Edges is better.
-			// Since it's bottom-right fixed:
-			// Box is from rect.left to rect.right, rect.top to rect.bottom
+				// Simple distance to center or edges? Edges is better.
+				// Since it's bottom-right fixed:
+				// Box is from rect.left to rect.right, rect.top to rect.bottom
 
-			// Calculate distance to element rectangle
-			const dx = Math.max(rect.left - x, 0, x - rect.right);
-			const dy = Math.max(rect.top - y, 0, y - rect.bottom);
-			const distance = Math.sqrt(dx * dx + dy * dy);
+				// Calculate distance to element rectangle
+				const dx = Math.max(rect.left - x, 0, x - rect.right);
+				const dy = Math.max(rect.top - y, 0, y - rect.bottom);
+				const distance = Math.sqrt(dx * dx + dy * dy);
 
-			// Threshold (150px seems reasonable)
-			if (distance < 150) {
-				wakeUp();
-			}
-		}, { passive: true });
+				// Threshold (150px seems reasonable)
+				if (distance < 150) {
+					wakeUp();
+				}
+			}, { passive: true });
 
-		// Removed: click, keypress, touchmove (unless scroll) to avoid unwanted wakeups
+			// Removed: click, keypress, touchmove (unless scroll) to avoid unwanted wakeups
 
 
-	</script>
-</body>
+		</script>
+	</body>
 
 
 </html>
