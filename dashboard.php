@@ -108,13 +108,14 @@ if (is_logged_in() && !has_security_word_set(get_current_user_id())) {
                     style="background: #fff; border: 1px solid #ccc; font-size: 13px; font-weight: bold; cursor: pointer; color: #333; padding: 4px 10px; border-radius: 4px; box-shadow: 1px 1px 0 rgba(0,0,0,0.1);"
                     title="Minimize">Hide</button>
             </div>
-            <p>Welcome to <strong>Notebook-BAR v1.2</strong>! Latest improvements:</p>
+            <p>Welcome to <strong>Notebook-BAR v1.3</strong>! Latest improvements:</p>
             <ul style="padding-left: 20px; line-height: 1.6;">
-                <li>⚡ <strong>Instant Pagination:</strong> Navigate pages instantly without reloads.</li>
-                <li>📝 <strong>Enhanced Editor:</strong> 1,800 characters per page, Tab key support, and live word/char
-                    counts.</li>
-                <li>💾 <strong>Smart Saving:</strong> Single-click "Save All" for multi-page notes.</li>
-                <li>📌 <strong>Organized Workflow:</strong> Move pinning to View Mode and focus on editing.</li>
+                <li>🔧 <strong>System Upgrade:</strong> Complete database schema refactoring for better performance and
+                    stability.</li>
+                <li>👤 <strong>Guest Mode Fixed:</strong> Resolved issues with opening and saving notes in Guest Mode.
+                </li>
+                <li>🐞 <strong>Bug Fixes:</strong> Fixed pinning issue that caused duplicate notes.</li>
+                <li>🔒 <strong>Security:</strong> Enhanced user validation and session handling.</li>
             </ul>
         </div>
 

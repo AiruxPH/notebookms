@@ -48,6 +48,10 @@
 					Notebook-BAR combines the tactile feel of an old-school journal with the power of modern
 					database storage.
 				</p>
+				<div style="margin-top: 20px;">
+					<a href="changelog.php" class="btn btn-secondary" style="border: 1px solid #ccc;">📜 View
+						Patchlog</a>
+				</div>
 			</div>
 
 			<hr style="border: 0; border-top: 1px dashed #999; margin: 30px 0;">
