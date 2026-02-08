@@ -283,8 +283,9 @@ $categories = get_categories();
                             $cid = $c['category_id'];
                             $cname = htmlspecialchars($c['name']);
                             $ccolor = htmlspecialchars($c['color']);
-                            // Logic: user_id 0 means default/system category
-                            $is_default = ($c['user_id'] == 0);
+                            // Logic: user_id 0 and NUMERIC ID means system default.
+                            // Guest custom cats have IDs like 'g_0' which are strings.
+                            $is_default = ($c['user_id'] == 0 && is_numeric($cid));
                             ?>
                             <div class="category-item-container">
                                 <div class="category-row" id="row-<?php echo $cid; ?>">

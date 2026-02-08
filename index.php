@@ -109,7 +109,7 @@ if (is_admin()) {
 								$defaults = [];
 								$custom = [];
 								foreach ($all_cats as $c) {
-									if ($c['user_id'] == 0) {
+									if ($c['user_id'] == 0 && is_numeric($c['category_id'])) {
 										$defaults[] = $c;
 									} else {
 										$custom[] = $c;
