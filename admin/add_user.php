@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $error = "Username and Password are required.";
     } else {
         // Check if username exists
-        $check = mysqli_query($conn, "SELECT id FROM users WHERE username = '$username'");
+        $check = mysqli_query($conn, "SELECT user_id FROM users WHERE username = '$username'");
         if (mysqli_num_rows($check) > 0) {
             $error = "Username already exists.";
         } else {

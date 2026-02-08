@@ -31,17 +31,17 @@ if ($source['role'] === 'admin' || $target['role'] === 'admin') {
     exit();
 }
 
-if ($source['id'] == $target['id']) {
+if ($source['user_id'] == $target['user_id']) {
     echo json_encode(['success' => false, 'message' => 'Source and target must be different.']);
     exit();
 }
 
 // Get counts for victory message
-$summary = get_user_migration_summary($source['id']);
+$summary = get_user_migration_summary($source['user_id']);
 $note_count = $summary['note_count'];
 $cat_count = $summary['category_count'];
 
-if (migrate_user_data($source['id'], $target['id'])) {
+if (migrate_user_data($source['user_id'], $target['user_id'])) {
     echo json_encode([
         'success' => true,
         'message' => "Successfully moved $note_count notes and $cat_count categories!",
