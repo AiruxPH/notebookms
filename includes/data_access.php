@@ -448,10 +448,14 @@ function get_categories()
             $categories[] = $row;
         }
     } else {
-        // Guest: Just defaults + Maybe session-based custom?
-        $categories = $defaults;
+        // Guest: Fetch Defaults (user_id=0) from DB to stay in sync
+        $sql = "SELECT * FROM categories WHERE user_id = 0 ORDER BY category_id ASC";
+        $result = mysqli_query($conn, $sql);
+        while ($row = mysqli_fetch_assoc($result)) {
+            $categories[] = $row;
+        }
 
-        // Basic session support for guest categories
+        // Basic session support for guest categories (custom ones)
         if (isset($_SESSION['guest_cats'])) {
             foreach ($_SESSION['guest_cats'] as $i => $c) {
                 // Assign a temp ID for guest custom cats
