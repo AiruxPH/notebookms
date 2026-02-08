@@ -895,3 +895,62 @@ a.note-add-card:hover {
 .fab-btn:hover .fab-label {
 	opacity: 1;
 }
+/* Floating Pagination Bar (Edit Mode) */
+.floating-pagination {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    padding: 8px 15px;
+    border-radius: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 999;
+    border: 1px solid rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.floating-pagination:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    transform: translateX(-50%) translateY(-2px);
+}
+
+.floating-pagination .page-btn {
+    border: none;
+    background: transparent;
+    padding: 8px;
+    border-radius: 50%;
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.floating-pagination .page-btn:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+.floating-pagination .page-indicator {
+    font-size: 13px;
+    background: rgba(0,0,0,0.05);
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* Adjust mobile layout to not overlap with FAB */
+@media (max-width: 768px) {
+    .floating-pagination {
+        bottom: 20px;
+        /* Make it smaller or stack if needed */
+        padding: 5px 10px;
+        width: auto;
+        max-width: 90%;
+        overflow-x: auto;
+    }
+}
