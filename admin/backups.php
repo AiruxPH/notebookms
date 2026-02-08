@@ -36,6 +36,27 @@ if (isset($_POST['create_backup'])) {
     exit();
 }
 
+// Handle Download Action (Serves file via PHP to bypass .htaccess)
+if (isset($_GET['download'])) {
+    $file = basename($_GET['download']);
+    $path = $backup_dir . $file;
+    if (file_exists($path)) {
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($path) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($path));
+        readfile($path);
+        exit;
+    } else {
+        $_SESSION['flash'] = ['message' => "File not found.", 'type' => 'error'];
+        header("Location: backups.php");
+        exit();
+    }
+}
+
 // List Files
 $files = [];
 if (file_exists($backup_dir)) {
@@ -121,7 +142,7 @@ usort($files, function ($a, $b) {
                                 <td
                                     style="padding: 10px; text-align: right; display: flex; justify-content: flex-end; gap: 5px;">
                                     <!-- Download -->
-                                    <a href="backups/<?php echo $f['name']; ?>" download class="btn btn-sm btn-secondary"
+                                    <a href="?download=<?php echo $f['name']; ?>" class="btn btn-sm btn-secondary"
                                         title="Download SQL">
                                         <i class="fa-solid fa-download"></i> DL
                                     </a>
