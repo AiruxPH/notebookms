@@ -148,7 +148,12 @@ if (!is_admin()) {
                     <p style="margin: 5px 0 0; color: #666;">Total Users: <strong><?php echo $total_users; ?></strong>
                     </p>
                 </div>
-                <a href="add_user.php" class="btn btn-primary">+ Add New User</a>
+                <div>
+                    <a href="backups.php" class="btn btn-secondary"
+                        style="margin-right: 10px; border: 1px solid #ccc;"><i class="fa-solid fa-database"></i> Backup
+                        Manager</a>
+                    <a href="add_user.php" class="btn btn-primary">+ Add New User</a>
+                </div>
             </div>
 
             <!-- Migration Utility -->
