@@ -247,8 +247,7 @@ $categories = get_categories();
                         <form method="post" id="add-cat-form">
                             <input type="hidden" name="action_cat" value="add">
                             <div style="margin-bottom: 15px;">
-                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Name (Max
-                                    50):</label>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Name:</label>
                                 <div>
                                     <input type="text" name="cat_name" placeholder="Category Name (Max 30 chars)"
                                         required maxlength="30"
