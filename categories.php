@@ -255,7 +255,7 @@ $categories = get_categories();
                                 </div>
                             </div>
                             <div style="margin-bottom: 15px;">
-                                <label style="display: block; font-weight: bold;">Select Color (Hue Only):</label>
+                                <label style="display: block; font-weight: bold;">Select Color <br> (Hue Only):</label>
                                 <div class="hue-picker-container">
                                     <div class="color-preview-box">
                                         <div id="add-preview" class="preview-circle"></div>
