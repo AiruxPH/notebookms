@@ -24,7 +24,7 @@ CSIT601 preliminary exam requirement
   This allow the users to apply basic text formatting makes notes more readable and allows the user to bring more emphasis to certain parts.
 
 ## To-do
-### See what's causing error 500 during registration
+### ---
 
 ## To-do (Done)
 ### Placement of stats of note cards, like time stamps (done)
@@ -36,6 +36,7 @@ CSIT601 preliminary exam requirement
 ### Re-do the database design, trim unnecesary tables and columns (done)
 ### Admin and admin panel, user will have a "privilege" column denoting their admin access (done)
 ### Making the test folder official(done)
+### See what's causing error 500 during registration
 
 ## Notes
 ### Add a "delete permanent" button for archived notes (done)
