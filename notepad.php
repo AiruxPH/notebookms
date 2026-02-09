@@ -148,6 +148,11 @@ if (isset($_SESSION['flash'])) {
 	<link rel="icon" href="favicon.png" type="image/png">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<title><?php echo $ntitle ? htmlspecialchars($ntitle) : "New Note"; ?> - Notebook</title>
+	<style>
+		#view-content img	{
+			max-width: 90%;
+		}
+	</style>
 </head>
 
 <body>
@@ -936,6 +941,7 @@ if (isset($_SESSION['flash'])) {
 
 		</script>
 	</body>
+
 
 
 </html>
