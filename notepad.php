@@ -149,7 +149,7 @@ if (isset($_SESSION['flash'])) {
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<title><?php echo $ntitle ? htmlspecialchars($ntitle) : "New Note"; ?> - Notebook</title>
 	<style>
-		#view-content img	{
+		#view-content img, #editor img	{
 			max-width: 90%;
 		}
 	</style>
@@ -945,3 +945,4 @@ if (isset($_SESSION['flash'])) {
 
 
 </html>
+
